@@ -77,7 +77,8 @@ fun TodoScreen(
                             Text(
                                 text = todo.date.format(dateFormatter),
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.primary
                             )
                             Text(
                                 text = todo.title,
