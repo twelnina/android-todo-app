@@ -15,10 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ToDoAppTheme {
-                TodoScreen(
-                    modifier = Modifier
-                        .fillMaxSize()
-                )
+                TodoScreen()
             }
         }
     }

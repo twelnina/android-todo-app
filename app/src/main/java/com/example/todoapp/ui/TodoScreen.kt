@@ -36,7 +36,6 @@ import java.util.Locale
 
 @Composable
 fun TodoScreen(
-    modifier: Modifier = Modifier,
     viewModel: TodoViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -61,7 +60,7 @@ fun TodoScreen(
         },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
-        Box(modifier = modifier.padding(innerPadding)) {
+        Box(modifier = Modifier.padding(innerPadding)) {
             LazyColumn(
                 modifier = Modifier.padding(8.dp)
             ) {
