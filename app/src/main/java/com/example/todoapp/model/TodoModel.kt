@@ -12,6 +12,7 @@ enum class TodoTag(val color: Color) {
 }
 
 data class TodoModel(
+    val id: Int,
     val title: String,
     val detail: String,
     val date: LocalDate,

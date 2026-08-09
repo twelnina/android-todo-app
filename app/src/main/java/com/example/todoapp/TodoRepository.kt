@@ -15,6 +15,9 @@ class TodoRepository(
     suspend fun delete(todoItem: TodoItem) {
         todoDao.delete(todoItem)
     }
+    fun getAllItems() : Flow<List<TodoItem>> {
+        return todoDao.getAllItem()
+    }
     fun getItemsByTag(tag: TodoTag) : Flow<List<TodoItem>> {
         return todoDao.getItemByTag(tag)
     }
