@@ -74,7 +74,7 @@ fun TodoScreen(
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Text(
-                                text = todo.date.format(dateFormatter),
+                                text = todo.targetDate.format(dateFormatter),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.primary
@@ -84,7 +84,7 @@ fun TodoScreen(
                                 fontSize = 24.sp
                             )
                             Text(
-                                text = todo.detail,
+                                text = todo.description,
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
