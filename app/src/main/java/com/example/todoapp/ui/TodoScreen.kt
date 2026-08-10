@@ -36,6 +36,7 @@ import java.util.Locale
 
 @Composable
 fun TodoScreen(
+    onAddTodo: () -> Unit,
     viewModel: TodoViewModel = viewModel(factory = TodoViewModel.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -49,7 +50,7 @@ fun TodoScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {},
+                onClick = onAddTodo,
                 modifier = Modifier.navigationBarsPadding()
             ) {
                 Icon(
@@ -122,7 +123,7 @@ fun TodoScreen(
 @Composable
 fun TodoScreenLightPreview() {
     ToDoAppTheme(darkTheme = false) {
-        TodoScreen()
+        TodoScreen(onAddTodo = {})
     }
 }
 
@@ -130,6 +131,6 @@ fun TodoScreenLightPreview() {
 @Composable
 fun TodoScreenDarkPreview() {
     ToDoAppTheme(darkTheme = true) {
-        TodoScreen()
+        TodoScreen(onAddTodo = {})
     }
 }
