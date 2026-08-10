@@ -1,4 +1,4 @@
-package com.example.todoapp.ui
+package com.example.todoapp.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,12 +30,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
-import com.example.todoapp.ui.theme.ToDoAppTheme
+import com.example.todoapp.ui.components.TodoSearchBar
+import com.example.todoapp.ui.theme.TodoAppTheme
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
-fun TodoScreen(
+fun TodoHomeScreen(
     onAddTodo: () -> Unit,
     viewModel: TodoViewModel = viewModel(factory = TodoViewModel.Factory)
 ) {
@@ -65,7 +66,7 @@ fun TodoScreen(
             LazyColumn(
                 modifier = Modifier.padding(8.dp)
             ) {
-                items(uiState.todoItems) { todo ->
+                items(uiState.todoEntities) { todo ->
                     Row(
                         modifier = Modifier.padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -121,16 +122,16 @@ fun TodoScreen(
 
 @Preview
 @Composable
-fun TodoScreenLightPreview() {
-    ToDoAppTheme(darkTheme = false) {
-        TodoScreen(onAddTodo = {})
+fun TodoHomeScreenLightPreview() {
+    TodoAppTheme(darkTheme = false) {
+        TodoHomeScreen(onAddTodo = {})
     }
 }
 
 @Preview
 @Composable
-fun TodoScreenDarkPreview() {
-    ToDoAppTheme(darkTheme = true) {
-        TodoScreen(onAddTodo = {})
+fun TodoHomeScreenDarkPreview() {
+    TodoAppTheme(darkTheme = true) {
+        TodoHomeScreen(onAddTodo = {})
     }
 }

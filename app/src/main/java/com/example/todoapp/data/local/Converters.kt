@@ -1,9 +1,9 @@
-package com.example.todoapp
+package com.example.todoapp.data.local
 
 import androidx.room.TypeConverter
 import java.time.LocalDate
 
-class TodoTypeConverters {
+class Converters {
     @TypeConverter
     fun fromLocalDate(date: LocalDate?): String? {
         return date?.toString()

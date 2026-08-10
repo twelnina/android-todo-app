@@ -1,4 +1,4 @@
-package com.example.todoapp
+package com.example.todoapp.data.local
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -11,17 +11,17 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TodoDao {
     @Insert
-    suspend fun insert(todoItem: TodoItem)
+    suspend fun insert(todoEntity: TodoEntity)
 
     @Update
-    suspend fun update(todoItem: TodoItem)
+    suspend fun update(todoEntity: TodoEntity)
 
     @Delete
-    suspend fun delete(todoItem: TodoItem)
+    suspend fun delete(todoEntity: TodoEntity)
 
     @Query("SELECT * FROM todo_items ORDER BY targetDate")
-    fun getAllItem(): Flow<List<TodoItem>>
+    fun getAllItem(): Flow<List<TodoEntity>>
 
     @Query("SELECT * FROM todo_items WHERE label = :tag")
-    fun getItemByTag(tag: TodoTag): Flow<List<TodoItem>>
+    fun getItemByTag(tag: TodoTag): Flow<List<TodoEntity>>
 }

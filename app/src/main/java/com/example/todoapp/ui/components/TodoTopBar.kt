@@ -1,4 +1,4 @@
-package com.example.todoapp.ui
+package com.example.todoapp.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.todoapp.R
-import com.example.todoapp.ui.theme.ToDoAppTheme
+import com.example.todoapp.ui.theme.TodoAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +58,7 @@ fun TodoSearchBar(
 @Preview
 @Composable
 fun TodoSearchBarPreview() {
-    ToDoAppTheme(darkTheme = true) {
+    TodoAppTheme(darkTheme = true) {
         TodoSearchBar(
             query = "",
             onQueryChange = {}

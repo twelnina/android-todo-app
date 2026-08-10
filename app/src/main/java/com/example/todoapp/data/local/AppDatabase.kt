@@ -1,15 +1,15 @@
-package com.example.todoapp
+package com.example.todoapp.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(
-    entities = [TodoItem::class],
+    entities = [TodoEntity::class],
     version = 1,
     exportSchema = false
 )
-@TypeConverters(TodoTypeConverters::class)
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDao
 }
