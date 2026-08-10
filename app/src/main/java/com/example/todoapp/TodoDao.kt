@@ -19,7 +19,7 @@ interface TodoDao {
     @Delete
     suspend fun delete(todoItem: TodoItem)
 
-    @Query("SELECT * FROM todo_items ORDER BY date")
+    @Query("SELECT * FROM todo_items ORDER BY targetDate")
     fun getAllItem(): Flow<List<TodoItem>>
 
     @Query("SELECT * FROM todo_items WHERE label = :tag")
