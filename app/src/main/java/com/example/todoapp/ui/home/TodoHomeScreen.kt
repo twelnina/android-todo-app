@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -31,9 +32,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
+import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TodoSearchBar
 import com.example.todoapp.ui.theme.TodoAppTheme
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -108,6 +111,7 @@ private fun TodoHomeScreenContent(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+                        Spacer(modifier = Modifier.padding(horizontal = 8.dp))
                         todo.tag?.let { tag ->
                             TodoTagChip(tag = tag)
                         }
@@ -144,16 +148,49 @@ private fun TodoTagChip(tag: TodoTag, modifier: Modifier = Modifier) {
 }
 
 
+private val previewUiState = TodoHomeUiState(
+    todoEntities = listOf(
+        TodoEntity(
+            id = 1,
+            title = "Grocery Shopping",
+            description = "Visit the local farmers market to pick up fresh seasonal vegetables, organic fruits, and the special sourdough bread that the whole family loves for Sunday brunch.",
+            targetDate = LocalDate.now(),
+            tag = TodoTag.SHOPPING
+        ),
+        TodoEntity(
+            id = 2,
+            title = "Advanced Mathematics",
+            description = "Finish the remaining exercises in Chapter 5, then start reviewing the key concepts and formulas in Chapter 6 to prepare for the upcoming midterm exam next Wednesday.",
+            targetDate = LocalDate.now().plusDays(1),
+            tag = TodoTag.STUDY
+        ),
+        TodoEntity(
+            id = 3,
+            title = "Fitness Routine",
+            description = "Wake up early at 6 AM for a refreshing 5km run through the central park, followed by a ten-minute cool-down stretch and a healthy, protein-packed breakfast at home.",
+            targetDate = LocalDate.now().plusDays(7),
+            tag = TodoTag.HEALTH
+        ),
+        TodoEntity(
+            id = 4,
+            title = "Project Planning",
+            description = "Go through all active projects, check upcoming deadlines, organize tasks for next week, and update the team on the migration progress. Don't forget to review the feedback from the last meeting.",
+            targetDate = LocalDate.now().plusDays(20),
+            tag = TodoTag.WORK
+        )
+    )
+)
+
 @Preview
 @Composable
 fun TodoHomeScreenLightPreview() {
     TodoAppTheme(darkTheme = false) {
         TodoHomeScreenContent(
-            uiState = TodoHomeUiState(),
+            uiState = previewUiState,
             onAddTodo = {},
             onQueryChange = {},
 
-        )
+            )
     }
 }
 
@@ -162,7 +199,7 @@ fun TodoHomeScreenLightPreview() {
 fun TodoHomeScreenDarkPreview() {
     TodoAppTheme(darkTheme = true) {
         TodoHomeScreenContent(
-            uiState = TodoHomeUiState(),
+            uiState = previewUiState,
             onAddTodo = {},
             onQueryChange = {}
         )
