@@ -20,17 +20,15 @@ class TodoEntryViewModel(
 
     fun onTitleChange(newTitle: String) {
         _uiState.update { currentState ->
-            currentState.copy(
-                title = newTitle
-            )
+            currentState.copy(title = newTitle)
+                .let { it.copy(isEntryValid = isValid(it)) }
         }
     }
 
     fun onDescriptionChange(newDescription: String) {
         _uiState.update { currentState ->
-            currentState.copy(
-                description = newDescription
-            )
+            currentState.copy(description = newDescription)
+                .let { it.copy(isEntryValid = isValid(it)) }
         }
     }
 
@@ -49,6 +47,9 @@ class TodoEntryViewModel(
             )
         }
     }
+
+    private fun isValid(state: TodoEntryUiState) =
+        state.title.isNotBlank() && state.description.isNotBlank()
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {

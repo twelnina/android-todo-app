@@ -128,6 +128,7 @@ fun TodoEntryScreenContent(
 
             Button(
                 onClick = {},
+                enabled = uiState.isEntryValid,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Done")
