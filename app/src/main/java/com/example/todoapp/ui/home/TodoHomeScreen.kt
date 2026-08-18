@@ -3,8 +3,8 @@ package com.example.todoapp.ui.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -81,46 +81,51 @@ private fun TodoHomeScreenContent(
         },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            LazyColumn(
-                modifier = Modifier.padding(8.dp)
-            ) {
-                items(uiState.todoEntities) { todo ->
-                    Row(
-                        modifier = Modifier.padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+        LazyColumn(
+            contentPadding = PaddingValues(
+                bottom = innerPadding.calculateBottomPadding() + 80.dp,
+                start = 8.dp,
+                end = 8.dp
+            ),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = innerPadding.calculateTopPadding() + 8.dp)
+        ) {
+            items(uiState.todoEntities) { todo ->
+                Row(
+                    modifier = Modifier.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(
-                                text = todo.targetDate?.format(dateFormatter)
-                                    ?: stringResource(R.string.no_date),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Text(
-                                text = todo.title,
-                                fontSize = 24.sp
-                            )
-                            Text(
-                                text = todo.description,
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                        todo.tag?.let { tag ->
-                            TodoTagChip(tag = tag)
-                        }
+                        Text(
+                            text = todo.targetDate?.format(dateFormatter)
+                                ?: stringResource(R.string.no_date),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = todo.title,
+                            fontSize = 24.sp
+                        )
+                        Text(
+                            text = todo.description,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
-                    HorizontalDivider(
-                        thickness = 0.5.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant
-                    )
+                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+                    todo.tag?.let { tag ->
+                        TodoTagChip(tag = tag)
+                    }
                 }
+                HorizontalDivider(
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
             }
         }
     }
