@@ -68,7 +68,7 @@ fun TodoEntryScreen(
 }
 
 @Composable
-fun TodoEntryScreenContent(
+private fun TodoEntryScreenContent(
     uiState: TodoEntryUiState,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,

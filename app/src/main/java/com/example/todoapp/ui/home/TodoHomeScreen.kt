@@ -43,12 +43,26 @@ fun TodoHomeScreen(
     viewModel: TodoHomeViewModel = viewModel(factory = TodoHomeViewModel.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    TodoHomeScreenContent(
+        uiState = uiState,
+        onQueryChange = viewModel::onQueryChange,
+        onAddTodo = onAddTodo
+    )
+}
+
+@Composable
+private fun TodoHomeScreenContent(
+    uiState: TodoHomeUiState,
+    onQueryChange: (String) -> Unit,
+    onAddTodo: () -> Unit,
+) {
     val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH)
     Scaffold(
         topBar = {
             TodoSearchBar(
                 query = uiState.searchQuery,
-                onQueryChange = { viewModel.onQueryChange(it) }
+                onQueryChange = onQueryChange
             )
         },
         floatingActionButton = {
@@ -134,7 +148,12 @@ private fun TodoTagChip(tag: TodoTag, modifier: Modifier = Modifier) {
 @Composable
 fun TodoHomeScreenLightPreview() {
     TodoAppTheme(darkTheme = false) {
-        TodoHomeScreen(onAddTodo = {})
+        TodoHomeScreenContent(
+            uiState = TodoHomeUiState(),
+            onAddTodo = {},
+            onQueryChange = {},
+
+        )
     }
 }
 
@@ -142,6 +161,10 @@ fun TodoHomeScreenLightPreview() {
 @Composable
 fun TodoHomeScreenDarkPreview() {
     TodoAppTheme(darkTheme = true) {
-        TodoHomeScreen(onAddTodo = {})
+        TodoHomeScreenContent(
+            uiState = TodoHomeUiState(),
+            onAddTodo = {},
+            onQueryChange = {}
+        )
     }
 }
