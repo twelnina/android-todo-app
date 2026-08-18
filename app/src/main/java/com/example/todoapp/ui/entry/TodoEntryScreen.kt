@@ -62,18 +62,20 @@ fun TodoEntryScreen(
         onDescriptionChange = viewModel::onDescriptionChange,
         onTargetDateChange = viewModel::onTargetDateChange,
         onTagChange = viewModel::onTagChange,
+        onDone = { viewModel.saveTodo(onSaved = onBack) },
         onBack = onBack
     )
 }
 
 @Composable
 fun TodoEntryScreenContent(
-    onBack: () -> Unit,
     uiState: TodoEntryUiState,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onTargetDateChange: (Long?) -> Unit,
     onTagChange: (TodoTag) -> Unit,
+    onDone: () -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -122,16 +124,16 @@ fun TodoEntryScreenContent(
             )
             TagSelector(
                 onTagChange = onTagChange,
-                selectedTag = uiState.label,
+                selectedTag = uiState.tag,
                 modifier = Modifier.fillMaxWidth()
             )
 
             Button(
-                onClick = {},
+                onClick = onDone,
                 enabled = uiState.isEntryValid,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Done")
+                Text(stringResource(R.string.done))
             }
 
         }
@@ -247,15 +249,16 @@ private fun TagSelector(
 @Preview
 @Composable
 fun TodoEntryScreenContentLightPreview() {
-    val previewUiState = TodoEntryUiState(label = TodoTag.STUDY)
+    val previewUiState = TodoEntryUiState(tag = TodoTag.STUDY)
     TodoAppTheme(darkTheme = false) {
         TodoEntryScreenContent(
-            onBack = {},
             uiState = previewUiState,
             onTitleChange = {},
             onDescriptionChange = {},
             onTargetDateChange = {},
-            onTagChange = {}
+            onTagChange = {},
+            onDone = {},
+            onBack = {},
         )
     }
 }
@@ -263,15 +266,16 @@ fun TodoEntryScreenContentLightPreview() {
 @Preview
 @Composable
 fun TodoEntryScreenContentDarkPreview() {
-    val previewUiState = TodoEntryUiState(label = TodoTag.STUDY)
+    val previewUiState = TodoEntryUiState(tag = TodoTag.STUDY)
     TodoAppTheme(darkTheme = true) {
         TodoEntryScreenContent(
-            onBack = {},
             uiState = previewUiState,
             onTitleChange = {},
             onDescriptionChange = {},
             onTargetDateChange = {},
-            onTagChange = {}
+            onTagChange = {},
+            onDone = {},
+            onBack = {},
         )
     }
 }

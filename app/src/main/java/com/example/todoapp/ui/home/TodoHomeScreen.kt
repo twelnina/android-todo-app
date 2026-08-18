@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
+import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TodoSearchBar
 import com.example.todoapp.ui.theme.TodoAppTheme
 import java.time.format.DateTimeFormatter
@@ -76,7 +78,8 @@ fun TodoHomeScreen(
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Text(
-                                text = todo.targetDate.format(dateFormatter),
+                                text = todo.targetDate?.format(dateFormatter)
+                                    ?: stringResource(R.string.no_date),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.primary
@@ -91,23 +94,9 @@ fun TodoHomeScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        Text(
-                            text = todo.label.name,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = todo.label.color,
-                            modifier = Modifier
-                                .background(
-                                    color = todo.label.color.copy(alpha = 0.1f),
-                                    shape = RoundedCornerShape(16.dp)
-                                )
-                                .border(
-                                    width = 1.dp,
-                                    color = todo.label.color.copy(0.5f),
-                                    shape = RoundedCornerShape(16.dp)
-                                )
-                                .padding(horizontal = 8.dp, vertical = 2.dp)
-                        )
+                        todo.tag?.let { tag ->
+                            TodoTagChip(tag = tag)
+                        }
                     }
                     HorizontalDivider(
                         thickness = 0.5.dp,
@@ -117,6 +106,27 @@ fun TodoHomeScreen(
             }
         }
     }
+}
+
+@Composable
+private fun TodoTagChip(tag: TodoTag, modifier: Modifier = Modifier) {
+    Text(
+        text = tag.name,
+        fontSize = 10.sp,
+        fontWeight = FontWeight.Bold,
+        color = tag.color,
+        modifier = modifier
+            .background(
+                color = tag.color.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .border(
+                width = 1.dp,
+                color = tag.color.copy(0.5f),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .padding(horizontal = 8.dp, vertical = 2.dp)
+    )
 }
 
 

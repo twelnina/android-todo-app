@@ -6,6 +6,6 @@ data class TodoEntryUiState(
     val title: String = "",
     val description: String = "",
     val targetDate: Long? = null,
-    val label: TodoTag? = null,
+    val tag: TodoTag? = null,
     val isEntryValid: Boolean = false
 )

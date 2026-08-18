@@ -5,7 +5,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.example.todoapp.model.TodoTag
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -21,7 +20,4 @@ interface TodoDao {
 
     @Query("SELECT * FROM todo_items ORDER BY targetDate")
     fun getAllItem(): Flow<List<TodoEntity>>
-
-    @Query("SELECT * FROM todo_items WHERE label = :tag")
-    fun getItemByTag(tag: TodoTag): Flow<List<TodoEntity>>
 }

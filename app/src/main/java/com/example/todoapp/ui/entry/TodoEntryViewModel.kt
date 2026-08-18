@@ -2,15 +2,20 @@ package com.example.todoapp.ui.entry
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.todoapp.TodoApplication
+import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.data.repository.TodoRepository
 import com.example.todoapp.model.TodoTag
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneOffset
 
 class TodoEntryViewModel(
     private val todoRepository: TodoRepository
@@ -43,10 +48,29 @@ class TodoEntryViewModel(
     fun onTagChange(newTag: TodoTag) {
         _uiState.update { currentState ->
             currentState.copy(
-                label = if (currentState.label == newTag) null else newTag
+                tag = if (currentState.tag == newTag) null else newTag
             )
         }
     }
+
+    fun saveTodo(onSaved: () -> Unit) {
+        viewModelScope.launch {
+            todoRepository.insert(
+                TodoEntity(
+                    title = uiState.value.title,
+                    description = uiState.value.description,
+                    targetDate = uiState.value.targetDate?.let { millis ->
+                        Instant.ofEpochMilli(millis)
+                            .atZone(ZoneOffset.UTC)
+                            .toLocalDate()
+                    },
+                    tag = uiState.value.tag
+                )
+            )
+            onSaved()
+        }
+    }
+
 
     private fun isValid(state: TodoEntryUiState) =
         state.title.isNotBlank() && state.description.isNotBlank()
