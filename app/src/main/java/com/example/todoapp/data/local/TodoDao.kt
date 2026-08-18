@@ -18,6 +18,6 @@ interface TodoDao {
     @Delete
     suspend fun delete(todoEntity: TodoEntity)
 
-    @Query("SELECT * FROM todo_items ORDER BY targetDate")
+    @Query("SELECT * FROM todo_items ORDER BY targetDate IS NULL ASC, targetDate ASC")
     fun getAllItem(): Flow<List<TodoEntity>>
 }
