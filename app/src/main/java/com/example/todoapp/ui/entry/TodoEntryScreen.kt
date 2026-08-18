@@ -2,11 +2,13 @@ package com.example.todoapp.ui.entry
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -17,9 +19,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
@@ -31,15 +35,45 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.theme.TodoAppTheme
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+
+@Composable
+fun TodoEntryScreen(
+    viewModel: TodoEntryViewModel = viewModel(factory = TodoEntryViewModel.Factory),
+    onBack: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    TodoEntryScreenContent(
+        uiState = uiState,
+        onTitleChange = viewModel::onTitleChange,
+        onDescriptionChange = viewModel::onDescriptionChange,
+        onTargetDateChange = viewModel::onTargetDateChange,
+        onTagChange = viewModel::onTagChange,
+        onBack = onBack
+    )
+}
 
 @Composable
 fun TodoEntryScreenContent(
     onBack: () -> Unit,
+    uiState: TodoEntryUiState,
+    onTitleChange: (String) -> Unit,
+    onDescriptionChange: (String) -> Unit,
+    onTargetDateChange: (Long?) -> Unit,
+    onTagChange: (TodoTag) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -67,29 +101,28 @@ fun TodoEntryScreenContent(
                 .fillMaxSize()
         ) {
             TextField(
-                value = "",
-                onValueChange = {},
-                label = {
-                    Text(text = stringResource(R.string.title))
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
+                value = uiState.title,
+                onValueChange = onTitleChange,
+                label = { Text(text = stringResource(R.string.title)) },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
             )
             TextField(
-                value = "",
-                onValueChange = {},
+                value = uiState.description,
+                onValueChange = onDescriptionChange,
                 label = { Text(text = stringResource(R.string.description)) },
                 minLines = 5,
                 modifier = Modifier.fillMaxWidth()
             )
             DateTextField(
-                onDateSelected = {},
-                onDismiss = {},
+                onDateSelected = onTargetDateChange,
+                selectedDate = uiState.targetDate,
                 modifier = Modifier.fillMaxWidth()
             )
             TagSelector(
-                selectedTag = TodoTag.STUDY,
-                onTagSelected = {},
+                onTagChange = onTagChange,
+                selectedTag = uiState.label,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -107,26 +140,55 @@ fun TodoEntryScreenContent(
 @Composable
 private fun DateTextField(
     onDateSelected: (Long?) -> Unit,
-    onDismiss: () -> Unit,
+    selectedDate: Long?,
     modifier: Modifier = Modifier
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
-    TextField(
-        value = "",
-        onValueChange = {},
-        readOnly = true,
-        label = { Text(stringResource(R.string.target_date)) },
-        trailingIcon = {
-            Icon(
-                painter = painterResource(R.drawable.calendar_today_24px),
-                contentDescription = null
-            )
-        },
-        modifier = modifier.clickable { showDatePicker = true }
-    )
+    val dateText = selectedDate?.let { millis ->
+        Instant
+            .ofEpochMilli(millis)
+            .atZone(ZoneOffset.UTC)
+            .toLocalDate()
+            .format(DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.getDefault()))
+    } ?: ""
+
+    Box(modifier = Modifier.clickable { showDatePicker = true }) {
+        TextField(
+            value = dateText,
+            onValueChange = { },
+            enabled = false,
+            readOnly = true,
+            label = { Text(stringResource(R.string.target_date)) },
+            trailingIcon = {
+                Icon(
+                    painter = painterResource(R.drawable.calendar_today_24px),
+                    contentDescription = null
+                )
+            },
+            colors = TextFieldDefaults.colors(
+                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledIndicatorColor = MaterialTheme.colorScheme.outline
+            ),
+            modifier = modifier,
+        )
+    }
 
     if (showDatePicker) {
-        val datePickerState = rememberDatePickerState()
+        val today = LocalDate.now()
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = selectedDate,
+            selectableDates = object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                    val date = Instant
+                        .ofEpochMilli(utcTimeMillis)
+                        .atZone(ZoneOffset.UTC)
+                        .toLocalDate()
+                    return date >= today
+                }
+            }
+        )
 
         DatePickerDialog(
             onDismissRequest = {
@@ -135,12 +197,12 @@ private fun DateTextField(
             confirmButton = {
                 TextButton(onClick = {
                     onDateSelected(datePickerState.selectedDateMillis)
-                    onDismiss()
+                    showDatePicker = false
                 }
                 ) { Text(stringResource(R.string.ok)) }
             },
             dismissButton = {
-                TextButton(onClick = onDismiss) {
+                TextButton(onClick = { showDatePicker = false }) {
                     Text(stringResource(R.string.cancel))
                 }
             }
@@ -152,8 +214,8 @@ private fun DateTextField(
 
 @Composable
 private fun TagSelector(
-    selectedTag: TodoTag,
-    onTagSelected: (TodoTag) -> Unit,
+    selectedTag: TodoTag?,
+    onTagChange: (TodoTag) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -162,20 +224,18 @@ private fun TagSelector(
             style = MaterialTheme.typography.titleSmall
         )
         FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
             TodoTag.entries.forEach { tag ->
                 FilterChip(
                     selected = selectedTag == tag,
-                    onClick = { onTagSelected(tag) },
+                    onClick = { onTagChange(tag) },
                     label = { Text(tag.name) },
                     leadingIcon = if (selectedTag == tag) {
                         { Icon(painterResource(R.drawable.check_24px), null) }
                     } else null,
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = tag.color
-                    )
+                    colors = FilterChipDefaults.filterChipColors(selectedContainerColor = tag.color)
                 )
             }
         }
@@ -186,15 +246,31 @@ private fun TagSelector(
 @Preview
 @Composable
 fun TodoEntryScreenContentLightPreview() {
+    val previewUiState = TodoEntryUiState(label = TodoTag.STUDY)
     TodoAppTheme(darkTheme = false) {
-        TodoEntryScreenContent(onBack = {})
+        TodoEntryScreenContent(
+            onBack = {},
+            uiState = previewUiState,
+            onTitleChange = {},
+            onDescriptionChange = {},
+            onTargetDateChange = {},
+            onTagChange = {}
+        )
     }
 }
 
 @Preview
 @Composable
 fun TodoEntryScreenContentDarkPreview() {
+    val previewUiState = TodoEntryUiState(label = TodoTag.STUDY)
     TodoAppTheme(darkTheme = true) {
-        TodoEntryScreenContent(onBack = {})
+        TodoEntryScreenContent(
+            onBack = {},
+            uiState = previewUiState,
+            onTitleChange = {},
+            onDescriptionChange = {},
+            onTargetDateChange = {},
+            onTagChange = {}
+        )
     }
 }

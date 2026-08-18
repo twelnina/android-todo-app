@@ -38,7 +38,7 @@ import java.util.Locale
 @Composable
 fun TodoHomeScreen(
     onAddTodo: () -> Unit,
-    viewModel: TodoViewModel = viewModel(factory = TodoViewModel.Factory)
+    viewModel: TodoHomeViewModel = viewModel(factory = TodoHomeViewModel.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH)

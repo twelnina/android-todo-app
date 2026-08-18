@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import com.example.todoapp.ui.entry.TodoEntryScreenContent
+import com.example.todoapp.ui.entry.TodoEntryScreen
 import com.example.todoapp.ui.home.TodoHomeScreen
 import com.example.todoapp.ui.navigation.AppNavKey
 import com.example.todoapp.ui.theme.TodoAppTheme
@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
                             TodoHomeScreen(onAddTodo = { backStack.add(AppNavKey.AddTodo) })
                         }
                         entry<AppNavKey.AddTodo> {
-                            TodoEntryScreenContent(onBack = { backStack.removeLastOrNull() })
+                            TodoEntryScreen(onBack = { backStack.removeLastOrNull() })
                         }
                     }
                 )

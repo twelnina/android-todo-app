@@ -12,32 +12,29 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 
-class TodoViewModel(
+class TodoHomeViewModel(
     private val todoRepository: TodoRepository
 ) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
 
-    private val _uiState = MutableStateFlow(TodoUiState())
-    val uiState: StateFlow<TodoUiState> = combine(
+    private val _uiState = MutableStateFlow(TodoHomeUiState())
+    val uiState: StateFlow<TodoHomeUiState> = combine(
         todoRepository.getAllItems(),
         _searchQuery
     ) { items, query ->
-        TodoUiState(
+        TodoHomeUiState(
             searchQuery = query,
             todoEntities = items.filter { it.title.contains(query, ignoreCase = true) }
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = TodoUiState()
+        initialValue = TodoHomeUiState()
     )
 
     fun onQueryChange(newQuery: String) {
-        _uiState.update { currentState ->
-            currentState.copy(searchQuery = newQuery)
-        }
+        _searchQuery.value = newQuery
     }
 
     companion object {
@@ -46,7 +43,7 @@ class TodoViewModel(
                 val application =
                     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as TodoApplication)
                 val repository = application.repository
-                TodoViewModel(todoRepository = repository)
+                TodoHomeViewModel(todoRepository = repository)
             }
         }
     }
