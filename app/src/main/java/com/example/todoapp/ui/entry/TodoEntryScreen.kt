@@ -238,7 +238,9 @@ private fun TagSelector(
                     leadingIcon = if (selectedTag == tag) {
                         { Icon(painterResource(R.drawable.check_24px), null) }
                     } else null,
-                    colors = FilterChipDefaults.filterChipColors(selectedContainerColor = tag.color)
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = tag.color.copy(alpha = 0.2f)
+                    )
                 )
             }
         }
