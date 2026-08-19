@@ -7,26 +7,38 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.todoapp.TodoApplication
 import com.example.todoapp.data.repository.TodoRepository
+import com.example.todoapp.model.TodoTag
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 
 class TodoHomeViewModel(
     private val todoRepository: TodoRepository
 ) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
+    private val _selectedTags = MutableStateFlow<Set<TodoTag>>(emptySet())
 
     val uiState: StateFlow<TodoHomeUiState> = combine(
         todoRepository.getAllItems(),
-        _searchQuery
-    ) { items, query ->
+        _searchQuery,
+        _selectedTags
+    ) { items, query, selectedTags ->
         TodoHomeUiState(
             searchQuery = query,
-            todoEntities = items.filter {
-                it.title.contains(query, ignoreCase = true) ||
-                        it.description.contains(query, ignoreCase = true)
+            selectedTags = selectedTags,
+            todoEntities = items.filter { item ->
+                val matchesQuery =
+                    item.title.contains(query, ignoreCase = true) ||
+                            item.description.contains(query, ignoreCase = true)
+                val matchesTag = if (selectedTags.isEmpty()) {
+                    true
+                } else {
+                    item.tag in selectedTags
+                }
+                matchesQuery && matchesTag
             }
         )
     }.stateIn(
@@ -37,6 +49,12 @@ class TodoHomeViewModel(
 
     fun onQueryChange(newQuery: String) {
         _searchQuery.value = newQuery
+    }
+
+    fun onTagSelected(tag: TodoTag) {
+        _selectedTags.update { currentState ->
+            if (tag in currentState) currentState - tag else currentState + tag
+        }
     }
 
     companion object {

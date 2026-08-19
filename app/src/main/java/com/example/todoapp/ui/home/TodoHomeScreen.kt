@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -21,8 +23,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -38,7 +40,6 @@ import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TodoSearchBar
 import com.example.todoapp.ui.theme.TodoAppTheme
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -53,6 +54,7 @@ fun TodoHomeScreen(
     TodoHomeScreenContent(
         uiState = uiState,
         onQueryChange = viewModel::onQueryChange,
+        onTagSelected = viewModel::onTagSelected,
         onAddTodo = onAddTodo
     )
 }
@@ -61,21 +63,48 @@ fun TodoHomeScreen(
 private fun TodoHomeScreenContent(
     uiState: TodoHomeUiState,
     onQueryChange: (String) -> Unit,
+    onTagSelected: (TodoTag) -> Unit,
     onAddTodo: () -> Unit,
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH)
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(uiState.todoEntities) {
+        if (uiState.todoEntities.isNotEmpty()) {
+            listState.scrollToItem(0)
+        }
+    }
 
     Scaffold(
         topBar = {
-            TodoSearchBar(
-                query = uiState.searchQuery,
-                onQueryChange = { newQuery ->
-                    onQueryChange(newQuery)
-                    coroutineScope.launch { listState.scrollToItem(0) }
+            Column {
+                TodoSearchBar(
+                    query = uiState.searchQuery,
+                    onQueryChange = { newQuery ->
+                        onQueryChange(newQuery)
+                    }
+                )
+                Spacer(modifier = Modifier.padding(vertical = 4.dp))
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(TodoTag.entries) { tag ->
+                        FilterChip(
+                            selected = uiState.selectedTags.contains(tag),
+                            label = {
+                                Text(
+                                    tag.name.lowercase().replaceFirstChar { it.uppercase() }
+                                )
+                            },
+                            leadingIcon = if (uiState.selectedTags.contains(tag)) {
+                                { Icon(painterResource(R.drawable.check_24px), null) }
+                            } else null,
+                            onClick = { onTagSelected(tag) }
+                        )
+                    }
                 }
-            )
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -209,6 +238,7 @@ fun TodoHomeScreenLightPreview() {
         TodoHomeScreenContent(
             uiState = previewUiState,
             onAddTodo = {},
+            onTagSelected = {},
             onQueryChange = {},
         )
     }
@@ -221,6 +251,7 @@ fun TodoHomeScreenDarkPreview() {
         TodoHomeScreenContent(
             uiState = previewUiState,
             onAddTodo = {},
+            onTagSelected = {},
             onQueryChange = {}
         )
     }
