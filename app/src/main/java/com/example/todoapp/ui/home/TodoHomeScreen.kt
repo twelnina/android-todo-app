@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -21,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -36,6 +38,7 @@ import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TodoSearchBar
 import com.example.todoapp.ui.theme.TodoAppTheme
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -61,11 +64,17 @@ private fun TodoHomeScreenContent(
     onAddTodo: () -> Unit,
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH)
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
     Scaffold(
         topBar = {
             TodoSearchBar(
                 query = uiState.searchQuery,
-                onQueryChange = onQueryChange
+                onQueryChange = { newQuery ->
+                    onQueryChange(newQuery)
+                    coroutineScope.launch { listState.scrollToItem(0) }
+                }
             )
         },
         floatingActionButton = {
@@ -82,6 +91,7 @@ private fun TodoHomeScreenContent(
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         LazyColumn(
+            state = listState,
             contentPadding = PaddingValues(
                 bottom = innerPadding.calculateBottomPadding() + 80.dp,
                 start = 8.dp,
@@ -91,9 +101,14 @@ private fun TodoHomeScreenContent(
                 .fillMaxSize()
                 .padding(top = innerPadding.calculateTopPadding() + 8.dp)
         ) {
-            items(uiState.todoEntities) { todo ->
+            items(
+                items = uiState.todoEntities,
+                key = { it.id }
+            ) { todo ->
                 Row(
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier
+                        .padding(vertical = 16.dp, horizontal = 8.dp)
+                        .animateItem(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(
@@ -101,7 +116,7 @@ private fun TodoHomeScreenContent(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
-                            text = todo.targetDate?.format(dateFormatter)
+                            text = todo.targetDate?.let { "~ ${it.format(dateFormatter)}" }
                                 ?: stringResource(R.string.no_date),
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
@@ -109,11 +124,12 @@ private fun TodoHomeScreenContent(
                         )
                         Text(
                             text = todo.title,
-                            fontSize = 24.sp
+                            fontSize = 22.sp
                         )
                         Text(
                             text = todo.description,
                             fontSize = 14.sp,
+                            lineHeight = 20.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -194,8 +210,7 @@ fun TodoHomeScreenLightPreview() {
             uiState = previewUiState,
             onAddTodo = {},
             onQueryChange = {},
-
-            )
+        )
     }
 }
 

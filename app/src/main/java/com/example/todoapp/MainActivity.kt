@@ -22,9 +22,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val backStack = rememberNavBackStack(
-                AppNavKey.TodoList
-            )
+            val backStack = rememberNavBackStack(AppNavKey.TodoList)
             TodoAppTheme {
                 NavDisplay(
                     backStack = backStack,
