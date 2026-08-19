@@ -18,14 +18,16 @@ class TodoHomeViewModel(
 ) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
 
-    private val _uiState = MutableStateFlow(TodoHomeUiState())
     val uiState: StateFlow<TodoHomeUiState> = combine(
         todoRepository.getAllItems(),
         _searchQuery
     ) { items, query ->
         TodoHomeUiState(
             searchQuery = query,
-            todoEntities = items.filter { it.title.contains(query, ignoreCase = true) }
+            todoEntities = items.filter {
+                it.title.contains(query, ignoreCase = true) ||
+                        it.description.contains(query, ignoreCase = true)
+            }
         )
     }.stateIn(
         scope = viewModelScope,
