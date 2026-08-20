@@ -57,6 +57,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH)
+
 @Composable
 fun TodoHomeScreen(
     onAddTodo: () -> Unit,
@@ -85,11 +87,11 @@ private fun TodoHomeScreenContent(
     onDismissRequest: () -> Unit,
     onAddTodo: () -> Unit,
 ) {
-    val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH)
     val listState = rememberLazyListState()
+
     @OptIn(ExperimentalMaterial3Api::class) val sheetState = rememberModalBottomSheetState()
 
-    LaunchedEffect(uiState.todoEntities) {
+    LaunchedEffect(uiState.searchQuery, uiState.selectedTags, uiState.selectedDueDateFilter) {
         if (uiState.todoEntities.isNotEmpty()) {
             listState.scrollToItem(0)
         }
@@ -99,138 +101,44 @@ private fun TodoHomeScreenContent(
         topBar = {
             Column {
                 TodoSearchBar(
-                    query = uiState.searchQuery,
-                    onQueryChange = { newQuery ->
+                    query = uiState.searchQuery, onQueryChange = { newQuery ->
                         onQueryChange(newQuery)
-                    }
-                )
+                    })
                 Spacer(modifier = Modifier.padding(vertical = 2.dp))
-                LazyRow(
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    item {
-                        val isAllSelected = uiState.selectedDueDateFilter == DueDateFilter.ALL
-                        FilterChip(
-                            selected = !isAllSelected,
-                            label = {
-                                Text(
-                                    if (isAllSelected)
-                                        stringResource(R.string.due_date)
-                                    else stringResource(uiState.selectedDueDateFilter.labelRes)
-                                )
-                            },
-                            leadingIcon = if (!isAllSelected) {
-                                {
-                                    Icon(
-                                        painter = painterResource(R.drawable.check_24px),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(FilterChipDefaults.IconSize)
-                                    )
-                                }
-                            } else null,
-                            trailingIcon = {
-                                Icon(
-                                    painter = painterResource(R.drawable.arrow_drop_down_24px),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(FilterChipDefaults.IconSize)
-                                )
-                            },
-                            onClick = onDueDateChipClick
-                        )
-                    }
-                    items(TodoTag.entries) { tag ->
-                        FilterChip(
-                            selected = uiState.selectedTags.contains(tag),
-                            label = {
-                                Text(
-                                    tag.name.lowercase().replaceFirstChar { it.uppercase() }
-                                )
-                            },
-                            leadingIcon = if (uiState.selectedTags.contains(tag)) {
-                                {
-                                    Icon(
-                                        painter = painterResource(R.drawable.check_24px),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(FilterChipDefaults.IconSize)
-                                    )
-                                }
-                            } else null,
-                            onClick = { onTagSelected(tag) }
-                        )
-                    }
-                }
+                TodoFilterRow(
+                    selectedDueDateFilter = uiState.selectedDueDateFilter,
+                    selectedTags = uiState.selectedTags,
+                    onDueDateChipClick = onDueDateChipClick,
+                    onTagSelected = onTagSelected
+                )
             }
-        },
-        floatingActionButton = {
+        }, floatingActionButton = {
             FloatingActionButton(
-                onClick = onAddTodo,
-                modifier = Modifier.navigationBarsPadding()
+                onClick = onAddTodo, modifier = Modifier.navigationBarsPadding()
             ) {
                 Icon(
-                    painterResource(R.drawable.add_24px),
-                    contentDescription = null
+                    painterResource(R.drawable.add_24px), contentDescription = null
                 )
             }
-        },
-        modifier = Modifier.fillMaxSize()
+        }, modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         LazyColumn(
-            state = listState,
-            contentPadding = PaddingValues(
-                bottom = innerPadding.calculateBottomPadding() + 80.dp,
-                start = 8.dp,
-                end = 8.dp
-            ),
-            modifier = Modifier
+            state = listState, contentPadding = PaddingValues(
+                bottom = innerPadding.calculateBottomPadding() + 80.dp, start = 8.dp, end = 8.dp
+            ), modifier = Modifier
                 .fillMaxSize()
                 .padding(top = innerPadding.calculateTopPadding())
         ) {
             items(
                 items = uiState.todoEntities,
-                key = { it.id }
-            ) { todo ->
-                Row(
-                    modifier = Modifier
-                        .padding(vertical = 16.dp, horizontal = 8.dp)
-                        .animateItem(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = todo.targetDate?.let { "~ ${it.format(dateFormatter)}" }
-                                ?: stringResource(R.string.no_date),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = todo.title,
-                            fontSize = 22.sp
-                        )
-                        Text(
-                            text = todo.description,
-                            fontSize = 14.sp,
-                            lineHeight = 20.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                    todo.tag?.let { tag ->
-                        TodoTagChip(tag = tag)
-                    }
-                }
-                HorizontalDivider(
-                    thickness = 0.5.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant
+                key = { it.id },
+                contentType = { "todo_item" }) { todoItemInfo ->
+                TodoItem(
+                    todoItemInfo = todoItemInfo, modifier = Modifier.animateItem()
                 )
             }
         }
-        @OptIn(ExperimentalMaterial3Api::class)
-        DueDateSelectionBottomSheet(
+        @OptIn(ExperimentalMaterial3Api::class) DueDateSelectionBottomSheet(
             sheetState = sheetState,
             selectedFilter = uiState.selectedDueDateFilter,
             showBottomSheet = uiState.showBottomSheet,
@@ -241,9 +149,101 @@ private fun TodoHomeScreenContent(
 }
 
 @Composable
+private fun TodoFilterRow(
+    selectedDueDateFilter: DueDateFilter,
+    selectedTags: Set<TodoTag>,
+    onDueDateChipClick: () -> Unit,
+    onTagSelected: (TodoTag) -> Unit
+) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            val isAllSelected = selectedDueDateFilter == DueDateFilter.ALL
+            FilterChip(
+                selected = !isAllSelected, label = {
+                    Text(
+                        if (isAllSelected) stringResource(R.string.due_date)
+                        else stringResource(selectedDueDateFilter.labelRes)
+                    )
+                }, leadingIcon = if (!isAllSelected) {
+                    {
+                        Icon(
+                            painter = painterResource(R.drawable.check_24px),
+                            contentDescription = null,
+                            modifier = Modifier.size(FilterChipDefaults.IconSize)
+                        )
+                    }
+                } else null, trailingIcon = {
+                    Icon(
+                        painter = painterResource(R.drawable.arrow_drop_down_24px),
+                        contentDescription = null,
+                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                    )
+                }, onClick = onDueDateChipClick
+            )
+        }
+        items(TodoTag.entries) { tag ->
+            FilterChip(
+                selected = selectedTags.contains(tag),
+                label = { Text(stringResource(tag.labelRes)) },
+                leadingIcon = if (selectedTags.contains(tag)) {
+                    {
+                        Icon(
+                            painter = painterResource(R.drawable.check_24px),
+                            contentDescription = null,
+                            modifier = Modifier.size(FilterChipDefaults.IconSize)
+                        )
+                    }
+                } else null,
+                onClick = { onTagSelected(tag) })
+        }
+    }
+}
+
+@Composable
+private fun TodoItem(
+    todoItemInfo: TodoEntity, modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(text = todoItemInfo.targetDate?.let { "~ ${it.format(dateFormatter)}" }
+                    ?: stringResource(R.string.no_date),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.primary)
+                Text(
+                    text = todoItemInfo.title, fontSize = 22.sp
+                )
+                Text(
+                    text = todoItemInfo.description,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+            todoItemInfo.tag?.let { tag ->
+                TodoTagChip(tag = tag)
+            }
+        }
+        HorizontalDivider(
+            thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant
+        )
+    }
+}
+
+@Composable
 private fun TodoTagChip(tag: TodoTag, modifier: Modifier = Modifier) {
     Text(
-        text = tag.name,
+        text = stringResource(tag.labelRes),
         fontSize = 10.sp,
         fontWeight = FontWeight.Bold,
         color = tag.color,
@@ -271,48 +271,46 @@ private fun DueDateSelectionBottomSheet(
     onDueDateFilterChange: (DueDateFilter) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (showBottomSheet)
-        ModalBottomSheet(
-            onDismissRequest = onDismissRequest,
-            sheetState = sheetState,
-            modifier = modifier
-        ) {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Text(
-                    stringResource(R.string.due_date),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                ) {
-                    Column {
-                        DueDateFilter.entries.forEach { filter ->
-                            ListItem(
-                                headlineContent = {
-                                    Text(
-                                        text = stringResource(filter.labelRes),
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                },
-                                colors = if (filter == selectedFilter) {
-                                    ListItemDefaults.colors(
-                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                        headlineColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                    )
-                                } else ListItemDefaults.colors(),
-                                modifier = Modifier
-                                    .clickable { onDueDateFilterChange(filter) }
-                                    .border(0.5.dp, MaterialTheme.colorScheme.outlineVariant)
+    if (showBottomSheet) ModalBottomSheet(
+        onDismissRequest = onDismissRequest, sheetState = sheetState, modifier = modifier
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+            Text(
+                stringResource(R.string.due_date), style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                modifier = Modifier.padding(horizontal = 8.dp)
+            ) {
+                Column {
+                    DueDateFilter.entries.forEachIndexed { index, filter ->
+                        ListItem(
+                            headlineContent = {
+                                Text(
+                                    text = stringResource(filter.labelRes),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            },
+                            colors = if (filter == selectedFilter) {
+                                ListItemDefaults.colors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    headlineColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            } else ListItemDefaults.colors(),
+                            modifier = Modifier.clickable { onDueDateFilterChange(filter) })
+                        if (index < DueDateFilter.entries.size - 1) {
+                            HorizontalDivider(
+                                thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant
                             )
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(12.dp))
             }
+            Spacer(modifier = Modifier.height(12.dp))
         }
+    }
 }
 
 
@@ -376,7 +374,6 @@ fun TodoHomeScreenDarkPreview() {
             onDueDateChipClick = {},
             onDueDateFilterChange = {},
             onDismissRequest = {},
-            onQueryChange = {}
-        )
+            onQueryChange = {})
     }
 }

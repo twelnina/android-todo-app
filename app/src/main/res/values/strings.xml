@@ -4,17 +4,24 @@
     <string name="title">Title</string>
     <string name="description">Description</string>
     <string name="target_date">Target Date</string>
+    <string name="due_date">Due date</string>
     <string name="tags">Tags</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="back">Back</string>
+    <string name="done">Done</string>
+    <string name="add_todo">Add Todo</string>
+
     <string name="all">All</string>
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="this_week">This week</string>
     <string name="overdue">Overdue</string>
     <string name="no_date">No date</string>
-    <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
-    <string name="back">Back</string>
-    <string name="done">Done</string>
-    <string name="add_todo">Add Todo</string>
-    <string name="due_date">Due date</string>
+
+    <string name="study">Study</string>
+    <string name="work">Work</string>
+    <string name="health">Health</string>
+    <string name="hobby">Hobby</string>
+    <string name="shopping">Shopping</string>
 </resources>
