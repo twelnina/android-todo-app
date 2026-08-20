@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -77,7 +79,6 @@ private fun TodoEntryScreenContent(
     onTagChange: (TodoTag) -> Unit,
     onDone: () -> Unit,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     Scaffold(
         topBar = {
@@ -95,48 +96,76 @@ private fun TodoEntryScreenContent(
             )
         }
     ) { innerPadding ->
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = modifier
-                .padding(innerPadding)
-                .padding(16.dp)
-                .fillMaxSize()
+        TodoEntryBody(
+            title = uiState.title,
+            description = uiState.description,
+            targetDate = uiState.targetDate,
+            selectedTag = uiState.tag,
+            isEntryValid = uiState.isEntryValid,
+            onTitleChange = onTitleChange,
+            onDescriptionChange = onDescriptionChange,
+            onTargetDateChange = onTargetDateChange,
+            onTagChange = onTagChange,
+            onDone = onDone,
+            modifier = Modifier.padding(innerPadding)
+        )
+    }
+}
+
+@Composable
+private fun TodoEntryBody(
+    title: String,
+    description: String,
+    targetDate: Long?,
+    selectedTag: TodoTag?,
+    isEntryValid: Boolean,
+    onTitleChange: (String) -> Unit,
+    onDescriptionChange: (String) -> Unit,
+    onTargetDateChange: (Long?) -> Unit,
+    onTagChange: (TodoTag) -> Unit,
+    onDone: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
+        TextField(
+            value = title,
+            onValueChange = onTitleChange,
+            label = { Text(text = stringResource(R.string.title)) },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+        TextField(
+            value = description,
+            onValueChange = onDescriptionChange,
+            label = { Text(text = stringResource(R.string.description)) },
+            minLines = 5,
+            modifier = Modifier.fillMaxWidth()
+        )
+        DateTextField(
+            onDateSelected = onTargetDateChange,
+            selectedDate = targetDate,
+            modifier = Modifier.fillMaxWidth()
+        )
+        TagSelector(
+            onTagChange = onTagChange,
+            selectedTag = selectedTag,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Button(
+            onClick = onDone,
+            enabled = isEntryValid,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            TextField(
-                value = uiState.title,
-                onValueChange = onTitleChange,
-                label = { Text(text = stringResource(R.string.title)) },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-            TextField(
-                value = uiState.description,
-                onValueChange = onDescriptionChange,
-                label = { Text(text = stringResource(R.string.description)) },
-                minLines = 5,
-                modifier = Modifier.fillMaxWidth()
-            )
-            DateTextField(
-                onDateSelected = onTargetDateChange,
-                selectedDate = uiState.targetDate,
-                modifier = Modifier.fillMaxWidth()
-            )
-            TagSelector(
-                onTagChange = onTagChange,
-                selectedTag = uiState.tag,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Button(
-                onClick = onDone,
-                enabled = uiState.isEntryValid,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.done))
-            }
-
+            Text(stringResource(R.string.done))
         }
     }
 }
@@ -235,7 +264,7 @@ private fun TagSelector(
                 FilterChip(
                     selected = selectedTag == tag,
                     onClick = { onTagChange(tag) },
-                    label = { Text(tag.name) },
+                    label = { Text(stringResource(tag.labelRes)) },
                     leadingIcon = if (selectedTag == tag) {
                         {
                             Icon(
