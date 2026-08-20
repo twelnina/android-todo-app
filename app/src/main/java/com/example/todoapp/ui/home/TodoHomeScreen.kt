@@ -1,27 +1,39 @@
 package com.example.todoapp.ui.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
+import com.example.todoapp.model.DueDateFilter
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TodoSearchBar
 import com.example.todoapp.ui.theme.TodoAppTheme
@@ -55,6 +68,9 @@ fun TodoHomeScreen(
         uiState = uiState,
         onQueryChange = viewModel::onQueryChange,
         onTagSelected = viewModel::onTagSelected,
+        onDueDateChipClick = viewModel::showBottomSheet,
+        onDueDateFilterChange = viewModel::onDueDateFilterSelected,
+        onDismissRequest = viewModel::dismissBottomSheet,
         onAddTodo = onAddTodo
     )
 }
@@ -64,10 +80,14 @@ private fun TodoHomeScreenContent(
     uiState: TodoHomeUiState,
     onQueryChange: (String) -> Unit,
     onTagSelected: (TodoTag) -> Unit,
+    onDueDateChipClick: () -> Unit,
+    onDueDateFilterChange: (DueDateFilter) -> Unit,
+    onDismissRequest: () -> Unit,
     onAddTodo: () -> Unit,
 ) {
     val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH)
     val listState = rememberLazyListState()
+    @OptIn(ExperimentalMaterial3Api::class) val sheetState = rememberModalBottomSheetState()
 
     LaunchedEffect(uiState.todoEntities) {
         if (uiState.todoEntities.isNotEmpty()) {
@@ -84,11 +104,41 @@ private fun TodoHomeScreenContent(
                         onQueryChange(newQuery)
                     }
                 )
-                Spacer(modifier = Modifier.padding(vertical = 4.dp))
+                Spacer(modifier = Modifier.padding(vertical = 2.dp))
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    item {
+                        val isAllSelected = uiState.selectedDueDateFilter == DueDateFilter.ALL
+                        FilterChip(
+                            selected = !isAllSelected,
+                            label = {
+                                Text(
+                                    if (isAllSelected)
+                                        stringResource(R.string.due_date)
+                                    else stringResource(uiState.selectedDueDateFilter.labelRes)
+                                )
+                            },
+                            leadingIcon = if (!isAllSelected) {
+                                {
+                                    Icon(
+                                        painter = painterResource(R.drawable.check_24px),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                    )
+                                }
+                            } else null,
+                            trailingIcon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.arrow_drop_down_24px),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                )
+                            },
+                            onClick = onDueDateChipClick
+                        )
+                    }
                     items(TodoTag.entries) { tag ->
                         FilterChip(
                             selected = uiState.selectedTags.contains(tag),
@@ -98,7 +148,13 @@ private fun TodoHomeScreenContent(
                                 )
                             },
                             leadingIcon = if (uiState.selectedTags.contains(tag)) {
-                                { Icon(painterResource(R.drawable.check_24px), null) }
+                                {
+                                    Icon(
+                                        painter = painterResource(R.drawable.check_24px),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                                    )
+                                }
                             } else null,
                             onClick = { onTagSelected(tag) }
                         )
@@ -128,7 +184,7 @@ private fun TodoHomeScreenContent(
             ),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = innerPadding.calculateTopPadding() + 8.dp)
+                .padding(top = innerPadding.calculateTopPadding())
         ) {
             items(
                 items = uiState.todoEntities,
@@ -173,6 +229,14 @@ private fun TodoHomeScreenContent(
                 )
             }
         }
+        @OptIn(ExperimentalMaterial3Api::class)
+        DueDateSelectionBottomSheet(
+            sheetState = sheetState,
+            selectedFilter = uiState.selectedDueDateFilter,
+            showBottomSheet = uiState.showBottomSheet,
+            onDismissRequest = onDismissRequest,
+            onDueDateFilterChange = onDueDateFilterChange
+        )
     }
 }
 
@@ -195,6 +259,60 @@ private fun TodoTagChip(tag: TodoTag, modifier: Modifier = Modifier) {
             )
             .padding(horizontal = 8.dp, vertical = 2.dp)
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DueDateSelectionBottomSheet(
+    sheetState: SheetState,
+    selectedFilter: DueDateFilter,
+    showBottomSheet: Boolean,
+    onDismissRequest: () -> Unit,
+    onDueDateFilterChange: (DueDateFilter) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (showBottomSheet)
+        ModalBottomSheet(
+            onDismissRequest = onDismissRequest,
+            sheetState = sheetState,
+            modifier = modifier
+        ) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Text(
+                    stringResource(R.string.due_date),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                    Column {
+                        DueDateFilter.entries.forEach { filter ->
+                            ListItem(
+                                headlineContent = {
+                                    Text(
+                                        text = stringResource(filter.labelRes),
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                },
+                                colors = if (filter == selectedFilter) {
+                                    ListItemDefaults.colors(
+                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                        headlineColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                } else ListItemDefaults.colors(),
+                                modifier = Modifier
+                                    .clickable { onDueDateFilterChange(filter) }
+                                    .border(0.5.dp, MaterialTheme.colorScheme.outlineVariant)
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+        }
 }
 
 
@@ -239,6 +357,9 @@ fun TodoHomeScreenLightPreview() {
             uiState = previewUiState,
             onAddTodo = {},
             onTagSelected = {},
+            onDueDateChipClick = {},
+            onDueDateFilterChange = {},
+            onDismissRequest = {},
             onQueryChange = {},
         )
     }
@@ -252,6 +373,9 @@ fun TodoHomeScreenDarkPreview() {
             uiState = previewUiState,
             onAddTodo = {},
             onTagSelected = {},
+            onDueDateChipClick = {},
+            onDueDateFilterChange = {},
+            onDismissRequest = {},
             onQueryChange = {}
         )
     }

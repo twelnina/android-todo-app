@@ -1,7 +1,8 @@
 package com.example.todoapp.model
 
+import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
-import java.time.LocalDate
+import com.example.todoapp.R
 
 enum class TodoTag(val color: Color) {
     STUDY(Color(0xFFD1E4FF)),
@@ -11,10 +12,11 @@ enum class TodoTag(val color: Color) {
     SHOPPING(Color(0xFFFFF0AD))
 }
 
-data class TodoModel(
-    val id: Int,
-    val title: String,
-    val detail: String,
-    val date: LocalDate,
-    val label: TodoTag
-)
+enum class DueDateFilter(@get:StringRes val labelRes: Int) {
+    ALL(R.string.all),
+    TODAY(R.string.today),
+    TOMORROW(R.string.tomorrow),
+    THIS_WEEK(R.string.this_week),
+    OVERDUE(R.string.overdue),
+    NO_DATE(R.string.no_date)
+}

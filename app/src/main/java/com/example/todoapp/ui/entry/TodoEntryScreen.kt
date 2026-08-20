@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
@@ -236,7 +237,13 @@ private fun TagSelector(
                     onClick = { onTagChange(tag) },
                     label = { Text(tag.name) },
                     leadingIcon = if (selectedTag == tag) {
-                        { Icon(painterResource(R.drawable.check_24px), null) }
+                        {
+                            Icon(
+                                painter = painterResource(R.drawable.check_24px),
+                                contentDescription = null,
+                                modifier = Modifier.size(FilterChipDefaults.IconSize)
+                            )
+                        }
                     } else null,
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = tag.color.copy(alpha = 0.2f)
