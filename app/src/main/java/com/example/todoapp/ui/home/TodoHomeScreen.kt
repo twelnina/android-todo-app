@@ -39,6 +39,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -281,6 +282,7 @@ private fun DueDateSelectionBottomSheet(
             Spacer(modifier = Modifier.height(12.dp))
             Surface(
                 shape = RoundedCornerShape(12.dp),
+                color = Color.Transparent,
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
@@ -298,11 +300,11 @@ private fun DueDateSelectionBottomSheet(
                                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                                     headlineColor = MaterialTheme.colorScheme.onSecondaryContainer
                                 )
-                            } else ListItemDefaults.colors(),
+                            } else ListItemDefaults.colors(containerColor = Color.Transparent),
                             modifier = Modifier.clickable { onDueDateFilterChange(filter) })
                         if (index < DueDateFilter.entries.size - 1) {
                             HorizontalDivider(
-                                thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant
+                                thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant
                             )
                         }
                     }
