@@ -48,6 +48,8 @@ fun EditScreen(
         onDescriptionChange = viewModel::updateDescription,
         onTargetDateChange = viewModel::updateTargetDate,
         onTagChange = viewModel::updateSelectedTag,
+        updateTodo = viewModel::updateTodo,
+        deleteTodo = viewModel::deleteTodo,
         onBack = onBack
     )
 }
@@ -59,6 +61,8 @@ private fun EditScreenContent(
     onDescriptionChange: (String) -> Unit,
     onTargetDateChange: (Long?) -> Unit,
     onTagChange: (TodoTag?) -> Unit,
+    updateTodo: () -> Unit,
+    deleteTodo: () -> Unit,
     onBack: () -> Unit
 ) {
     Scaffold(
@@ -83,7 +87,11 @@ private fun EditScreenContent(
                     .padding(horizontal = 16.dp)
             ) {
                 OutlinedButton(
-                    onClick = {},
+                    onClick = {
+                        deleteTodo()
+                        onBack()
+                    },
+                    enabled = true,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -101,7 +109,11 @@ private fun EditScreenContent(
                     }
                 }
                 Button(
-                    onClick = {},
+                    onClick = {
+                        updateTodo()
+                        onBack()
+                    },
+                    enabled = uiState.isEditValid,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = stringResource(R.string.done))
@@ -132,6 +144,6 @@ private fun EditScreenContent(
 @Composable
 fun EditScreenPreview() {
     TodoAppTheme(darkTheme = true) {
-        EditScreenContent(EditUiState(), {}, {}, {}, {}, {})
+        EditScreenContent(EditUiState(), {}, {}, {}, {},{}, {}, {})
     }
 }

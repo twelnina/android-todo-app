@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.todoapp.TodoApplication
+import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.data.repository.TodoRepository
 import com.example.todoapp.model.TodoTag
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 
@@ -25,6 +27,7 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
             if (entity != null) {
                 _uiState.update { currentState ->
                     currentState.copy(
+                        id = entity.id,
                         title = entity.title,
                         description = entity.description,
                         targetDate = entity.targetDate.toEpochMillis(),
@@ -38,12 +41,14 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
     fun updateTitle(newTitle: String) {
         _uiState.update { currentState ->
             currentState.copy(title = newTitle)
+                .let { it.copy(isEditValid = canSave(it)) }
         }
     }
 
     fun updateDescription(newDescription: String) {
         _uiState.update { currentState ->
             currentState.copy(description = newDescription)
+                .let { it.copy(isEditValid = canSave(it)) }
         }
     }
 
@@ -59,8 +64,48 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
         }
     }
 
+    fun updateTodo() {
+        val currentState = uiState.value
+        viewModelScope.launch {
+            todoRepository.update(
+                TodoEntity(
+                    id = currentState.id,
+                    title = currentState.title,
+                    description = currentState.description,
+                    targetDate = currentState.targetDate.toLocalDate(),
+                    tag = currentState.selectedTag
+                )
+            )
+        }
+    }
+
+    fun deleteTodo() {
+        val currentState = uiState.value
+        viewModelScope.launch {
+            todoRepository.delete(
+                TodoEntity(
+                    id = currentState.id,
+                    title = currentState.title,
+                    description = currentState.description,
+                    targetDate = currentState.targetDate.toLocalDate(),
+                    tag = currentState.selectedTag
+                )
+            )
+        }
+    }
+
     private fun LocalDate?.toEpochMillis(): Long? =
         this?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
+
+    private fun Long?.toLocalDate(): LocalDate? =
+        this?.let { millis ->
+            Instant.ofEpochMilli(millis)
+                .atZone(ZoneOffset.UTC)
+                .toLocalDate()
+        }
+
+    private fun canSave(state: EditUiState) =
+        state.title.isNotEmpty() && state.description.isNotEmpty()
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
