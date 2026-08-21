@@ -37,6 +37,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,6 +55,7 @@ import com.example.todoapp.model.DueDateFilter
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TodoSearchBar
 import com.example.todoapp.ui.theme.TodoAppTheme
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -272,6 +274,8 @@ private fun DueDateSelectionBottomSheet(
     onDueDateFilterChange: (DueDateFilter) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val scope = rememberCoroutineScope()
+
     if (showBottomSheet) ModalBottomSheet(
         onDismissRequest = onDismissRequest, sheetState = sheetState, modifier = modifier
     ) {
@@ -301,7 +305,12 @@ private fun DueDateSelectionBottomSheet(
                                     headlineColor = MaterialTheme.colorScheme.onSecondaryContainer
                                 )
                             } else ListItemDefaults.colors(containerColor = Color.Transparent),
-                            modifier = Modifier.clickable { onDueDateFilterChange(filter) })
+                            modifier = Modifier.clickable {
+                                scope.launch {
+                                    sheetState.hide()
+                                    onDueDateFilterChange(filter)
+                                }
+                            })
                         if (index < DueDateFilter.entries.size - 1) {
                             HorizontalDivider(
                                 thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant
