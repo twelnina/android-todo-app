@@ -11,6 +11,7 @@
     <string name="back">Back</string>
     <string name="done">Done</string>
     <string name="add_todo">Add Todo</string>
+    <string name="edit_todo">Edit Todo</string>
 
     <string name="all">All</string>
     <string name="today">Today</string>

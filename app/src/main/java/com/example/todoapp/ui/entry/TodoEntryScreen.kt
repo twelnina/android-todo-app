@@ -1,5 +1,6 @@
 package com.example.todoapp.ui.entry
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
@@ -64,25 +66,31 @@ private fun TodoEntryScreenContent(
                     }
                 }
             )
+        },
+        bottomBar = {
+            Button(
+                onClick = onDone,
+                enabled = uiState.isEntryValid,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text(stringResource(R.string.done))
+            }
         }
     ) { innerPadding ->
-        TodoEntryBody(
-            title = uiState.title,
-            description = uiState.description,
-            targetDate = uiState.targetDate,
-            selectedTag = uiState.tag,
-            onTitleChange = onTitleChange,
-            onDescriptionChange = onDescriptionChange,
-            onTargetDateChange = onTargetDateChange,
-            onTagChange = onTagChange,
-            modifier = Modifier.padding(innerPadding)
-        )
-        Button(
-            onClick = onDone,
-            enabled = uiState.isEntryValid,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.done))
+        Column {
+            TodoEntryBody(
+                title = uiState.title,
+                description = uiState.description,
+                targetDate = uiState.targetDate,
+                selectedTag = uiState.tag,
+                onTitleChange = onTitleChange,
+                onDescriptionChange = onDescriptionChange,
+                onTargetDateChange = onTargetDateChange,
+                onTagChange = onTagChange,
+                modifier = Modifier.padding(innerPadding)
+            )
         }
     }
 }
@@ -91,7 +99,7 @@ private fun TodoEntryScreenContent(
 @Preview
 @Composable
 fun TodoEntryScreenContentLightPreview() {
-    val previewUiState = TodoEntryUiState(tag = TodoTag.STUDY)
+    val previewUiState = TodoEntryUiState(tag = TodoTag.STUDY, isEntryValid = true)
     TodoAppTheme(darkTheme = false) {
         TodoEntryScreenContent(
             uiState = previewUiState,
