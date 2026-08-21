@@ -17,9 +17,7 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneOffset
 
-class TodoEntryViewModel(
-    private val todoRepository: TodoRepository
-) : ViewModel() {
+class TodoEntryViewModel(private val todoRepository: TodoRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(TodoEntryUiState())
     val uiState: StateFlow<TodoEntryUiState> = _uiState.asStateFlow()
 
