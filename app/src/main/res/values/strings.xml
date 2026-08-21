@@ -26,4 +26,7 @@
     <string name="health">Health</string>
     <string name="hobby">Hobby</string>
     <string name="shopping">Shopping</string>
+
+    <string name="delete_confirmation_title">Delete it?</string>
+    <string name="delete_confirmation_message">This action cannot be undone.</string>
 </resources>
