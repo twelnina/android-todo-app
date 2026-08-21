@@ -63,14 +63,14 @@ import java.util.Locale
 private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH)
 
 @Composable
-fun TodoHomeScreen(
+fun HomeScreen(
     onAddTodo: () -> Unit,
     onEditTodo: (Int) -> Unit,
-    viewModel: TodoHomeViewModel = viewModel(factory = TodoHomeViewModel.Factory)
+    viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    TodoHomeScreenContent(
+    HomeScreenContent(
         uiState = uiState,
         onQueryChange = viewModel::onQueryChange,
         onTagSelected = viewModel::onTagSelected,
@@ -83,8 +83,8 @@ fun TodoHomeScreen(
 }
 
 @Composable
-private fun TodoHomeScreenContent(
-    uiState: TodoHomeUiState,
+private fun HomeScreenContent(
+    uiState: HomeUiState,
     onQueryChange: (String) -> Unit,
     onTagSelected: (TodoTag) -> Unit,
     onDueDateChipClick: () -> Unit,
@@ -333,7 +333,7 @@ private fun DueDateSelectionBottomSheet(
 }
 
 
-private val previewUiState = TodoHomeUiState(
+private val previewUiState = HomeUiState(
     todoEntities = listOf(
         TodoEntity(
             id = 1,
@@ -368,9 +368,9 @@ private val previewUiState = TodoHomeUiState(
 
 @Preview
 @Composable
-fun TodoHomeScreenLightPreview() {
+fun HomeScreenLightPreview() {
     TodoAppTheme(darkTheme = false) {
-        TodoHomeScreenContent(
+        HomeScreenContent(
             uiState = previewUiState,
             onAddTodo = {},
             onEditTodo = {},
@@ -385,9 +385,9 @@ fun TodoHomeScreenLightPreview() {
 
 @Preview
 @Composable
-fun TodoHomeScreenDarkPreview() {
+fun HomeScreenDarkPreview() {
     TodoAppTheme(darkTheme = true) {
-        TodoHomeScreenContent(
+        HomeScreenContent(
             uiState = previewUiState,
             onAddTodo = {},
             onEditTodo = {},

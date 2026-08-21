@@ -94,8 +94,7 @@ private fun EditScreenContent(
                     .padding(horizontal = 16.dp)
             ) {
                 OutlinedButton(
-                    onClick = { showDeleteDialog = true },
-                    modifier = Modifier.fillMaxWidth()
+                    onClick = { showDeleteDialog = true }, modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(

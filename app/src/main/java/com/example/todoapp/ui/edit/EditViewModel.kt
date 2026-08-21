@@ -23,17 +23,48 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
     val uiState: StateFlow<EditUiState> = _uiState.asStateFlow()
     fun loadItem(id: Int) {
         viewModelScope.launch {
-            val entity = todoRepository.getItem(id)
-            if (entity != null) {
+            todoRepository.getItem(id)?.run {
                 _uiState.update { currentState ->
                     currentState.copy(
-                        id = entity.id,
-                        title = entity.title,
-                        description = entity.description,
-                        targetDate = entity.targetDate.toEpochMillis(),
-                        selectedTag = entity.tag,
+                        id = id,
+                        title = title,
+                        description = description,
+                        targetDate = targetDate.toEpochMillis(),
+                        selectedTag = tag,
                     )
                 }
+            }
+        }
+    }
+
+    fun updateTodo() {
+        uiState.value.run {
+            viewModelScope.launch {
+                todoRepository.update(
+                    TodoEntity(
+                        id = id,
+                        title = title,
+                        description = description,
+                        targetDate = targetDate.toLocalDate(),
+                        tag = selectedTag
+                    )
+                )
+            }
+        }
+    }
+
+    fun deleteTodo() {
+        uiState.value.run {
+            viewModelScope.launch {
+                todoRepository.delete(
+                    TodoEntity(
+                        id = id,
+                        title = title,
+                        description = description,
+                        targetDate = targetDate.toLocalDate(),
+                        tag = selectedTag
+                    )
+                )
             }
         }
     }
@@ -41,14 +72,12 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
     fun updateTitle(newTitle: String) {
         _uiState.update { currentState ->
             currentState.copy(title = newTitle)
-                .let { it.copy(isEditValid = canSave(it)) }
         }
     }
 
     fun updateDescription(newDescription: String) {
         _uiState.update { currentState ->
             currentState.copy(description = newDescription)
-                .let { it.copy(isEditValid = canSave(it)) }
         }
     }
 
@@ -60,36 +89,8 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
 
     fun updateSelectedTag(newSelectedTag: TodoTag?) {
         _uiState.update { currentState ->
-            currentState.copy(selectedTag = newSelectedTag)
-        }
-    }
-
-    fun updateTodo() {
-        val currentState = uiState.value
-        viewModelScope.launch {
-            todoRepository.update(
-                TodoEntity(
-                    id = currentState.id,
-                    title = currentState.title,
-                    description = currentState.description,
-                    targetDate = currentState.targetDate.toLocalDate(),
-                    tag = currentState.selectedTag
-                )
-            )
-        }
-    }
-
-    fun deleteTodo() {
-        val currentState = uiState.value
-        viewModelScope.launch {
-            todoRepository.delete(
-                TodoEntity(
-                    id = currentState.id,
-                    title = currentState.title,
-                    description = currentState.description,
-                    targetDate = currentState.targetDate.toLocalDate(),
-                    tag = currentState.selectedTag
-                )
+            currentState.copy(
+                selectedTag = if (currentState.selectedTag == newSelectedTag) null else newSelectedTag
             )
         }
     }
@@ -104,8 +105,6 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
                 .toLocalDate()
         }
 
-    private fun canSave(state: EditUiState) =
-        state.title.isNotEmpty() && state.description.isNotEmpty()
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {

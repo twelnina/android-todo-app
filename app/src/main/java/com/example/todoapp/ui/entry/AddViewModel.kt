@@ -15,27 +15,28 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneOffset
 
-class TodoEntryViewModel(private val todoRepository: TodoRepository) : ViewModel() {
-    private val _uiState = MutableStateFlow(TodoEntryUiState())
-    val uiState: StateFlow<TodoEntryUiState> = _uiState.asStateFlow()
+class AddViewModel(private val todoRepository: TodoRepository) : ViewModel() {
+    private val _uiState = MutableStateFlow(AddUiState())
+    val uiState: StateFlow<AddUiState> = _uiState.asStateFlow()
 
-    fun onTitleChange(newTitle: String) {
+    fun updateTitle(newTitle: String) {
         _uiState.update { currentState ->
             currentState.copy(title = newTitle)
                 .let { it.copy(isEntryValid = isValid(it)) }
         }
     }
 
-    fun onDescriptionChange(newDescription: String) {
+    fun updateDescription(newDescription: String) {
         _uiState.update { currentState ->
             currentState.copy(description = newDescription)
                 .let { it.copy(isEntryValid = isValid(it)) }
         }
     }
 
-    fun onTargetDateChange(newTargetDate: Long?) {
+    fun updateTargetDate(newTargetDate: Long?) {
         _uiState.update { currentState ->
             currentState.copy(
                 targetDate = newTargetDate
@@ -43,34 +44,38 @@ class TodoEntryViewModel(private val todoRepository: TodoRepository) : ViewModel
         }
     }
 
-    fun onTagChange(newTag: TodoTag) {
+    fun updateSelectedTag(newTag: TodoTag) {
         _uiState.update { currentState ->
             currentState.copy(
-                tag = if (currentState.tag == newTag) null else newTag
+                selectedTag = if (currentState.selectedTag == newTag) null else newTag
             )
         }
     }
 
     fun saveTodo(onSaved: () -> Unit) {
-        viewModelScope.launch {
-            todoRepository.insert(
-                TodoEntity(
-                    title = uiState.value.title,
-                    description = uiState.value.description,
-                    targetDate = uiState.value.targetDate?.let { millis ->
-                        Instant.ofEpochMilli(millis)
-                            .atZone(ZoneOffset.UTC)
-                            .toLocalDate()
-                    },
-                    tag = uiState.value.tag
+        uiState.value.run {
+            viewModelScope.launch {
+                todoRepository.insert(
+                    TodoEntity(
+                        title = title,
+                        description = description,
+                        targetDate = targetDate?.toLocalDate(),
+                        tag = selectedTag
+                    )
                 )
-            )
-            onSaved()
+                onSaved()
+            }
         }
     }
 
+    private fun Long?.toLocalDate(): LocalDate? =
+        this?.let { millis ->
+            Instant.ofEpochMilli(millis)
+                .atZone(ZoneOffset.UTC)
+                .toLocalDate()
+        }
 
-    private fun isValid(state: TodoEntryUiState) =
+    fun isValid(state: AddUiState) =
         state.title.isNotBlank() && state.description.isNotBlank()
 
     companion object {
@@ -79,7 +84,7 @@ class TodoEntryViewModel(private val todoRepository: TodoRepository) : ViewModel
                 val application =
                     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as TodoApplication)
                 val repository = application.repository
-                TodoEntryViewModel(todoRepository = repository)
+                AddViewModel(todoRepository = repository)
             }
         }
     }
