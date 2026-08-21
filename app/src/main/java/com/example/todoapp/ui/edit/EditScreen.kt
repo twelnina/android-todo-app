@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -17,32 +18,56 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
+import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TodoEntryBody
 import com.example.todoapp.ui.theme.TodoAppTheme
 
 @Composable
 fun EditScreen(
-//    viewModelの実装
+    id: Int,
+    onBack: () -> Unit,
+    viewModel: EditViewModel = viewModel(factory = EditViewModel.Factory),
 ) {
-    EditScreenContent()
+    LaunchedEffect(id) { viewModel.loadItem(id) }
+
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    EditScreenContent(
+        uiState = uiState,
+        onTitleChange = viewModel::updateTitle,
+        onDescriptionChange = viewModel::updateDescription,
+        onTargetDateChange = viewModel::updateTargetDate,
+        onTagChange = viewModel::updateSelectedTag,
+        onBack = onBack
+    )
 }
 
 @Composable
-private fun EditScreenContent() {
+private fun EditScreenContent(
+    uiState: EditUiState,
+    onTitleChange: (String) -> Unit,
+    onDescriptionChange: (String) -> Unit,
+    onTargetDateChange: (Long?) -> Unit,
+    onTagChange: (TodoTag?) -> Unit,
+    onBack: () -> Unit
+) {
     Scaffold(
         topBar = {
             @OptIn(ExperimentalMaterial3Api::class)
             TopAppBar(
                 title = { Text(stringResource(R.string.edit_todo)) },
                 navigationIcon = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = onBack) {
                         Icon(
                             painter = painterResource((R.drawable.arrow_back_24px)),
                             contentDescription = stringResource(R.string.back)
@@ -52,48 +77,52 @@ private fun EditScreenContent() {
             )
         },
         bottomBar = {
-            Button(
-                onClick = {},
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .navigationBarsPadding()
                     .padding(horizontal = 16.dp)
             ) {
-                Text(text = stringResource(R.string.done))
+                OutlinedButton(
+                    onClick = {},
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painter = painterResource(R.drawable.delete_24px),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(R.string.delete),
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                }
+                Button(
+                    onClick = {},
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = stringResource(R.string.done))
+                }
+
             }
         }
     ) { innerPadding ->
         Column {
             TodoEntryBody(
-                title = "",
-                description = "",
-                targetDate = null,
-                selectedTag = null,
-                onTitleChange = {},
-                onDescriptionChange = {},
-                onTargetDateChange = {},
-                onTagChange = {},
+                title = uiState.title,
+                description = uiState.description,
+                targetDate = uiState.targetDate,
+                selectedTag = uiState.selectedTag,
+                onTitleChange = onTitleChange,
+                onDescriptionChange = onDescriptionChange,
+                onTargetDateChange = onTargetDateChange,
+                onTagChange = onTagChange,
                 modifier = Modifier.padding(innerPadding)
             )
-            OutlinedButton(
-                onClick = {},
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(R.drawable.delete_24px),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onErrorContainer,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "delete",
-                        color = MaterialTheme.colorScheme.onErrorContainer
-                    )
-                }
-            }
+
         }
     }
 }
@@ -103,6 +132,6 @@ private fun EditScreenContent() {
 @Composable
 fun EditScreenPreview() {
     TodoAppTheme(darkTheme = true) {
-        EditScreen()
+        EditScreenContent(EditUiState(), {}, {}, {}, {}, {})
     }
 }

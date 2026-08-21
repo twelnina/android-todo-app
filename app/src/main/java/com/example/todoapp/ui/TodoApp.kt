@@ -9,6 +9,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.example.todoapp.ui.edit.EditScreen
 import com.example.todoapp.ui.entry.TodoEntryScreen
 import com.example.todoapp.ui.home.TodoHomeScreen
 import com.example.todoapp.ui.navigation.AppNavKey
@@ -35,10 +36,16 @@ fun TodoApp() {
             },
             entryProvider = entryProvider {
                 entry<AppNavKey.TodoList> {
-                    TodoHomeScreen(onAddTodo = { backStack.add(AppNavKey.AddTodo) })
+                    TodoHomeScreen(
+                        onAddTodo = { backStack.add(AppNavKey.AddTodo) },
+                        onEditTodo = { id -> backStack.add(AppNavKey.EditTodo(id)) }
+                    )
                 }
                 entry<AppNavKey.AddTodo> {
                     TodoEntryScreen(onBack = { backStack.removeLastOrNull() })
+                }
+                entry<AppNavKey.EditTodo> { key ->
+                    EditScreen(id = key.id, onBack = { backStack.removeLastOrNull() })
                 }
             }
         )

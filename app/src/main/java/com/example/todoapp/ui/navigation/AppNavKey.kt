@@ -7,6 +7,10 @@ import kotlinx.serialization.Serializable
 sealed interface AppNavKey : NavKey {
     @Serializable
     data object TodoList : AppNavKey
+
     @Serializable
     data object AddTodo : AppNavKey
+
+    @Serializable
+    data class EditTodo(val id: Int) : AppNavKey
 }

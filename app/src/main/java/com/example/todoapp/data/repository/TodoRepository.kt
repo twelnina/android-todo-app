@@ -20,4 +20,8 @@ class TodoRepository(private val todoDao: TodoDao) {
     fun getAllItems(): Flow<List<TodoEntity>> {
         return todoDao.getAllItem()
     }
+
+    suspend fun getItem(id: Int): TodoEntity? {
+        return todoDao.getItem(id)
+    }
 }

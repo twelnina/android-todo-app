@@ -2,7 +2,6 @@ package com.example.todoapp.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -35,7 +34,7 @@ fun TodoEntryBody(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
@@ -54,7 +53,7 @@ fun TodoEntryBody(
             minLines = 5,
             modifier = Modifier.fillMaxWidth()
         )
-        DateTextField(
+        DateField(
             onDateSelected = onTargetDateChange,
             selectedDate = targetDate,
             modifier = Modifier.fillMaxWidth()

@@ -65,6 +65,7 @@ private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH
 @Composable
 fun TodoHomeScreen(
     onAddTodo: () -> Unit,
+    onEditTodo: (Int) -> Unit,
     viewModel: TodoHomeViewModel = viewModel(factory = TodoHomeViewModel.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -76,7 +77,8 @@ fun TodoHomeScreen(
         onDueDateChipClick = viewModel::showBottomSheet,
         onDueDateFilterChange = viewModel::onDueDateFilterSelected,
         onDismissRequest = viewModel::dismissBottomSheet,
-        onAddTodo = onAddTodo
+        onAddTodo = onAddTodo,
+        onEditTodo = onEditTodo
     )
 }
 
@@ -89,6 +91,7 @@ private fun TodoHomeScreenContent(
     onDueDateFilterChange: (DueDateFilter) -> Unit,
     onDismissRequest: () -> Unit,
     onAddTodo: () -> Unit,
+    onEditTodo: (Int) -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -115,7 +118,8 @@ private fun TodoHomeScreenContent(
                     onTagSelected = onTagSelected
                 )
             }
-        }, floatingActionButton = {
+        },
+        floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddTodo, modifier = Modifier.navigationBarsPadding()
             ) {
@@ -137,7 +141,9 @@ private fun TodoHomeScreenContent(
                 key = { it.id },
                 contentType = { "todo_item" }) { todoItemInfo ->
                 TodoItem(
-                    todoItemInfo = todoItemInfo, modifier = Modifier.animateItem()
+                    todoItemInfo = todoItemInfo,
+                    onEditTodo = onEditTodo,
+                    modifier = Modifier.animateItem()
                 )
             }
         }
@@ -207,11 +213,13 @@ private fun TodoFilterRow(
 
 @Composable
 private fun TodoItem(
-    todoItemInfo: TodoEntity, modifier: Modifier = Modifier
+    todoItemInfo: TodoEntity, onEditTodo: (Int) -> Unit, modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
         Row(
-            modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp),
+            modifier = Modifier
+                .clickable(onClick = { onEditTodo(todoItemInfo.id) })
+                .padding(vertical = 16.dp, horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
@@ -365,6 +373,7 @@ fun TodoHomeScreenLightPreview() {
         TodoHomeScreenContent(
             uiState = previewUiState,
             onAddTodo = {},
+            onEditTodo = {},
             onTagSelected = {},
             onDueDateChipClick = {},
             onDueDateFilterChange = {},
@@ -381,6 +390,7 @@ fun TodoHomeScreenDarkPreview() {
         TodoHomeScreenContent(
             uiState = previewUiState,
             onAddTodo = {},
+            onEditTodo = {},
             onTagSelected = {},
             onDueDateChipClick = {},
             onDueDateFilterChange = {},

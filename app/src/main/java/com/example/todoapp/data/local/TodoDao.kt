@@ -20,4 +20,7 @@ interface TodoDao {
 
     @Query("SELECT * FROM todo_items ORDER BY targetDate IS NULL ASC, targetDate ASC, id ASC")
     fun getAllItem(): Flow<List<TodoEntity>>
+
+    @Query("SELECT * FROM todo_items WHERE id = :id")
+    suspend fun getItem(id: Int): TodoEntity?
 }

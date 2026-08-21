@@ -28,7 +28,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
-fun DateTextField(
+fun DateField(
     onDateSelected: (Long?) -> Unit,
     selectedDate: Long?,
     modifier: Modifier = Modifier
