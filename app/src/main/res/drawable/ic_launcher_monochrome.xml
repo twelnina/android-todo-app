@@ -9,10 +9,9 @@
       android:translateX="12.42"
       android:translateY="12.42">
 
-      <!-- Checklist frame -->
       <path
           android:fillColor="@android:color/transparent"
-          android:strokeColor="#FFFFFFFF"
+          android:strokeColor="#FF000000"
           android:strokeWidth="4.8"
           android:strokeLineCap="round"
           android:strokeLineJoin="round"
@@ -25,51 +24,45 @@
                             V31
                             Q34,28 37,28 Z" />
 
-      <!-- Check 1 -->
       <path
           android:fillColor="@android:color/transparent"
-          android:strokeColor="#FFFFFFFF"
+          android:strokeColor="#FF000000"
           android:strokeWidth="4.8"
           android:strokeLineCap="round"
           android:strokeLineJoin="round"
           android:pathData="M41,42 L45,46 L51,38" />
 
-      <!-- Row 1 -->
       <path
           android:fillColor="@android:color/transparent"
-          android:strokeColor="#FFFFFFFF"
+          android:strokeColor="#FF000000"
           android:strokeWidth="4.8"
           android:strokeLineCap="round"
           android:pathData="M56,42 H66" />
 
-      <!-- Check 2 -->
       <path
           android:fillColor="@android:color/transparent"
-          android:strokeColor="#FFFFFFFF"
+          android:strokeColor="#FF000000"
           android:strokeWidth="4.8"
           android:strokeLineCap="round"
           android:strokeLineJoin="round"
           android:pathData="M41,56 L45,60 L51,52" />
 
-      <!-- Row 2 -->
       <path
           android:fillColor="@android:color/transparent"
-          android:strokeColor="#FFFFFFFF"
+          android:strokeColor="#FF000000"
           android:strokeWidth="4.8"
           android:strokeLineCap="round"
           android:pathData="M56,56 H66" />
 
-      <!-- Unchecked item -->
       <path
-          android:fillColor="#FFFFFFFF"
+          android:fillColor="#FF000000"
           android:pathData="M45,66
                             A3,3 0,1 1,45,72
                             A3,3 0,1 1,45,66 Z" />
 
-      <!-- Row 3 -->
       <path
           android:fillColor="@android:color/transparent"
-          android:strokeColor="#FFFFFFFF"
+          android:strokeColor="#FF000000"
           android:strokeWidth="4.8"
           android:strokeLineCap="round"
           android:pathData="M56,69 H66" />
