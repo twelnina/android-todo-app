@@ -42,6 +42,8 @@ import com.example.todoapp.ui.theme.TodoAppTheme
 fun EditScreen(
     id: Int,
     onBack: () -> Unit,
+    onUpdated: () -> Unit,
+    onDeleted: () -> Unit,
     viewModel: EditViewModel = viewModel(factory = EditViewModel.Factory),
 ) {
     LaunchedEffect(id) { viewModel.loadItem(id) }
@@ -53,8 +55,8 @@ fun EditScreen(
         onDescriptionChange = viewModel::updateDescription,
         onTargetDateChange = viewModel::updateTargetDate,
         onTagChange = viewModel::updateSelectedTag,
-        updateTodo = viewModel::updateTodo,
-        deleteTodo = viewModel::deleteTodo,
+        updateTodo = { viewModel.updateTodo(onUpdated) },
+        deleteTodo = { viewModel.deleteTodo(onDeleted) },
         onBack = onBack
     )
 }
@@ -111,10 +113,7 @@ private fun EditScreenContent(
                     }
                 }
                 Button(
-                    onClick = {
-                        updateTodo()
-                        onBack()
-                    },
+                    onClick = updateTodo,
                     enabled = uiState.isEditValid,
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -137,10 +136,7 @@ private fun EditScreenContent(
         )
         DeleteAlertDialog(
             showDeleteDialog = showDeleteDialog,
-            onConfirm = {
-                deleteTodo()
-                onBack()
-            },
+            onConfirm = deleteTodo,
             onDismiss = { showDeleteDialog = false }
         )
     }
