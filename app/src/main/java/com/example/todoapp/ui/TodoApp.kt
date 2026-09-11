@@ -52,8 +52,14 @@ fun TodoApp(
                 entry<AppNavKey.TodoList> {
                     HomeScreen(
                         snackbarHostState = snackbarHostState,
-                        onAddTodo = { backStack.add(AppNavKey.AddTodo) },
-                        onEditTodo = { id -> backStack.add(AppNavKey.EditTodo(id)) }
+                        onAddTodo = {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            backStack.add(AppNavKey.AddTodo)
+                        },
+                        onEditTodo = { id ->
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            backStack.add(AppNavKey.EditTodo(id))
+                        }
                     )
                 }
                 entry<AppNavKey.AddTodo> {
