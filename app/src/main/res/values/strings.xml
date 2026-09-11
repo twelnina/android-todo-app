@@ -28,9 +28,10 @@
     <string name="shopping">Shopping</string>
 
     <string name="delete_confirmation_title">Delete it?</string>
-    <string name="delete_confirmation_message">This action cannot be undone.</string>
+    <string name="delete_confirmation_message">You can undo this action for a short time after deletion.</string>
 
     <string name="todo_added">Todo added</string>
     <string name="todo_updated">Todo updated</string>
     <string name="todo_deleted">Todo deleted</string>
+    <string name="undo">Undo</string>
 </resources>

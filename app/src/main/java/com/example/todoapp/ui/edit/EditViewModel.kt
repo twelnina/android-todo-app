@@ -55,20 +55,20 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
         }
     }
 
-    fun deleteTodo(onDeleted: () -> Unit) {
-        uiState.value.run {
-            viewModelScope.launch {
-                todoRepository.delete(
-                    TodoEntity(
-                        id = id,
-                        title = title,
-                        description = description,
-                        targetDate = targetDate.toLocalDate(),
-                        tag = selectedTag
-                    )
-                )
-                onDeleted()
-            }
+    fun deleteTodo(onDeleted: (TodoEntity) -> Unit) {
+        val deletedTodo = uiState.value.run {
+            TodoEntity(
+                id = id,
+                title = title,
+                description = description,
+                targetDate = targetDate.toLocalDate(),
+                tag = selectedTag
+            )
+        }
+
+        viewModelScope.launch {
+            todoRepository.delete(deletedTodo)
+            onDeleted(deletedTodo)
         }
     }
 
