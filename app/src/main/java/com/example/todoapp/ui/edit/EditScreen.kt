@@ -55,10 +55,8 @@ fun EditScreen(
         onDescriptionChange = viewModel::updateDescription,
         onTargetDateChange = viewModel::updateTargetDate,
         onTagChange = viewModel::updateSelectedTag,
-        updateTodo = viewModel::updateTodo,
-        deleteTodo = viewModel::deleteTodo,
-        onUpdated = onUpdated,
-        onDeleted = onDeleted,
+        updateTodo = { viewModel.updateTodo(onUpdated) },
+        deleteTodo = { viewModel.deleteTodo(onDeleted) },
         onBack = onBack
     )
 }
@@ -72,8 +70,6 @@ private fun EditScreenContent(
     onTagChange: (TodoTag?) -> Unit,
     updateTodo: () -> Unit,
     deleteTodo: () -> Unit,
-    onDeleted: () -> Unit,
-    onUpdated: () -> Unit,
     onBack: () -> Unit
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -117,10 +113,7 @@ private fun EditScreenContent(
                     }
                 }
                 Button(
-                    onClick = {
-                        updateTodo()
-                        onUpdated()
-                    },
+                    onClick = updateTodo,
                     enabled = uiState.isEditValid,
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -143,10 +136,7 @@ private fun EditScreenContent(
         )
         DeleteAlertDialog(
             showDeleteDialog = showDeleteDialog,
-            onConfirm = {
-                deleteTodo()
-                onDeleted()
-            },
+            onConfirm = deleteTodo,
             onDismiss = { showDeleteDialog = false }
         )
     }
@@ -188,6 +178,6 @@ private fun DeleteAlertDialog(
 @Composable
 fun EditScreenPreview() {
     TodoAppTheme(darkTheme = true) {
-        EditScreenContent(EditUiState(), {}, {}, {}, {}, {}, {}, {}, {}, {})
+        EditScreenContent(EditUiState(), {}, {}, {}, {}, {}, {}, {})
     }
 }

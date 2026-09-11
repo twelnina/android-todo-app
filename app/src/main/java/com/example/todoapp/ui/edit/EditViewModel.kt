@@ -21,6 +21,7 @@ import java.time.ZoneOffset
 class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(EditUiState())
     val uiState: StateFlow<EditUiState> = _uiState.asStateFlow()
+
     fun loadItem(id: Int) {
         viewModelScope.launch {
             todoRepository.getItem(id)?.run {
@@ -37,7 +38,7 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
         }
     }
 
-    fun updateTodo() {
+    fun updateTodo(onUpdated: () -> Unit) {
         uiState.value.run {
             viewModelScope.launch {
                 todoRepository.update(
@@ -49,11 +50,12 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
                         tag = selectedTag
                     )
                 )
+                onUpdated()
             }
         }
     }
 
-    fun deleteTodo() {
+    fun deleteTodo(onDeleted: () -> Unit) {
         uiState.value.run {
             viewModelScope.launch {
                 todoRepository.delete(
@@ -65,6 +67,7 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
                         tag = selectedTag
                     )
                 )
+                onDeleted()
             }
         }
     }
