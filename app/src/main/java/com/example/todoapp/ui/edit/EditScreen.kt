@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
+import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TodoEntryBody
 import com.example.todoapp.ui.theme.TodoAppTheme
@@ -43,7 +44,7 @@ fun EditScreen(
     id: Int,
     onBack: () -> Unit,
     onUpdated: () -> Unit,
-    onDeleted: () -> Unit,
+    onDeleted: (TodoEntity) -> Unit,
     viewModel: EditViewModel = viewModel(factory = EditViewModel.Factory),
 ) {
     LaunchedEffect(id) { viewModel.loadItem(id) }

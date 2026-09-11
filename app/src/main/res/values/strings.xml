@@ -33,4 +33,5 @@
     <string name="todo_added">Todo added</string>
     <string name="todo_updated">Todo updated</string>
     <string name="todo_deleted">Todo deleted</string>
+    <string name="undo">Undo</string>
 </resources>

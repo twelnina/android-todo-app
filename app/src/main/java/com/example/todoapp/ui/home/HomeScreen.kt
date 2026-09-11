@@ -31,6 +31,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -64,6 +66,7 @@ private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH
 
 @Composable
 fun HomeScreen(
+    snackbarHostState: SnackbarHostState,
     onAddTodo: () -> Unit,
     onEditTodo: (Int) -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
@@ -72,6 +75,7 @@ fun HomeScreen(
 
     HomeScreenContent(
         uiState = uiState,
+        snackbarHostState = snackbarHostState,
         onQueryChange = viewModel::onQueryChange,
         onTagSelected = viewModel::onTagSelected,
         onDueDateChipClick = viewModel::showBottomSheet,
@@ -85,6 +89,7 @@ fun HomeScreen(
 @Composable
 private fun HomeScreenContent(
     uiState: HomeUiState,
+    snackbarHostState: SnackbarHostState,
     onQueryChange: (String) -> Unit,
     onTagSelected: (TodoTag) -> Unit,
     onDueDateChipClick: () -> Unit,
@@ -119,6 +124,9 @@ private fun HomeScreenContent(
                 )
             }
         },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddTodo, modifier = Modifier.navigationBarsPadding()
@@ -130,9 +138,11 @@ private fun HomeScreenContent(
         }, modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         LazyColumn(
-            state = listState, contentPadding = PaddingValues(
+            state = listState,
+            contentPadding = PaddingValues(
                 bottom = innerPadding.calculateBottomPadding() + 80.dp, start = 8.dp, end = 8.dp
-            ), modifier = Modifier
+            ),
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(top = innerPadding.calculateTopPadding())
         ) {
@@ -176,7 +186,8 @@ private fun TodoFilterRow(
                         if (isAllSelected) stringResource(R.string.due_date)
                         else stringResource(selectedDueDateFilter.labelRes)
                     )
-                }, leadingIcon = if (!isAllSelected) {
+                },
+                leadingIcon = if (!isAllSelected) {
                     {
                         Icon(
                             painter = painterResource(R.drawable.check_24px),
@@ -372,6 +383,7 @@ fun HomeScreenLightPreview() {
     TodoAppTheme(darkTheme = false) {
         HomeScreenContent(
             uiState = previewUiState,
+            snackbarHostState = SnackbarHostState(),
             onAddTodo = {},
             onEditTodo = {},
             onTagSelected = {},
@@ -389,6 +401,7 @@ fun HomeScreenDarkPreview() {
     TodoAppTheme(darkTheme = true) {
         HomeScreenContent(
             uiState = previewUiState,
+            snackbarHostState = SnackbarHostState(),
             onAddTodo = {},
             onEditTodo = {},
             onTagSelected = {},
