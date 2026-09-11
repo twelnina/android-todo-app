@@ -29,4 +29,8 @@
 
     <string name="delete_confirmation_title">Delete it?</string>
     <string name="delete_confirmation_message">This action cannot be undone.</string>
+
+    <string name="todo_added">Todo added</string>
+    <string name="todo_updated">Todo updated</string>
+    <string name="todo_deleted">Todo deleted</string>
 </resources>

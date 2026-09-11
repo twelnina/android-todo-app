@@ -2,6 +2,7 @@ package com.example.todoapp.ui.entry
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,7 +28,8 @@ import com.example.todoapp.ui.theme.TodoAppTheme
 @Composable
 fun AddScreen(
     viewModel: AddViewModel = viewModel(factory = AddViewModel.Factory),
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onSaved: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -37,7 +39,7 @@ fun AddScreen(
         onDescriptionChange = viewModel::updateDescription,
         onTargetDateChange = viewModel::updateTargetDate,
         onTagChange = viewModel::updateSelectedTag,
-        onDone = { viewModel.saveTodo(onSaved = onBack) },
+        onDone = { viewModel.saveTodo(onSaved = onSaved) },
         onBack = onBack
     )
 }
@@ -73,6 +75,7 @@ private fun AddScreenContent(
                 enabled = uiState.isEntryValid,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .navigationBarsPadding()
                     .padding(horizontal = 16.dp)
             ) {
                 Text(stringResource(R.string.done))
