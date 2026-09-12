@@ -87,7 +87,7 @@ fun ListScreen(
 }
 
 @Composable
-private fun ListScreenContent(
+internal fun ListScreenContent(
     uiState: ListUiState,
     snackbarHostState: SnackbarHostState,
     onQueryChange: (String) -> Unit,
