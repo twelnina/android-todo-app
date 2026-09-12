@@ -1,4 +1,4 @@
-package com.example.todoapp.ui.home
+package com.example.todoapp.ui.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -20,7 +20,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 
-class HomeViewModel(
+class ListViewModel(
     private val todoRepository: TodoRepository
 ) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
@@ -28,14 +28,14 @@ class HomeViewModel(
     private val _selectedDueDateFilter = MutableStateFlow(DueDateFilter.ALL)
     private val _showBottomSheet = MutableStateFlow(false)
 
-    val uiState: StateFlow<HomeUiState> = combine(
+    val uiState: StateFlow<ListUiState> = combine(
         todoRepository.getAllItems(),
         _searchQuery,
         _selectedTags,
         _selectedDueDateFilter,
         _showBottomSheet
     ) { items, query, selectedTags, dueDateFilter, showSheet ->
-        HomeUiState(
+        ListUiState(
             searchQuery = query,
             selectedTags = selectedTags,
             selectedDueDateFilter = dueDateFilter,
@@ -50,7 +50,7 @@ class HomeViewModel(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = HomeUiState()
+        initialValue = ListUiState()
     )
 
     private fun filterTodos(
@@ -118,7 +118,7 @@ class HomeViewModel(
                 val application =
                     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as TodoApplication)
                 val repository = application.repository
-                HomeViewModel(todoRepository = repository)
+                ListViewModel(todoRepository = repository)
             }
         }
     }

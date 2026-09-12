@@ -1,4 +1,4 @@
-package com.example.todoapp.ui.home
+package com.example.todoapp.ui.list
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -65,15 +65,15 @@ import java.util.Locale
 private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH)
 
 @Composable
-fun HomeScreen(
+fun ListScreen(
     snackbarHostState: SnackbarHostState,
     onAddTodo: () -> Unit,
     onEditTodo: (Int) -> Unit,
-    viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
+    viewModel: ListViewModel = viewModel(factory = ListViewModel.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    HomeScreenContent(
+    ListScreenContent(
         uiState = uiState,
         snackbarHostState = snackbarHostState,
         onQueryChange = viewModel::onQueryChange,
@@ -87,8 +87,8 @@ fun HomeScreen(
 }
 
 @Composable
-private fun HomeScreenContent(
-    uiState: HomeUiState,
+private fun ListScreenContent(
+    uiState: ListUiState,
     snackbarHostState: SnackbarHostState,
     onQueryChange: (String) -> Unit,
     onTagSelected: (TodoTag) -> Unit,
@@ -344,7 +344,7 @@ private fun DueDateSelectionBottomSheet(
 }
 
 
-private val previewUiState = HomeUiState(
+private val previewUiState = ListUiState(
     todoEntities = listOf(
         TodoEntity(
             id = 1,
@@ -381,7 +381,7 @@ private val previewUiState = HomeUiState(
 @Composable
 fun HomeScreenLightPreview() {
     TodoAppTheme(darkTheme = false) {
-        HomeScreenContent(
+        ListScreenContent(
             uiState = previewUiState,
             snackbarHostState = SnackbarHostState(),
             onAddTodo = {},
@@ -399,7 +399,7 @@ fun HomeScreenLightPreview() {
 @Composable
 fun HomeScreenDarkPreview() {
     TodoAppTheme(darkTheme = true) {
-        HomeScreenContent(
+        ListScreenContent(
             uiState = previewUiState,
             snackbarHostState = SnackbarHostState(),
             onAddTodo = {},
