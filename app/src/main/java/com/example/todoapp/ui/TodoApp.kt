@@ -19,7 +19,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.example.todoapp.R
 import com.example.todoapp.ui.edit.EditScreen
 import com.example.todoapp.ui.entry.AddScreen
-import com.example.todoapp.ui.home.HomeScreen
+import com.example.todoapp.ui.list.ListScreen
 import com.example.todoapp.ui.navigation.AppNavKey
 import com.example.todoapp.ui.theme.TodoAppTheme
 import kotlinx.coroutines.launch
@@ -50,7 +50,7 @@ fun TodoApp(
             },
             entryProvider = entryProvider {
                 entry<AppNavKey.TodoList> {
-                    HomeScreen(
+                    ListScreen(
                         snackbarHostState = snackbarHostState,
                         onAddTodo = {
                             snackbarHostState.currentSnackbarData?.dismiss()

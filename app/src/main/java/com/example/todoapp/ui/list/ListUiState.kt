@@ -1,10 +1,10 @@
-package com.example.todoapp.ui.home
+package com.example.todoapp.ui.list
 
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.DueDateFilter
 import com.example.todoapp.model.TodoTag
 
-data class HomeUiState(
+data class ListUiState(
     val searchQuery: String = "",
     val selectedTags: Set<TodoTag> = emptySet(),
     val selectedDueDateFilter: DueDateFilter = DueDateFilter.ALL,
