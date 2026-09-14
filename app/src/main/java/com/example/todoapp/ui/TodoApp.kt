@@ -1,19 +1,21 @@
 package com.example.todoapp.ui
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingToolbarDefaults
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
@@ -21,7 +23,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -53,11 +54,68 @@ fun TodoApp(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
+    val currentNavKey = backStack.lastOrNull()
+
+    val showToolbar = when (currentNavKey) {
+        AppNavKey.TodoHome,
+        AppNavKey.TodoList,
+        AppNavKey.TodoCalendar -> true
+
+        else -> false
+    }
+
     TodoAppTheme {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+            floatingActionButton = {
+                if (showToolbar) {
+                    HorizontalFloatingToolbar(
+                        expanded = true,
+                        modifier = Modifier.height(56.dp),
+                        floatingActionButton = {
+                            FloatingToolbarDefaults.VibrantFloatingActionButton(
+                                shape = CircleShape,
+                                onClick = { backStack.add(AppNavKey.AddTodo) }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.add_24px),
+                                    contentDescription = stringResource(R.string.add_todo)
+                                )
+                            }
+                        }
+                    ) {
+                        FloatingToolbarItem(
+                            selected = currentNavKey == AppNavKey.TodoHome,
+                            iconResourceId = R.drawable.home_24px,
+                            stringResourceId = R.string.home,
+                            onClick = { backStack.navigateToTopLevel(AppNavKey.TodoHome) }
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        FloatingToolbarItem(
+                            selected = currentNavKey == AppNavKey.TodoList,
+                            iconResourceId = R.drawable.list_24px,
+                            stringResourceId = R.string.list,
+                            onClick = { backStack.navigateToTopLevel(AppNavKey.TodoList) }
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        FloatingToolbarItem(
+                            selected = currentNavKey == AppNavKey.TodoCalendar,
+                            iconResourceId = R.drawable.calendar_month_24px,
+                            stringResourceId = R.string.calendar,
+                            onClick = { backStack.navigateToTopLevel(AppNavKey.TodoCalendar) }
+                        )
+                    }
+                }
+            },
+            floatingActionButtonPosition = FabPosition.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
             NavDisplay(
                 backStack = backStack,
-                modifier = Modifier.matchParentSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it)
+                    .consumeWindowInsets(it),
                 onBack = { backStack.removeLastOrNull() },
                 entryDecorators = listOf(
                     rememberSaveableStateHolderNavEntryDecorator(),
@@ -69,7 +127,6 @@ fun TodoApp(
                     }
                     entry<AppNavKey.TodoList> {
                         ListScreen(
-                            snackbarHostState = snackbarHostState,
                             onEditTodo = { id ->
                                 snackbarHostState.currentSnackbarData?.dismiss()
                                 backStack.add(AppNavKey.EditTodo(id))
@@ -123,58 +180,6 @@ fun TodoApp(
                     }
                 }
             )
-
-            val currentNavKey = backStack.lastOrNull()
-
-            val showToolbar = when (currentNavKey) {
-                AppNavKey.TodoHome,
-                AppNavKey.TodoList,
-                AppNavKey.TodoCalendar -> true
-
-                else -> false
-            }
-
-            if (showToolbar) {
-                HorizontalFloatingToolbar(
-                    expanded = true,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .navigationBarsPadding()
-                        .offset(y = -FloatingToolbarDefaults.ScreenOffset)
-                        .height(56.dp),
-                    floatingActionButton = {
-                        FloatingToolbarDefaults.VibrantFloatingActionButton(
-                            shape = CircleShape,
-                            onClick = { backStack.add(AppNavKey.AddTodo) }
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.add_24px),
-                                contentDescription = stringResource(R.string.add_todo)
-                            )
-                        }
-                    }
-                ) {
-
-                    FloatingToolbarItem(
-                        selected = currentNavKey == AppNavKey.TodoHome,
-                        iconResourceId = R.drawable.home_24px,
-                        stringResourceId = R.string.home,
-                        onClick = { backStack.navigateToTopLevel(AppNavKey.TodoHome) }
-                    )
-                    FloatingToolbarItem(
-                        selected = currentNavKey == AppNavKey.TodoList,
-                        iconResourceId = R.drawable.list_24px,
-                        stringResourceId = R.string.list,
-                        onClick = { backStack.navigateToTopLevel(AppNavKey.TodoList) }
-                    )
-                    FloatingToolbarItem(
-                        selected = currentNavKey == AppNavKey.TodoCalendar,
-                        iconResourceId = R.drawable.calendar_month_24px,
-                        stringResourceId = R.string.calendar,
-                        onClick = { backStack.navigateToTopLevel(AppNavKey.TodoCalendar) }
-                    )
-                }
-            }
         }
     }
 }

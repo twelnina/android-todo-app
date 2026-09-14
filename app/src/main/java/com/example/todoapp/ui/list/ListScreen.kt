@@ -27,11 +27,8 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetState
@@ -65,7 +62,6 @@ private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH
 
 @Composable
 fun ListScreen(
-    snackbarHostState: SnackbarHostState,
     onEditTodo: (Int) -> Unit,
     viewModel: ListViewModel = viewModel(factory = ListViewModel.Factory)
 ) {
@@ -73,7 +69,6 @@ fun ListScreen(
 
     ListScreenContent(
         uiState = uiState,
-        snackbarHostState = snackbarHostState,
         onQueryChange = viewModel::onQueryChange,
         onTagSelected = viewModel::onTagSelected,
         onDueDateChipClick = viewModel::showBottomSheet,
@@ -86,7 +81,6 @@ fun ListScreen(
 @Composable
 internal fun ListScreenContent(
     uiState: ListUiState,
-    snackbarHostState: SnackbarHostState,
     onQueryChange: (String) -> Unit,
     onTagSelected: (TodoTag) -> Unit,
     onDueDateChipClick: () -> Unit,
@@ -107,35 +101,27 @@ internal fun ListScreenContent(
         }
     }
 
-    Scaffold(
-        topBar = {
-            Column {
-                TodoSearchBar(
-                    query = uiState.searchQuery, onQueryChange = { newQuery ->
-                        onQueryChange(newQuery)
-                    })
-                Spacer(modifier = Modifier.padding(vertical = 2.dp))
-                TodoFilterRow(
-                    selectedDueDateFilter = uiState.selectedDueDateFilter,
-                    selectedTags = uiState.selectedTags,
-                    onDueDateChipClick = onDueDateChipClick,
-                    onTagSelected = onTagSelected
-                )
-            }
-        },
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        },
-        modifier = Modifier.fillMaxSize()
-    ) { innerPadding ->
+
+    Column() {
+        TodoSearchBar(
+            query = uiState.searchQuery, onQueryChange = { newQuery ->
+                onQueryChange(newQuery)
+            })
+        Spacer(modifier = Modifier.padding(vertical = 2.dp))
+        TodoFilterRow(
+            selectedDueDateFilter = uiState.selectedDueDateFilter,
+            selectedTags = uiState.selectedTags,
+            onDueDateChipClick = onDueDateChipClick,
+            onTagSelected = onTagSelected
+        )
         LazyColumn(
             state = listState,
             contentPadding = PaddingValues(
-                bottom = innerPadding.calculateBottomPadding() + 80.dp, start = 8.dp, end = 8.dp
+                bottom = 80.dp, start = 8.dp, end = 8.dp
             ),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = innerPadding.calculateTopPadding())
+//                .padding(top = innerPadding.calculateTopPadding())
         ) {
             items(
                 items = uiState.todoEntities,
@@ -156,6 +142,7 @@ internal fun ListScreenContent(
             onDueDateFilterChange = onDueDateFilterChange
         )
     }
+
 }
 
 @Composable
@@ -373,7 +360,6 @@ fun HomeScreenLightPreview() {
     TodoAppTheme(darkTheme = false) {
         ListScreenContent(
             uiState = previewUiState,
-            snackbarHostState = SnackbarHostState(),
             onEditTodo = {},
             onTagSelected = {},
             onDueDateChipClick = {},
@@ -390,7 +376,6 @@ fun HomeScreenDarkPreview() {
     TodoAppTheme(darkTheme = true) {
         ListScreenContent(
             uiState = previewUiState,
-            snackbarHostState = SnackbarHostState(),
             onEditTodo = {},
             onTagSelected = {},
             onDueDateChipClick = {},
