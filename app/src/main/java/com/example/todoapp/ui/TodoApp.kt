@@ -3,13 +3,32 @@ package com.example.todoapp.ui
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingToolbarDefaults
+import androidx.compose.material3.HorizontalFloatingToolbar
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
@@ -33,78 +52,153 @@ fun TodoApp(
     val coroutineScope = rememberCoroutineScope()
 
     TodoAppTheme {
-        NavDisplay(
-            backStack = backStack,
-            onBack = { backStack.removeLastOrNull() },
-            entryDecorators = listOf(
-                rememberSaveableStateHolderNavEntryDecorator(),
-                rememberViewModelStoreNavEntryDecorator()
-            ),
-            transitionSpec = {
-                slideInHorizontally(initialOffsetX = { it }) togetherWith
-                        slideOutHorizontally(targetOffsetX = { -it })
-            },
-            popTransitionSpec = {
-                slideInHorizontally(initialOffsetX = { -it }) togetherWith
-                        slideOutHorizontally(targetOffsetX = { it })
-            },
-            entryProvider = entryProvider {
-                entry<AppNavKey.TodoList> {
-                    ListScreen(
-                        snackbarHostState = snackbarHostState,
-                        onAddTodo = {
-                            snackbarHostState.currentSnackbarData?.dismiss()
-                            backStack.add(AppNavKey.AddTodo)
-                        },
-                        onEditTodo = { id ->
-                            snackbarHostState.currentSnackbarData?.dismiss()
-                            backStack.add(AppNavKey.EditTodo(id))
-                        }
-                    )
-                }
-                entry<AppNavKey.AddTodo> {
-                    val snackbarMessage = stringResource(R.string.todo_added)
-                    AddScreen(
-                        onBack = { backStack.removeLastOrNull() },
-                        onSaved = {
-                            backStack.removeLastOrNull()
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar(snackbarMessage)
+        Box {
+            NavDisplay(
+                backStack = backStack,
+                onBack = { backStack.removeLastOrNull() },
+                entryDecorators = listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                    rememberViewModelStoreNavEntryDecorator()
+                ),
+                transitionSpec = {
+                    slideInHorizontally(initialOffsetX = { it }) togetherWith
+                            slideOutHorizontally(targetOffsetX = { -it })
+                },
+                popTransitionSpec = {
+                    slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                            slideOutHorizontally(targetOffsetX = { it })
+                },
+                entryProvider = entryProvider {
+                    entry<AppNavKey.TodoList> {
+                        ListScreen(
+                            snackbarHostState = snackbarHostState,
+                            onEditTodo = { id ->
+                                snackbarHostState.currentSnackbarData?.dismiss()
+                                backStack.add(AppNavKey.EditTodo(id))
                             }
-                        }
-                    )
-                }
-                entry<AppNavKey.EditTodo> { key ->
-                    val todoUpdatedMessage = stringResource(R.string.todo_updated)
-                    val todoDeletedMessage = stringResource(R.string.todo_deleted)
-                    val undoLabel = stringResource(R.string.undo)
-                    EditScreen(
-                        id = key.id,
-                        onBack = { backStack.removeLastOrNull() },
-                        onUpdated = {
-                            backStack.removeLastOrNull()
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar(todoUpdatedMessage)
-                            }
-                        },
-                        onDeleted = { deletedTodo ->
-                            backStack.removeLastOrNull()
-                            coroutineScope.launch {
-                                val result = snackbarHostState.showSnackbar(
-                                    message = todoDeletedMessage,
-                                    actionLabel = undoLabel,
-                                    withDismissAction = true,
-                                    duration = SnackbarDuration.Long
-                                )
-
-                                if (result == SnackbarResult.ActionPerformed) {
-                                    viewModel.restoreDeletedTodo(deletedTodo)
+                        )
+                    }
+                    entry<AppNavKey.AddTodo> {
+                        val snackbarMessage = stringResource(R.string.todo_added)
+                        AddScreen(
+                            onBack = { backStack.removeLastOrNull() },
+                            onSaved = {
+                                backStack.removeLastOrNull()
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(snackbarMessage)
                                 }
                             }
-                        }
-                    )
+                        )
+                    }
+                    entry<AppNavKey.EditTodo> { key ->
+                        val todoUpdatedMessage = stringResource(R.string.todo_updated)
+                        val todoDeletedMessage = stringResource(R.string.todo_deleted)
+                        val undoLabel = stringResource(R.string.undo)
+                        EditScreen(
+                            id = key.id,
+                            onBack = { backStack.removeLastOrNull() },
+                            onUpdated = {
+                                backStack.removeLastOrNull()
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(todoUpdatedMessage)
+                                }
+                            },
+                            onDeleted = { deletedTodo ->
+                                backStack.removeLastOrNull()
+                                coroutineScope.launch {
+                                    val result = snackbarHostState.showSnackbar(
+                                        message = todoDeletedMessage,
+                                        actionLabel = undoLabel,
+                                        withDismissAction = true,
+                                        duration = SnackbarDuration.Long
+                                    )
+
+                                    if (result == SnackbarResult.ActionPerformed) {
+                                        viewModel.restoreDeletedTodo(deletedTodo)
+                                    }
+                                }
+                            }
+                        )
+                    }
                 }
+            )
+            HorizontalFloatingToolbar(
+                expanded = true,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
+                    .offset(y = -FloatingToolbarDefaults.ScreenOffset)
+                    .height(56.dp),
+                floatingActionButton = {
+                    FloatingToolbarDefaults.VibrantFloatingActionButton(
+                        shape = CircleShape,
+                        onClick = {}
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.add_24px),
+                            contentDescription = stringResource(R.string.add_todo)
+                        )
+                    }
+                }
+            ) {
+                FloatingToolbarItem(
+                    selected = true,
+                    iconResourceId = R.drawable.home_24px,
+                    stringResourceId = R.string.home,
+                    onClick = {}
+                )
+                FloatingToolbarItem(
+                    selected = false,
+                    iconResourceId = R.drawable.list_24px,
+                    stringResourceId = R.string.list,
+                    onClick = {}
+                )
+                FloatingToolbarItem(
+                    selected = false,
+                    iconResourceId = R.drawable.calendar_month_24px,
+                    stringResourceId = R.string.calendar,
+                    onClick = {}
+                )
             }
-        )
+        }
+    }
+}
+
+@Composable
+private fun FloatingToolbarItem(
+    selected: Boolean,
+    iconResourceId: Int,
+    stringResourceId: Int,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    val containerColor = if (selected) {
+        MaterialTheme.colorScheme.secondaryContainer
+    } else {
+        Color.Transparent
+    }
+
+    val contentColor = if (selected) {
+        MaterialTheme.colorScheme.onSecondaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
+    TextButton(
+        onClick = onClick,
+        colors = ButtonDefaults.textButtonColors(
+            containerColor = containerColor,
+            contentColor = contentColor
+        ),
+        modifier = modifier
+    ) {
+        if (selected) {
+            Icon(
+                painter = painterResource(iconResourceId),
+                contentDescription = stringResource(stringResourceId)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+        }
+        Text(text = stringResource(stringResourceId))
     }
 }

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -31,11 +29,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -67,7 +66,6 @@ private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH
 @Composable
 fun ListScreen(
     snackbarHostState: SnackbarHostState,
-    onAddTodo: () -> Unit,
     onEditTodo: (Int) -> Unit,
     viewModel: ListViewModel = viewModel(factory = ListViewModel.Factory)
 ) {
@@ -81,7 +79,6 @@ fun ListScreen(
         onDueDateChipClick = viewModel::showBottomSheet,
         onDueDateFilterChange = viewModel::onDueDateFilterSelected,
         onDismissRequest = viewModel::dismissBottomSheet,
-        onAddTodo = onAddTodo,
         onEditTodo = onEditTodo
     )
 }
@@ -95,12 +92,14 @@ internal fun ListScreenContent(
     onDueDateChipClick: () -> Unit,
     onDueDateFilterChange: (DueDateFilter) -> Unit,
     onDismissRequest: () -> Unit,
-    onAddTodo: () -> Unit,
     onEditTodo: (Int) -> Unit
 ) {
     val listState = rememberLazyListState()
 
-    @OptIn(ExperimentalMaterial3Api::class) val sheetState = rememberModalBottomSheetState()
+    @OptIn(ExperimentalMaterial3Api::class)
+    val sheetState = rememberBottomSheetState(
+        initialValue = SheetValue.Hidden
+    )
 
     LaunchedEffect(uiState.searchQuery, uiState.selectedTags, uiState.selectedDueDateFilter) {
         if (uiState.todoEntities.isNotEmpty()) {
@@ -127,15 +126,7 @@ internal fun ListScreenContent(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddTodo, modifier = Modifier.navigationBarsPadding()
-            ) {
-                Icon(
-                    painterResource(R.drawable.add_24px), contentDescription = null
-                )
-            }
-        }, modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         LazyColumn(
             state = listState,
@@ -312,12 +303,6 @@ private fun DueDateSelectionBottomSheet(
                 Column {
                     DueDateFilter.entries.forEachIndexed { index, filter ->
                         ListItem(
-                            headlineContent = {
-                                Text(
-                                    text = stringResource(filter.labelRes),
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            },
                             colors = if (filter == selectedFilter) {
                                 ListItemDefaults.colors(
                                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -329,7 +314,12 @@ private fun DueDateSelectionBottomSheet(
                                     sheetState.hide()
                                     onDueDateFilterChange(filter)
                                 }
-                            })
+                            }) {
+                            Text(
+                                text = stringResource(filter.labelRes),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                         if (index < DueDateFilter.entries.size - 1) {
                             HorizontalDivider(
                                 thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant
@@ -384,7 +374,6 @@ fun HomeScreenLightPreview() {
         ListScreenContent(
             uiState = previewUiState,
             snackbarHostState = SnackbarHostState(),
-            onAddTodo = {},
             onEditTodo = {},
             onTagSelected = {},
             onDueDateChipClick = {},
@@ -402,7 +391,6 @@ fun HomeScreenDarkPreview() {
         ListScreenContent(
             uiState = previewUiState,
             snackbarHostState = SnackbarHostState(),
-            onAddTodo = {},
             onEditTodo = {},
             onTagSelected = {},
             onDueDateChipClick = {},
