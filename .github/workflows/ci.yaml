@@ -54,9 +54,6 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Run instrumented tests
-        uses: reactivecircus/android-emulator-runner@v2.38.0
-        with:
-          api-level: 29
-          arch: x86_64
-          disable-animations: true
-          script: ./gradlew connectedDebugAndroidTest
+        run: >
+          .gradlew pixel10Api36DebugAndroidTest
+          -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect

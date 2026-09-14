@@ -35,6 +35,19 @@ android {
     buildFeatures {
         compose = true
     }
+
+    testOptions {
+        @Suppress("UnstableApiUsage")
+        managedDevices {
+            localDevices {
+                create("pixel10Api36") {
+                    device = "Pixel 10"
+                    apiLevel = 36
+                    systemImageSource = "aosp-atd"
+                }
+            }
+        }
+    }
 }
 
 dependencies {
