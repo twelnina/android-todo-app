@@ -123,45 +123,57 @@ fun TodoApp(
                     }
                 }
             )
-            HorizontalFloatingToolbar(
-                expanded = true,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .navigationBarsPadding()
-                    .offset(y = -FloatingToolbarDefaults.ScreenOffset)
-                    .height(56.dp),
-                floatingActionButton = {
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        shape = CircleShape,
-                        onClick = { backStack.add(AppNavKey.AddTodo) }
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.add_24px),
-                            contentDescription = stringResource(R.string.add_todo)
-                        )
-                    }
-                }
-            ) {
-                val currentNavKey = backStack.lastOrNull()
 
-                FloatingToolbarItem(
-                    selected = currentNavKey == AppNavKey.TodoHome,
-                    iconResourceId = R.drawable.home_24px,
-                    stringResourceId = R.string.home,
-                    onClick = { backStack.navigateToTopLevel(AppNavKey.TodoHome) }
-                )
-                FloatingToolbarItem(
-                    selected = currentNavKey == AppNavKey.TodoList,
-                    iconResourceId = R.drawable.list_24px,
-                    stringResourceId = R.string.list,
-                    onClick = { backStack.navigateToTopLevel(AppNavKey.TodoList) }
-                )
-                FloatingToolbarItem(
-                    selected = currentNavKey == AppNavKey.TodoCalendar,
-                    iconResourceId = R.drawable.calendar_month_24px,
-                    stringResourceId = R.string.calendar,
-                    onClick = { backStack.navigateToTopLevel(AppNavKey.TodoCalendar) }
-                )
+            val currentNavKey = backStack.lastOrNull()
+
+            val showToolbar = when (currentNavKey) {
+                AppNavKey.TodoHome,
+                AppNavKey.TodoList,
+                AppNavKey.TodoCalendar -> true
+
+                else -> false
+            }
+
+            if (showToolbar) {
+                HorizontalFloatingToolbar(
+                    expanded = true,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .offset(y = -FloatingToolbarDefaults.ScreenOffset)
+                        .height(56.dp),
+                    floatingActionButton = {
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            shape = CircleShape,
+                            onClick = { backStack.add(AppNavKey.AddTodo) }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.add_24px),
+                                contentDescription = stringResource(R.string.add_todo)
+                            )
+                        }
+                    }
+                ) {
+
+                    FloatingToolbarItem(
+                        selected = currentNavKey == AppNavKey.TodoHome,
+                        iconResourceId = R.drawable.home_24px,
+                        stringResourceId = R.string.home,
+                        onClick = { backStack.navigateToTopLevel(AppNavKey.TodoHome) }
+                    )
+                    FloatingToolbarItem(
+                        selected = currentNavKey == AppNavKey.TodoList,
+                        iconResourceId = R.drawable.list_24px,
+                        stringResourceId = R.string.list,
+                        onClick = { backStack.navigateToTopLevel(AppNavKey.TodoList) }
+                    )
+                    FloatingToolbarItem(
+                        selected = currentNavKey == AppNavKey.TodoCalendar,
+                        iconResourceId = R.drawable.calendar_month_24px,
+                        stringResourceId = R.string.calendar,
+                        onClick = { backStack.navigateToTopLevel(AppNavKey.TodoCalendar) }
+                    )
+                }
             }
         }
     }
