@@ -6,7 +6,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface AppNavKey : NavKey {
     @Serializable
+    data object TodoHome : AppNavKey
+
+    @Serializable
     data object TodoList : AppNavKey
+
+    @Serializable
+    data object TodoCalendar : AppNavKey
 
     @Serializable
     data object AddTodo : AppNavKey

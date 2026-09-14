@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">ToDoApp</string>
+
+
+    <string name="home">Home</string>
+    <string name="list">List</string>
+    <string name="calendar">Calendar</string>
+
     <string name="search">Search</string>
     <string name="title">Title</string>
     <string name="description">Description</string>
@@ -34,8 +40,4 @@
     <string name="todo_updated">Todo updated</string>
     <string name="todo_deleted">Todo deleted</string>
     <string name="undo">Undo</string>
-
-    <string name="home">Home</string>
-    <string name="list">List</string>
-    <string name="calendar">Calendar</string>
 </resources>
