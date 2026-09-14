@@ -55,5 +55,5 @@ jobs:
 
       - name: Run instrumented tests
         run: >
-          .gradlew pixel10Api36DebugAndroidTest
+          ./gradlew pixel10Api36DebugAndroidTest
           -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
