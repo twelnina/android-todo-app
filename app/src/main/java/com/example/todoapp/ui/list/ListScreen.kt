@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,24 +24,23 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -57,6 +58,7 @@ import com.example.todoapp.model.DueDateFilter
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TodoSearchBar
 import com.example.todoapp.ui.theme.TodoAppTheme
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -66,8 +68,6 @@ private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH
 
 @Composable
 fun ListScreen(
-    snackbarHostState: SnackbarHostState,
-    onAddTodo: () -> Unit,
     onEditTodo: (Int) -> Unit,
     viewModel: ListViewModel = viewModel(factory = ListViewModel.Factory)
 ) {
@@ -75,13 +75,11 @@ fun ListScreen(
 
     ListScreenContent(
         uiState = uiState,
-        snackbarHostState = snackbarHostState,
         onQueryChange = viewModel::onQueryChange,
         onTagSelected = viewModel::onTagSelected,
         onDueDateChipClick = viewModel::showBottomSheet,
         onDueDateFilterChange = viewModel::onDueDateFilterSelected,
         onDismissRequest = viewModel::dismissBottomSheet,
-        onAddTodo = onAddTodo,
         onEditTodo = onEditTodo
     )
 }
@@ -89,62 +87,60 @@ fun ListScreen(
 @Composable
 internal fun ListScreenContent(
     uiState: ListUiState,
-    snackbarHostState: SnackbarHostState,
     onQueryChange: (String) -> Unit,
     onTagSelected: (TodoTag) -> Unit,
     onDueDateChipClick: () -> Unit,
     onDueDateFilterChange: (DueDateFilter) -> Unit,
     onDismissRequest: () -> Unit,
-    onAddTodo: () -> Unit,
     onEditTodo: (Int) -> Unit
 ) {
     val listState = rememberLazyListState()
 
-    @OptIn(ExperimentalMaterial3Api::class) val sheetState = rememberModalBottomSheetState()
+    val filterKey = Triple(
+        uiState.searchQuery,
+        uiState.selectedTags,
+        uiState.selectedDueDateFilter
+    )
+    val latestFilterKey by rememberUpdatedState(filterKey)
+    val hasTodos by rememberUpdatedState(uiState.todoEntities.isNotEmpty())
 
-    LaunchedEffect(uiState.searchQuery, uiState.selectedTags, uiState.selectedDueDateFilter) {
-        if (uiState.todoEntities.isNotEmpty()) {
-            listState.scrollToItem(0)
-        }
+    val navigationBarPadding =
+        WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
+
+    LaunchedEffect(listState) {
+        snapshotFlow { latestFilterKey }
+            .drop(1)
+            .collect {
+                if (hasTodos) {
+                    listState.scrollToItem(0)
+                }
+            }
     }
 
-    Scaffold(
-        topBar = {
-            Column {
-                TodoSearchBar(
-                    query = uiState.searchQuery, onQueryChange = { newQuery ->
-                        onQueryChange(newQuery)
-                    })
-                Spacer(modifier = Modifier.padding(vertical = 2.dp))
-                TodoFilterRow(
-                    selectedDueDateFilter = uiState.selectedDueDateFilter,
-                    selectedTags = uiState.selectedTags,
-                    onDueDateChipClick = onDueDateChipClick,
-                    onTagSelected = onTagSelected
-                )
-            }
-        },
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddTodo, modifier = Modifier.navigationBarsPadding()
-            ) {
-                Icon(
-                    painterResource(R.drawable.add_24px), contentDescription = null
-                )
-            }
-        }, modifier = Modifier.fillMaxSize()
-    ) { innerPadding ->
+
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        TodoSearchBar(
+            query = uiState.searchQuery, onQueryChange = { newQuery ->
+                onQueryChange(newQuery)
+            })
+        Spacer(modifier = Modifier.padding(vertical = 2.dp))
+        TodoFilterRow(
+            selectedDueDateFilter = uiState.selectedDueDateFilter,
+            selectedTags = uiState.selectedTags,
+            onDueDateChipClick = onDueDateChipClick,
+            onTagSelected = onTagSelected
+        )
         LazyColumn(
             state = listState,
             contentPadding = PaddingValues(
-                bottom = innerPadding.calculateBottomPadding() + 80.dp, start = 8.dp, end = 8.dp
+                bottom = navigationBarPadding + 80.dp, start = 8.dp, end = 8.dp
             ),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = innerPadding.calculateTopPadding())
+            modifier = Modifier.fillMaxSize()
         ) {
             items(
                 items = uiState.todoEntities,
@@ -165,6 +161,7 @@ internal fun ListScreenContent(
             onDueDateFilterChange = onDueDateFilterChange
         )
     }
+
 }
 
 @Composable
@@ -312,12 +309,6 @@ private fun DueDateSelectionBottomSheet(
                 Column {
                     DueDateFilter.entries.forEachIndexed { index, filter ->
                         ListItem(
-                            headlineContent = {
-                                Text(
-                                    text = stringResource(filter.labelRes),
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            },
                             colors = if (filter == selectedFilter) {
                                 ListItemDefaults.colors(
                                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -329,7 +320,12 @@ private fun DueDateSelectionBottomSheet(
                                     sheetState.hide()
                                     onDueDateFilterChange(filter)
                                 }
-                            })
+                            }) {
+                            Text(
+                                text = stringResource(filter.labelRes),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                         if (index < DueDateFilter.entries.size - 1) {
                             HorizontalDivider(
                                 thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant
@@ -377,14 +373,12 @@ private val previewUiState = ListUiState(
     )
 )
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun HomeScreenLightPreview() {
     TodoAppTheme(darkTheme = false) {
         ListScreenContent(
             uiState = previewUiState,
-            snackbarHostState = SnackbarHostState(),
-            onAddTodo = {},
             onEditTodo = {},
             onTagSelected = {},
             onDueDateChipClick = {},
@@ -395,14 +389,12 @@ fun HomeScreenLightPreview() {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun HomeScreenDarkPreview() {
     TodoAppTheme(darkTheme = true) {
         ListScreenContent(
             uiState = previewUiState,
-            snackbarHostState = SnackbarHostState(),
-            onAddTodo = {},
             onEditTodo = {},
             onTagSelected = {},
             onDueDateChipClick = {},
