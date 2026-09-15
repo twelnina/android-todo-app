@@ -39,6 +39,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -56,6 +58,7 @@ import com.example.todoapp.model.DueDateFilter
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TodoSearchBar
 import com.example.todoapp.ui.theme.TodoAppTheme
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -92,18 +95,29 @@ internal fun ListScreenContent(
     onEditTodo: (Int) -> Unit
 ) {
     val listState = rememberLazyListState()
+
+    val filterKey = Triple(
+        uiState.searchQuery,
+        uiState.selectedTags,
+        uiState.selectedDueDateFilter
+    )
+    val latestFilterKey by rememberUpdatedState(filterKey)
+    val hasTodos by rememberUpdatedState(uiState.todoEntities.isNotEmpty())
+
     val navigationBarPadding =
         WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     @OptIn(ExperimentalMaterial3Api::class)
-    val sheetState = rememberBottomSheetState(
-        initialValue = SheetValue.Hidden
-    )
+    val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
 
-    LaunchedEffect(uiState.searchQuery, uiState.selectedTags, uiState.selectedDueDateFilter) {
-        if (uiState.todoEntities.isNotEmpty()) {
-            listState.scrollToItem(0)
-        }
+    LaunchedEffect(listState) {
+        snapshotFlow { latestFilterKey }
+            .drop(1)
+            .collect {
+                if (hasTodos) {
+                    listState.scrollToItem(0)
+                }
+            }
     }
 
 
