@@ -1,5 +1,13 @@
 package com.example.todoapp.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -72,7 +80,17 @@ fun TodoApp(
         Scaffold(
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             floatingActionButton = {
-                if (showToolbar) {
+                AnimatedVisibility(
+                    visible = showToolbar,
+                    enter = slideInVertically(
+                        animationSpec = tween(durationMillis = 200),
+                        initialOffsetY = { fullHeight -> fullHeight }
+                    ),
+                    exit = slideOutVertically(
+                        animationSpec = tween(durationMillis = 200),
+                        targetOffsetY = { fullHeight -> fullHeight }
+                    )
+                ) {
                     HorizontalFloatingToolbar(
                         expanded = true,
                         modifier = Modifier.height(56.dp),
@@ -128,6 +146,9 @@ fun TodoApp(
                     .padding(navDisplayPadding)
                     .consumeWindowInsets(navDisplayPadding),
                 onBack = { backStack.removeLastOrNull() },
+                transitionSpec = { topLevelTransition() },
+                popTransitionSpec = { topLevelTransition() },
+                predictivePopTransitionSpec = { topLevelTransition() },
                 entryDecorators = listOf(
                     rememberSaveableStateHolderNavEntryDecorator(),
                     rememberViewModelStoreNavEntryDecorator()
@@ -147,7 +168,14 @@ fun TodoApp(
                     entry<AppNavKey.TodoCalendar> {
                         CalendarScreen()
                     }
-                    entry<AppNavKey.AddTodo> {
+                    entry<AppNavKey.AddTodo>(
+                        metadata =
+                            NavDisplay.transitionSpec { todoFormEnterTransition() } +
+                                NavDisplay.popTransitionSpec { todoFormExitTransition() } +
+                                NavDisplay.predictivePopTransitionSpec {
+                                    todoFormExitTransition()
+                                }
+                    ) {
                         val snackbarMessage = stringResource(R.string.todo_added)
                         AddScreen(
                             onBack = { backStack.removeLastOrNull() },
@@ -159,7 +187,14 @@ fun TodoApp(
                             }
                         )
                     }
-                    entry<AppNavKey.EditTodo> { key ->
+                    entry<AppNavKey.EditTodo>(
+                        metadata =
+                            NavDisplay.transitionSpec { todoFormEnterTransition() } +
+                                NavDisplay.popTransitionSpec { todoFormExitTransition() } +
+                                NavDisplay.predictivePopTransitionSpec {
+                                    todoFormExitTransition()
+                                }
+                    ) { key ->
                         val todoUpdatedMessage = stringResource(R.string.todo_updated)
                         val todoDeletedMessage = stringResource(R.string.todo_deleted)
                         val undoLabel = stringResource(R.string.undo)
@@ -253,3 +288,21 @@ private fun NavBackStack<NavKey>.navigateToTopLevel(destination: AppNavKey) {
         else -> Unit
     }
 }
+
+private fun topLevelTransition(): ContentTransform =
+    fadeIn(animationSpec = tween(durationMillis = 220)) togetherWith
+        fadeOut(animationSpec = tween(durationMillis = 120))
+
+private fun todoFormEnterTransition(): ContentTransform =
+    (slideInVertically(
+        animationSpec = tween(durationMillis = 300),
+        initialOffsetY = { fullHeight -> fullHeight / 4 }
+    ) + fadeIn(animationSpec = tween(durationMillis = 220))) togetherWith
+        fadeOut(animationSpec = tween(durationMillis = 120))
+
+private fun todoFormExitTransition(): ContentTransform =
+    fadeIn(animationSpec = tween(durationMillis = 220)) togetherWith
+        (slideOutVertically(
+            animationSpec = tween(durationMillis = 260),
+            targetOffsetY = { fullHeight -> fullHeight / 4 }
+        ) + fadeOut(animationSpec = tween(durationMillis = 180)))
