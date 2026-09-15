@@ -1,6 +1,9 @@
 package com.example.todoapp.ui
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -25,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -90,14 +94,14 @@ fun TodoApp(
                             stringResourceId = R.string.home,
                             onClick = { backStack.navigateToTopLevel(AppNavKey.TodoHome) }
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         FloatingToolbarItem(
                             selected = currentNavKey == AppNavKey.TodoList,
                             iconResourceId = R.drawable.list_24px,
                             stringResourceId = R.string.list,
                             onClick = { backStack.navigateToTopLevel(AppNavKey.TodoList) }
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         FloatingToolbarItem(
                             selected = currentNavKey == AppNavKey.TodoCalendar,
                             iconResourceId = R.drawable.calendar_month_24px,
@@ -109,13 +113,20 @@ fun TodoApp(
             },
             floatingActionButtonPosition = FabPosition.Center,
             modifier = Modifier.fillMaxSize()
-        ) {
+        ) { innerPadding ->
+            val layoutDirection = LocalLayoutDirection.current
+            val navDisplayPadding = PaddingValues(
+                start = innerPadding.calculateStartPadding(layoutDirection),
+                top = innerPadding.calculateTopPadding(),
+                end = innerPadding.calculateEndPadding(layoutDirection)
+            )
+
             NavDisplay(
                 backStack = backStack,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(it)
-                    .consumeWindowInsets(it),
+                    .padding(navDisplayPadding)
+                    .consumeWindowInsets(navDisplayPadding),
                 onBack = { backStack.removeLastOrNull() },
                 entryDecorators = listOf(
                     rememberSaveableStateHolderNavEntryDecorator(),

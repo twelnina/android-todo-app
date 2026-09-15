@@ -9,8 +9,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -89,6 +92,8 @@ internal fun ListScreenContent(
     onEditTodo: (Int) -> Unit
 ) {
     val listState = rememberLazyListState()
+    val navigationBarPadding =
+        WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     @OptIn(ExperimentalMaterial3Api::class)
     val sheetState = rememberBottomSheetState(
@@ -102,7 +107,9 @@ internal fun ListScreenContent(
     }
 
 
-    Column() {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
         TodoSearchBar(
             query = uiState.searchQuery, onQueryChange = { newQuery ->
                 onQueryChange(newQuery)
@@ -117,11 +124,9 @@ internal fun ListScreenContent(
         LazyColumn(
             state = listState,
             contentPadding = PaddingValues(
-                bottom = 80.dp, start = 8.dp, end = 8.dp
+                bottom = navigationBarPadding + 80.dp, start = 8.dp, end = 8.dp
             ),
-            modifier = Modifier
-                .fillMaxSize()
-//                .padding(top = innerPadding.calculateTopPadding())
+            modifier = Modifier.fillMaxSize()
         ) {
             items(
                 items = uiState.todoEntities,
@@ -354,7 +359,7 @@ private val previewUiState = ListUiState(
     )
 )
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun HomeScreenLightPreview() {
     TodoAppTheme(darkTheme = false) {
@@ -370,7 +375,7 @@ fun HomeScreenLightPreview() {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun HomeScreenDarkPreview() {
     TodoAppTheme(darkTheme = true) {
