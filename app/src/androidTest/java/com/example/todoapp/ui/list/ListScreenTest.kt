@@ -1,10 +1,9 @@
 package com.example.todoapp.ui.list
 
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -32,19 +31,16 @@ class ListScreenTest {
         )
 
         val uiState = ListUiState(todoEntities = listOf(todo))
-        val snackbarHostState = SnackbarHostState()
 
         composeTestRule.setContent {
             TodoAppTheme {
                 ListScreenContent(
                     uiState = uiState,
-                    snackbarHostState = snackbarHostState,
                     onQueryChange = {},
                     onTagSelected = {},
                     onDueDateChipClick = {},
                     onDueDateFilterChange = {},
                     onDismissRequest = {},
-                    onAddTodo = {},
                     onEditTodo = {}
                 )
             }
@@ -58,13 +54,11 @@ class ListScreenTest {
     @Test
     fun enteringSearchQueryCallsOnQueryChange() {
         val query = mutableStateOf("")
-        val snackbarHostState = SnackbarHostState()
 
         composeTestRule.setContent {
             TodoAppTheme {
                 ListScreenContent(
                     uiState = ListUiState(searchQuery = query.value),
-                    snackbarHostState = snackbarHostState,
                     onQueryChange = { newQuery ->
                         query.value = newQuery
                     },
@@ -72,7 +66,6 @@ class ListScreenTest {
                     onDueDateChipClick = {},
                     onDueDateFilterChange = {},
                     onDismissRequest = {},
-                    onAddTodo = {},
                     onEditTodo = {}
                 )
             }
@@ -90,13 +83,11 @@ class ListScreenTest {
     @Test
     fun tappingTagCallsOnTagSelected() {
         var selectedTag: TodoTag? = null
-        val snackbarHostState = SnackbarHostState()
 
         composeTestRule.setContent {
             TodoAppTheme {
                 ListScreenContent(
                     uiState = ListUiState(),
-                    snackbarHostState = snackbarHostState,
                     onQueryChange = {},
                     onTagSelected = { tag ->
                         selectedTag = tag
@@ -104,7 +95,6 @@ class ListScreenTest {
                     onDueDateChipClick = {},
                     onDueDateFilterChange = {},
                     onDismissRequest = {},
-                    onAddTodo = {},
                     onEditTodo = {}
                 )
             }
@@ -123,13 +113,11 @@ class ListScreenTest {
     fun selectingDueDateCallsOnDueDateFilterChange() {
         val showBottomSheet = mutableStateOf(false)
         var selectedFilter: DueDateFilter? = null
-        val snackbarHostState = SnackbarHostState()
 
         composeTestRule.setContent {
             TodoAppTheme {
                 ListScreenContent(
                     uiState = ListUiState(showBottomSheet = showBottomSheet.value),
-                    snackbarHostState = snackbarHostState,
                     onQueryChange = {},
                     onTagSelected = {},
                     onDueDateChipClick = {
@@ -140,7 +128,6 @@ class ListScreenTest {
                         showBottomSheet.value = false
                     },
                     onDismissRequest = { showBottomSheet.value = false },
-                    onAddTodo = {},
                     onEditTodo = {}
                 )
             }
