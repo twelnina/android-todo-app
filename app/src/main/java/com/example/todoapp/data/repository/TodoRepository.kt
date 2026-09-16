@@ -3,6 +3,7 @@ package com.example.todoapp.data.repository
 import com.example.todoapp.data.local.TodoDao
 import com.example.todoapp.data.local.TodoEntity
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 class TodoRepository(private val todoDao: TodoDao) {
     suspend fun insert(todoEntity: TodoEntity) {
@@ -23,5 +24,13 @@ class TodoRepository(private val todoDao: TodoDao) {
 
     suspend fun getItem(id: Int): TodoEntity? {
         return todoDao.getItem(id)
+    }
+
+    fun observeTodayItems(today: LocalDate): Flow<List<TodoEntity>> {
+        return todoDao.observeTodayItems(today)
+    }
+
+    fun observeOverdueItems(today: LocalDate): Flow<List<TodoEntity>> {
+        return todoDao.observeOverdueItems(today)
     }
 }

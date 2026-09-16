@@ -15,6 +15,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -23,18 +24,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TagChip
 import com.example.todoapp.ui.theme.TodoAppTheme
 
 @Composable
-fun HomeScreen() {
-    HomeScreenContent()
+fun HomeScreen(
+    viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    HomeScreenContent(uiState = uiState)
 }
 
 @Composable
-private fun HomeScreenContent() {
+private fun HomeScreenContent(
+    uiState: HomeUiState
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(24.dp),
         modifier = Modifier
@@ -44,34 +52,26 @@ private fun HomeScreenContent() {
         TodoSection(
             title = stringResource(R.string.today_section_title)
         ) {
-            CardItem(
-                title = "Review English vocabulary",
-                description = "Review this week's vocabulary list, practice each word in a sentence. and flag difficult terms for another focused study session",
-                tag = TodoTag.STUDY,
-                isCompleted = false
-            )
-            CardItem(
-                title = "Review English vocabulary",
-                description = "Review this week's vocabulary list, practice each word in a sentence. and flag difficult terms for another focused study session",
-                tag = TodoTag.STUDY,
-                isCompleted = true
-            )
+            uiState.todayItems.forEach { items ->
+                CardItem(
+                    title = items.title,
+                    description = items.description,
+                    tag = items.tag,
+                    isCompleted = false
+                )
+            }
         }
         TodoSection(
             title = stringResource(R.string.overdue_section_title)
         ) {
-            CardItem(
-                title = "Review English vocabulary",
-                description = "Review this week's vocabulary list, practice each word in a sentence. and flag difficult terms for another focused study session",
-                tag = TodoTag.STUDY,
-                isCompleted = false
-            )
-            CardItem(
-                title = "Review English vocabulary",
-                description = "Review this week's vocabulary list, practice each word in a sentence. and flag difficult terms for another focused study session",
-                tag = TodoTag.STUDY,
-                isCompleted = true
-            )
+            uiState.overdueItems.forEach { items ->
+                CardItem(
+                    title = items.title,
+                    description = items.description,
+                    tag = items.tag,
+                    isCompleted = false
+                )
+            }
         }
     }
 }
@@ -100,7 +100,7 @@ private fun TodoSection(
 private fun CardItem(
     title: String,
     description: String,
-    tag: TodoTag,
+    tag: TodoTag?,
     isCompleted: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -143,7 +143,9 @@ private fun CardItem(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            TagChip(tag = tag, modifier = Modifier.padding(horizontal = 8.dp))
+            tag?.let {
+                TagChip(tag = tag, modifier = Modifier.padding(horizontal = 8.dp))
+            }
         }
     }
 }
