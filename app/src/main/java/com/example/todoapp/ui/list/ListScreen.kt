@@ -1,8 +1,6 @@
 package com.example.todoapp.ui.list
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -56,6 +54,7 @@ import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.DueDateFilter
 import com.example.todoapp.model.TodoTag
+import com.example.todoapp.ui.components.TagChip
 import com.example.todoapp.ui.components.TodoSearchBar
 import com.example.todoapp.ui.theme.TodoAppTheme
 import kotlinx.coroutines.flow.drop
@@ -250,7 +249,7 @@ private fun TodoItem(
             }
             Spacer(modifier = Modifier.padding(horizontal = 8.dp))
             todoItemInfo.tag?.let { tag ->
-                TodoTagChip(tag = tag)
+                TagChip(tag = tag)
             }
         }
         HorizontalDivider(
@@ -259,26 +258,7 @@ private fun TodoItem(
     }
 }
 
-@Composable
-private fun TodoTagChip(tag: TodoTag, modifier: Modifier = Modifier) {
-    Text(
-        text = stringResource(tag.labelRes),
-        fontSize = 10.sp,
-        fontWeight = FontWeight.Bold,
-        color = tag.color,
-        modifier = modifier
-            .background(
-                color = tag.color.copy(alpha = 0.1f),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .border(
-                width = 1.dp,
-                color = tag.color.copy(0.5f),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(horizontal = 8.dp, vertical = 2.dp)
-    )
-}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

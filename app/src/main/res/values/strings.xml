@@ -6,6 +6,9 @@
     <string name="list">List</string>
     <string name="calendar">Calendar</string>
 
+    <string name="today_section_title">Today</string>
+    <string name="overdue_section_title">Overdue</string>
+
     <string name="search">Search</string>
     <string name="title">Title</string>
     <string name="description">Description</string>
