@@ -8,6 +8,7 @@ data class EditUiState(
     val description: String = "",
     val targetDate: Long? = null,
     val selectedTag: TodoTag? = null,
+    val isCompleted: Boolean = false
 ) {
     val isEditValid: Boolean get() = title.isNotBlank() && description.isNotBlank()
 }

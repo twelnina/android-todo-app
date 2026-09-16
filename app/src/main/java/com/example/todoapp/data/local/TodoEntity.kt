@@ -12,5 +12,6 @@ data class TodoEntity(
     val title: String,
     val description: String,
     val targetDate: LocalDate?,
-    val tag: TodoTag?
+    val tag: TodoTag?,
+    val isCompleted: Boolean = false
 )

@@ -32,6 +32,7 @@ interface TodoDao {
         """
       SELECT * FROM todo_items
       WHERE targetDate < :today
+        AND isCompleted = 0
       ORDER BY targetDate ASC, id ASC
   """
     )

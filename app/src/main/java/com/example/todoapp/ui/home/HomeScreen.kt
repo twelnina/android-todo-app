@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
+import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TagChip
 import com.example.todoapp.ui.theme.TodoAppTheme
@@ -42,12 +43,16 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    HomeScreenContent(uiState = uiState)
+    HomeScreenContent(
+        uiState = uiState,
+        onCompletedChange = viewModel::updateCompleted
+    )
 }
 
 @Composable
 private fun HomeScreenContent(
-    uiState: HomeUiState
+    uiState: HomeUiState,
+    onCompletedChange: (TodoEntity, Boolean) -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -65,7 +70,10 @@ private fun HomeScreenContent(
                     title = items.title,
                     description = items.description,
                     tag = items.tag,
-                    isCompleted = false
+                    isCompleted = items.isCompleted,
+                    onCheckedChange = { checked ->
+                        onCompletedChange(items, checked)
+                    }
                 )
             }
         }
@@ -77,7 +85,10 @@ private fun HomeScreenContent(
                     title = items.todo.title,
                     description = items.todo.description,
                     tag = items.todo.tag,
-                    isCompleted = false,
+                    isCompleted = items.todo.isCompleted,
+                    onCheckedChange = { checked ->
+                        onCompletedChange(items.todo, checked)
+                    },
                     daysOverdue = items.daysOverdue
                 )
             }
@@ -112,18 +123,19 @@ private fun CardItem(
     description: String,
     tag: TodoTag?,
     isCompleted: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
     daysOverdue: Long? = null
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = if (isCompleted) {
-                MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.5f)
+                MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.35f)
             } else {
                 MaterialTheme.colorScheme.surfaceContainerHigh
             },
             contentColor = if (isCompleted) {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
             } else {
                 MaterialTheme.colorScheme.onSurface
             }
@@ -135,7 +147,7 @@ private fun CardItem(
         ) {
             Checkbox(
                 checked = isCompleted,
-                onCheckedChange = { },
+                onCheckedChange = onCheckedChange,
             )
             Column(modifier = Modifier.weight(1f)) {
                 daysOverdue?.let {
@@ -190,6 +202,7 @@ private fun CardItemPreview() {
             title = "Review English vocabulary",
             description = "Review this week's vocabulary list, practice each word in a sentence. and flag difficult terms for another focused study session",
             tag = TodoTag.STUDY,
+            onCheckedChange = {},
             isCompleted = false
         )
     }
