@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 class HomeViewModel(private val repository: TodoRepository) : ViewModel() {
     private val today = LocalDate.now()
@@ -22,7 +23,13 @@ class HomeViewModel(private val repository: TodoRepository) : ViewModel() {
     ) { todayItems, overdueItems ->
         HomeUiState(
             todayItems = todayItems,
-            overdueItems = overdueItems
+            overdueItems = overdueItems.map { entity ->
+                val targetDate = entity.targetDate
+                OverdueItem(
+                    todo = entity,
+                    daysOverdue = ChronoUnit.DAYS.between(targetDate, today)
+                )
+            }
         )
     }.stateIn(
         scope = viewModelScope,

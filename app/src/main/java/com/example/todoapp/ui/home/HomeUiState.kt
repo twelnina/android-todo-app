@@ -8,7 +8,12 @@ enum class TodoStatus {
     Completed
 }
 
+data class OverdueItem(
+    val todo: TodoEntity,
+    val daysOverdue: Long
+)
+
 data class HomeUiState(
     val todayItems: List<TodoEntity> = emptyList(),
-    val overdueItems: List<TodoEntity> = emptyList()
+    val overdueItems: List<OverdueItem> = emptyList()
 )

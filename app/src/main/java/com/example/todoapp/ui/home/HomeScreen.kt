@@ -9,15 +9,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,10 +53,12 @@ private fun HomeScreenContent(
         verticalArrangement = Arrangement.spacedBy(24.dp),
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp)
     ) {
+        Spacer(modifier = Modifier.height(200.dp))
         TodoSection(
-            title = stringResource(R.string.today_section_title)
+            title = stringResource(R.string.today_section_title, uiState.todayItems.size)
         ) {
             uiState.todayItems.forEach { items ->
                 CardItem(
@@ -62,14 +70,15 @@ private fun HomeScreenContent(
             }
         }
         TodoSection(
-            title = stringResource(R.string.overdue_section_title)
+            title = stringResource(R.string.overdue_section_title, uiState.overdueItems.size)
         ) {
             uiState.overdueItems.forEach { items ->
                 CardItem(
-                    title = items.title,
-                    description = items.description,
-                    tag = items.tag,
-                    isCompleted = false
+                    title = items.todo.title,
+                    description = items.todo.description,
+                    tag = items.todo.tag,
+                    isCompleted = false,
+                    daysOverdue = items.daysOverdue
                 )
             }
         }
@@ -98,11 +107,12 @@ private fun TodoSection(
 
 @Composable
 private fun CardItem(
+    modifier: Modifier = Modifier,
     title: String,
     description: String,
     tag: TodoTag?,
     isCompleted: Boolean,
-    modifier: Modifier = Modifier
+    daysOverdue: Long? = null
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -128,6 +138,27 @@ private fun CardItem(
                 onCheckedChange = { },
             )
             Column(modifier = Modifier.weight(1f)) {
+                daysOverdue?.let {
+                    val days = it.toInt()
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.schedule_24px),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = pluralStringResource(R.plurals.days_overdue, days, days),
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp
+                        )
+                    }
+                }
                 Text(
                     text = title,
                     fontWeight = FontWeight.SemiBold,
