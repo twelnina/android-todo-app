@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
 class HomeViewModel(private val repository: TodoRepository) : ViewModel() {
@@ -43,6 +45,18 @@ class HomeViewModel(private val repository: TodoRepository) : ViewModel() {
         viewModelScope.launch {
             repository.update(
                 todo.copy(isCompleted = isCompleted)
+            )
+        }
+    }
+
+    fun updateTargetDate(todo: TodoEntity, newTargetDateMillis: Long) {
+        val newTargetDate = Instant.ofEpochMilli(newTargetDateMillis)
+            .atZone(ZoneOffset.UTC)
+            .toLocalDate()
+
+        viewModelScope.launch {
+            repository.update(
+                todo.copy(targetDate = newTargetDate)
             )
         }
     }

@@ -1,10 +1,12 @@
 package com.example.todoapp.ui.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,14 +17,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,23 +53,29 @@ import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TagChip
+import com.example.todoapp.ui.components.TargetDatePickerDialog
 import com.example.todoapp.ui.theme.TodoAppTheme
 
 @Composable
 fun HomeScreen(
+    onEditTodo: (Int) -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     HomeScreenContent(
         uiState = uiState,
-        onCompletedChange = viewModel::updateCompleted
+        onCompletedChange = viewModel::updateCompleted,
+        onRescheduleTodo = viewModel::updateTargetDate,
+        onEditTodo = onEditTodo
     )
 }
 
 @Composable
 private fun HomeScreenContent(
     uiState: HomeUiState,
-    onCompletedChange: (TodoEntity, Boolean) -> Unit
+    onCompletedChange: (TodoEntity, Boolean) -> Unit,
+    onRescheduleTodo: (TodoEntity, Long) -> Unit,
+    onEditTodo: (Int) -> Unit
 ) {
     var playInitialAnimation by rememberSaveable { mutableStateOf(true) }
 
@@ -90,9 +102,7 @@ private fun HomeScreenContent(
             Spacer(modifier = Modifier.height(8.dp))
         }
         itemsIndexed(
-            items = uiState.todayItems,
-            key = { _, todo -> todo.id }
-        ) { index, todo ->
+            items = uiState.todayItems, key = { _, todo -> todo.id }) { index, todo ->
 
             val visibleState = remember {
                 MutableTransitionState(!playInitialAnimation).apply {
@@ -101,32 +111,24 @@ private fun HomeScreenContent(
             }
 
             AnimatedVisibility(
-                visibleState = visibleState,
-                enter =
-                    fadeIn(
-                        animationSpec = tween(
-                            durationMillis = 300,
-                            delayMillis = index * 50
-                        )
-                    ) + slideInVertically(
-                        animationSpec = tween(
-                            durationMillis = 300,
-                            delayMillis = index * 50
-                        ),
-                        initialOffsetY = { height ->
-                            height / 4
-                        }
+                visibleState = visibleState, enter = fadeIn(
+                    animationSpec = tween(
+                        durationMillis = 300, delayMillis = index * 50
                     )
+                ) + slideInVertically(
+                    animationSpec = tween(
+                        durationMillis = 300, delayMillis = index * 50
+                    ), initialOffsetY = { height ->
+                        height / 4
+                    })
             ) {
                 CardItem(
-                    title = todo.title,
-                    description = todo.description,
-                    tag = todo.tag,
-                    isCompleted = todo.isCompleted,
+                    todo = todo,
+                    onReschedule = onRescheduleTodo,
+                    onEdit = { onEditTodo(todo.id) },
                     onCheckedChange = { checked ->
                         onCompletedChange(todo, checked)
-                    }
-                )
+                    })
             }
 
             if (index < uiState.todayItems.lastIndex) {
@@ -148,9 +150,7 @@ private fun HomeScreenContent(
             Spacer(modifier = Modifier.height(8.dp))
         }
         itemsIndexed(
-            items = uiState.overdueItems,
-            key = { _, todo -> todo.todo.id }
-        ) { index, todo ->
+            items = uiState.overdueItems, key = { _, todo -> todo.todo.id }) { index, todo ->
 
             val visibleState = remember {
                 MutableTransitionState(!playInitialAnimation).apply {
@@ -159,31 +159,24 @@ private fun HomeScreenContent(
             }
 
             AnimatedVisibility(
-                visibleState = visibleState,
-                enter =
-                    fadeIn(
-                        animationSpec = tween(
-                            durationMillis = 300,
-                            delayMillis = index * 50
-                        )
-                    ) + slideInVertically(
-                        animationSpec = tween(
-                            durationMillis = 300,
-                            delayMillis = index * 50
-                        ),
-                        initialOffsetY = { height ->
-                            height / 4
-                        }
+                visibleState = visibleState, enter = fadeIn(
+                    animationSpec = tween(
+                        durationMillis = 300, delayMillis = index * 50
                     )
+                ) + slideInVertically(
+                    animationSpec = tween(
+                        durationMillis = 300, delayMillis = index * 50
+                    ), initialOffsetY = { height ->
+                        height / 4
+                    })
             ) {
                 CardItem(
-                    title = todo.todo.title,
-                    description = todo.todo.description,
-                    tag = todo.todo.tag,
-                    isCompleted = todo.todo.isCompleted,
+                    todo = todo.todo,
                     onCheckedChange = { checked ->
                         onCompletedChange(todo.todo, checked)
                     },
+                    onReschedule = onRescheduleTodo,
+                    onEdit = { onEditTodo(todo.todo.id) },
                     daysOverdue = todo.daysOverdue
                 )
             }
@@ -197,22 +190,26 @@ private fun HomeScreenContent(
 @Composable
 private fun CardItem(
     modifier: Modifier = Modifier,
-    title: String,
-    description: String,
-    tag: TodoTag?,
-    isCompleted: Boolean,
+    todo: TodoEntity,
     onCheckedChange: (Boolean) -> Unit,
+    onReschedule: (TodoEntity, Long) -> Unit,
+    onEdit: () -> Unit,
     daysOverdue: Long? = null
 ) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    var showDatePicker by rememberSaveable { mutableStateOf(false) }
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .animateContentSize()
+            .clickable(onClick = { expanded = !expanded }),
         colors = CardDefaults.cardColors(
-            containerColor = if (isCompleted) {
+            containerColor = if (todo.isCompleted) {
                 MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.35f)
             } else {
                 MaterialTheme.colorScheme.surfaceContainerHigh
             },
-            contentColor = if (isCompleted) {
+            contentColor = if (todo.isCompleted) {
                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
             } else {
                 MaterialTheme.colorScheme.onSurface
@@ -224,7 +221,7 @@ private fun CardItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
-                checked = isCompleted,
+                checked = todo.isCompleted,
                 onCheckedChange = onCheckedChange,
             )
             Column(modifier = Modifier.weight(1f)) {
@@ -250,24 +247,74 @@ private fun CardItem(
                     }
                 }
                 Text(
-                    text = title,
+                    text = todo.title,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = description,
+                    text = todo.description,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp,
                     lineHeight = 18.sp,
-                    maxLines = 2,
+                    maxLines = if (expanded) Int.MAX_VALUE else 2,
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            tag?.let {
+            todo.tag?.let { tag ->
                 TagChip(tag = tag, modifier = Modifier.padding(horizontal = 8.dp))
             }
         }
+        if (expanded) {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+            ) {
+                HorizontalDivider()
+                Row(
+                    modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End
+                ) {
+                    if (daysOverdue != null) {
+                        TextButton(onClick = { showDatePicker = true }) {
+                            Icon(
+                                painter = painterResource(R.drawable.edit_calendar_24px),
+                                contentDescription = null,
+                                modifier = Modifier.size(ButtonDefaults.IconSize)
+                            )
+                            Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                            Text(
+                                text = stringResource(R.string.reschedule),
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        }
+                    }
+                    TextButton(onClick = onEdit) {
+                        Icon(
+                            painter = painterResource(R.drawable.edit_24px),
+                            contentDescription = null,
+                            modifier = Modifier.size(ButtonDefaults.IconSize)
+                        )
+                        Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                        Text(
+                            text = stringResource(R.string.edit_todo),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    if (showDatePicker) {
+        TargetDatePickerDialog(
+            todo = todo,
+            onDismissRequest = { showDatePicker = false },
+            onConfirmRequest = { targetTodo, selectedDateMillis ->
+                onReschedule(targetTodo, selectedDateMillis)
+                showDatePicker = false
+            }
+        )
     }
 }
 
@@ -277,11 +324,15 @@ private fun CardItem(
 private fun CardItemPreview() {
     TodoAppTheme {
         CardItem(
-            title = "Review English vocabulary",
-            description = "Review this week's vocabulary list, practice each word in a sentence. and flag difficult terms for another focused study session",
-            tag = TodoTag.STUDY,
+            todo = TodoEntity(
+                title = "Review English vocabulary",
+                description = "Review this week's vocabulary list, practice each word in a sentence. and flag difficult terms for another focused study session",
+                targetDate = null,
+                tag = TodoTag.STUDY
+            ),
             onCheckedChange = {},
-            isCompleted = false
+            onReschedule = { _, _ -> },
+            onEdit = {}
         )
     }
 }
