@@ -31,6 +31,7 @@ import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.ui.home.components.TargetDatePickerDialog
 import com.example.todoapp.ui.home.components.CardItem
+import java.time.LocalDate
 
 @Composable
 fun HomeScreen(
@@ -50,7 +51,7 @@ fun HomeScreen(
 private fun HomeScreenContent(
     uiState: HomeUiState,
     onCompletedChange: (TodoEntity, Boolean) -> Unit,
-    onRescheduleTodo: (TodoEntity, Long) -> Unit,
+    onRescheduleTodo: (TodoEntity, LocalDate) -> Unit,
     onEditTodo: (Int) -> Unit
 ) {
     var playInitialAnimation by rememberSaveable { mutableStateOf(true) }
@@ -170,8 +171,8 @@ private fun HomeScreenContent(
         TargetDatePickerDialog(
             todo = todo,
             onDismissRequest = { reschedulingTodoId = null },
-            onConfirmRequest = { targetTodo, selectedDateMillis ->
-                onRescheduleTodo(targetTodo, selectedDateMillis)
+            onConfirmRequest = { targetTodo, selectedDate ->
+                onRescheduleTodo(targetTodo, selectedDate)
                 reschedulingTodoId = null
             }
         )

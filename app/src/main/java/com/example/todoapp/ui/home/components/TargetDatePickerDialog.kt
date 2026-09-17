@@ -5,6 +5,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.getSelectedDate
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -17,18 +18,13 @@ import java.time.ZoneOffset
 @Composable
 internal fun TargetDatePickerDialog(
     todo: TodoEntity,
-    onConfirmRequest: (TodoEntity, Long) -> Unit,
+    onConfirmRequest: (TodoEntity, LocalDate) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     val today = LocalDate.now()
 
-    val initialSelectedMillis = todo.targetDate
-        ?.atStartOfDay(ZoneOffset.UTC)
-        ?.toInstant()
-        ?.toEpochMilli()
-
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = initialSelectedMillis,
+        initialSelectedDate = todo.targetDate,
         selectableDates = object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long): Boolean {
                 val date = Instant
@@ -40,21 +36,16 @@ internal fun TargetDatePickerDialog(
         }
     )
 
-    val selectedDateMillis = datePickerState.selectedDateMillis
-
-    val canConfirm = selectedDateMillis?.let { millis ->
-        Instant.ofEpochMilli(millis)
-            .atZone(ZoneOffset.UTC)
-            .toLocalDate() >= today
-    } == true
+    val selectedDate = datePickerState.getSelectedDate()
+    val canConfirm = selectedDate?.let { it >= today } == true
 
     DatePickerDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = {
             TextButton(
                 onClick = {
-                    datePickerState.selectedDateMillis?.let { selectedDateMillis ->
-                        onConfirmRequest(todo, selectedDateMillis)
+                    datePickerState.getSelectedDate()?.let { selectedDate ->
+                        onConfirmRequest(todo, selectedDate)
                     }
                 },
                 enabled = canConfirm
