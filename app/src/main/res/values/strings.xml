@@ -6,6 +6,7 @@
     <string name="list">List</string>
     <string name="calendar">Calendar</string>
 
+    <!--    Home-->
     <string name="today_section_title">Today(%d)</string>
     <string name="overdue_section_title">Overdue(%d)</string>
 
@@ -15,6 +16,10 @@
     </plurals>
 
     <string name="reschedule">Reschedule</string>
+
+    <string name="previous">Previous</string>
+    <string name="new_date">New</string>
+    <string name="select_date">Select a date</string>
 
     <string name="search">Search</string>
     <string name="title">Title</string>

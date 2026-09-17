@@ -29,8 +29,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
-import com.example.todoapp.ui.home.components.TargetDatePickerDialog
 import com.example.todoapp.ui.home.components.CardItem
+import com.example.todoapp.ui.home.components.TargetDatePickerDialog
 import java.time.LocalDate
 
 @Composable
@@ -169,10 +169,10 @@ private fun HomeScreenContent(
 
     reschedulingTodo?.let { todo ->
         TargetDatePickerDialog(
-            todo = todo,
+            previousDate = todo.targetDate,
             onDismissRequest = { reschedulingTodoId = null },
-            onConfirmRequest = { targetTodo, selectedDate ->
-                onRescheduleTodo(targetTodo, selectedDate)
+            onConfirmRequest = { newDate ->
+                onRescheduleTodo(todo, newDate)
                 reschedulingTodoId = null
             }
         )
