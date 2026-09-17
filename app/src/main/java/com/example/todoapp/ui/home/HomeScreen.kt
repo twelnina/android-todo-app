@@ -29,7 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
-import com.example.todoapp.ui.components.TargetDatePickerDialog
+import com.example.todoapp.ui.home.components.TargetDatePickerDialog
 import com.example.todoapp.ui.home.components.CardItem
 
 @Composable

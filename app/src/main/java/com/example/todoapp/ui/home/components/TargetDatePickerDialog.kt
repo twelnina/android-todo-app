@@ -1,4 +1,4 @@
-package com.example.todoapp.ui.components
+package com.example.todoapp.ui.home.components
 
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -40,6 +40,14 @@ internal fun TargetDatePickerDialog(
         }
     )
 
+    val selectedDateMillis = datePickerState.selectedDateMillis
+
+    val canConfirm = selectedDateMillis?.let { millis ->
+        Instant.ofEpochMilli(millis)
+            .atZone(ZoneOffset.UTC)
+            .toLocalDate() >= today
+    } == true
+
     DatePickerDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = {
@@ -49,7 +57,7 @@ internal fun TargetDatePickerDialog(
                         onConfirmRequest(todo, selectedDateMillis)
                     }
                 },
-                enabled = datePickerState.selectedDateMillis != null
+                enabled = canConfirm
             ) { Text(stringResource(R.string.ok)) }
         },
         dismissButton = {
