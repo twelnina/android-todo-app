@@ -120,7 +120,6 @@ private fun EditScreenContent(
                 ) {
                     Text(text = stringResource(R.string.done))
                 }
-
             }
         }
     ) { innerPadding ->
