@@ -53,7 +53,7 @@ internal fun CardItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .animateContentSize()
+            .animateContentSize(MaterialTheme.motionScheme.defaultSpatialSpec())
             .clickable(onClick = { expanded = !expanded }),
         colors = CardDefaults.cardColors(
             containerColor = if (todo.isCompleted) {
