@@ -15,6 +15,9 @@
         <item quantity="other">%d days overdue</item>
     </plurals>
 
+    <string name="no_todos_today">No todos due today</string>
+    <string name="no_overdue_todos">No overdue todos</string>
+
     <string name="reschedule">Reschedule</string>
 
     <string name="previous">Previous</string>

@@ -7,11 +7,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +32,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,6 +43,7 @@ import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.ui.home.components.CardItem
 import com.example.todoapp.ui.home.components.TargetDatePickerDialog
 import com.example.todoapp.ui.theme.RobotoFlexExpanded
+import com.example.todoapp.ui.theme.TodoAppTheme
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -78,143 +84,188 @@ private fun HomeScreenContent(
         }
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 200.dp)
-    ) {
-        item(key = "home-header") {
-            val locale = LocalConfiguration.current.locales[0]
-            val formatter = remember(locale) {
-                DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                end = 16.dp,
+                bottom = if (hasItems) 200.dp else 0.dp
+            )
+        ) {
+            item(key = "home-header") {
+                val locale = LocalConfiguration.current.locales[0]
+                val formatter = remember(locale) {
+                    DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
+                }
+                val today = LocalDate.now()
+                val now = LocalDateTime.now()
+                Column(
+                    modifier = Modifier.height(200.dp),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = today.format(formatter),
+                        fontFamily = RobotoFlexExpanded,
+                        fontSize = 40.sp,
+                        fontWeight = FontWeight(900),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = rememberHomeMessage(
+                            hour = now.hour,
+                            dayKey = now.toLocalDate().toEpochDay()
+                        ),
+                        fontFamily = RobotoFlexExpanded,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
-            val today = LocalDate.now()
-            val now = LocalDateTime.now()
-            Column(
-                modifier = Modifier.height(200.dp),
-                verticalArrangement = Arrangement.Center
-            ) {
+
+            item(key = "today-header") {
                 Text(
-                    text = today.format(formatter),
-                    fontFamily = RobotoFlexExpanded,
-                    fontSize = 40.sp,
-                    fontWeight = FontWeight(900),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = rememberHomeMessage(
-                        hour = now.hour,
-                        dayKey = now.toLocalDate().toEpochDay()
+                    text = stringResource(
+                        R.string.today_section_title,
+                        uiState.todayItems.size
                     ),
-                    fontFamily = RobotoFlexExpanded,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold
                 )
+                Spacer(modifier = Modifier.height(8.dp))
             }
-        }
-        item(key = "today-header") {
-            Text(
-                text = stringResource(R.string.today_section_title, uiState.todayItems.size),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.SemiBold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        itemsIndexed(
-            items = uiState.todayItems, key = { _, todo -> todo.id }) { index, todo ->
 
-            val visibleState = remember {
-                MutableTransitionState(!playInitialAnimation).apply {
-                    targetState = true
+            if (uiState.todayItems.isEmpty()) {
+                item {
+                    Text(
+                        stringResource(R.string.no_todos_today),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 20.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            } else {
+                itemsIndexed(
+                    items = uiState.todayItems, key = { _, todo -> todo.id }) { index, todo ->
+
+                    val visibleState = remember {
+                        MutableTransitionState(!playInitialAnimation).apply {
+                            targetState = true
+                        }
+                    }
+
+                    AnimatedVisibility(
+                        visibleState = visibleState, enter = fadeIn(
+                            animationSpec = tween(
+                                durationMillis = 300, delayMillis = index * 50
+                            )
+                        ) + slideInVertically(
+                            animationSpec = tween(
+                                durationMillis = 300, delayMillis = index * 50
+                            ), initialOffsetY = { height ->
+                                height / 4
+                            })
+                    ) {
+                        CardItem(
+                            todo = todo,
+                            onEdit = { onEditTodo(todo.id) },
+                            onCheckedChange = { checked ->
+                                onCompletedChange(todo, checked)
+                            })
+                    }
+
+                    if (index < uiState.todayItems.lastIndex) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
                 }
             }
 
-            AnimatedVisibility(
-                visibleState = visibleState, enter = fadeIn(
-                    animationSpec = tween(
-                        durationMillis = 300, delayMillis = index * 50
+            item(key = "section-space") {
+                Spacer(modifier = Modifier.height(32.dp))
+            }
+
+            item(key = "overdue-header") {
+                Text(
+                    text = stringResource(
+                        R.string.overdue_section_title,
+                        uiState.overdueItems.size
+                    ),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            if (uiState.overdueItems.isEmpty()) {
+                item {
+                    Text(
+                        stringResource(R.string.no_overdue_todos),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 20.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
                     )
-                ) + slideInVertically(
-                    animationSpec = tween(
-                        durationMillis = 300, delayMillis = index * 50
-                    ), initialOffsetY = { height ->
-                        height / 4
-                    })
-            ) {
-                CardItem(
-                    todo = todo,
-                    onEdit = { onEditTodo(todo.id) },
-                    onCheckedChange = { checked ->
-                        onCompletedChange(todo, checked)
-                    })
-            }
+                }
+            } else {
+                itemsIndexed(
+                    items = uiState.overdueItems,
+                    key = { _, todo -> todo.todo.id }) { index, todo ->
 
-            if (index < uiState.todayItems.lastIndex) {
-                Spacer(modifier = Modifier.height(4.dp))
-            }
-        }
+                    val visibleState = remember {
+                        MutableTransitionState(!playInitialAnimation).apply {
+                            targetState = true
+                        }
+                    }
 
-        item(key = "section-space") {
-            Spacer(modifier = Modifier.height(32.dp))
-        }
-
-        item(key = "overdue-header") {
-            Text(
-                text = stringResource(R.string.overdue_section_title, uiState.overdueItems.size),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.SemiBold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        itemsIndexed(
-            items = uiState.overdueItems, key = { _, todo -> todo.todo.id }) { index, todo ->
-
-            val visibleState = remember {
-                MutableTransitionState(!playInitialAnimation).apply {
-                    targetState = true
+                    AnimatedVisibility(
+                        visibleState = visibleState, enter = fadeIn(
+                            animationSpec = tween(
+                                durationMillis = 300, delayMillis = index * 50
+                            )
+                        ) + slideInVertically(
+                            animationSpec = tween(
+                                durationMillis = 300, delayMillis = index * 50
+                            ), initialOffsetY = { height ->
+                                height / 4
+                            })
+                    ) {
+                        CardItem(
+                            todo = todo.todo,
+                            onCheckedChange = { checked ->
+                                onCompletedChange(todo.todo, checked)
+                            },
+                            onReschedule = { reschedulingTodoId = todo.todo.id },
+                            onEdit = { onEditTodo(todo.todo.id) },
+                            daysOverdue = todo.daysOverdue
+                        )
+                    }
+                    if (index < uiState.overdueItems.lastIndex) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
                 }
             }
-
-            AnimatedVisibility(
-                visibleState = visibleState, enter = fadeIn(
-                    animationSpec = tween(
-                        durationMillis = 300, delayMillis = index * 50
-                    )
-                ) + slideInVertically(
-                    animationSpec = tween(
-                        durationMillis = 300, delayMillis = index * 50
-                    ), initialOffsetY = { height ->
-                        height / 4
-                    })
-            ) {
-                CardItem(
-                    todo = todo.todo,
-                    onCheckedChange = { checked ->
-                        onCompletedChange(todo.todo, checked)
-                    },
-                    onReschedule = { reschedulingTodoId = todo.todo.id },
-                    onEdit = { onEditTodo(todo.todo.id) },
-                    daysOverdue = todo.daysOverdue
-                )
-            }
-            if (index < uiState.overdueItems.lastIndex) {
-                Spacer(modifier = Modifier.height(4.dp))
-            }
         }
-    }
 
-    reschedulingTodo?.let { todo ->
-        TargetDatePickerDialog(
-            previousDate = todo.targetDate,
-            onDismissRequest = { reschedulingTodoId = null },
-            onConfirmRequest = { newDate ->
-                onRescheduleTodo(todo, newDate)
-                reschedulingTodoId = null
-            }
-        )
+        reschedulingTodo?.let { todo ->
+            TargetDatePickerDialog(
+                previousDate = todo.targetDate,
+                onDismissRequest = { reschedulingTodoId = null },
+                onConfirmRequest = { newDate ->
+                    onRescheduleTodo(todo, newDate)
+                    reschedulingTodoId = null
+                }
+            )
+        }
     }
 }
+
 
 @StringRes
 private fun greetingResource(hour: Int): Int = when (hour) {
@@ -239,4 +290,18 @@ private fun rememberHomeMessage(
         greeting,
         phrases[phraseIndex]
     )
+}
+
+
+@Preview(showBackground = true)
+@Composable
+private fun EmptyHomeScreenPreview() {
+    TodoAppTheme {
+        HomeScreenContent(
+            uiState = HomeUiState(),
+            onCompletedChange = { _, _ -> },
+            onRescheduleTodo = { _, _ -> },
+            onEditTodo = {}
+        )
+    }
 }
