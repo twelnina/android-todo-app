@@ -97,7 +97,12 @@ fun DateField(
                 }
             }
         ) {
-            DatePicker(state = datePickerState)
+            DatePicker(
+                state = datePickerState,
+                title = null,
+                headline = null,
+                showModeToggle = false
+            )
         }
     }
 }

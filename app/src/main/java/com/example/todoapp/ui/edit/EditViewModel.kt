@@ -32,6 +32,7 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
                         description = description,
                         targetDate = targetDate.toEpochMillis(),
                         selectedTag = tag,
+                        isCompleted = isCompleted
                     )
                 }
             }
@@ -47,7 +48,8 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
                         title = title,
                         description = description,
                         targetDate = targetDate.toLocalDate(),
-                        tag = selectedTag
+                        tag = selectedTag,
+                        isCompleted = isCompleted
                     )
                 )
                 onUpdated()

@@ -155,7 +155,10 @@ fun TodoApp(
                 ),
                 entryProvider = entryProvider {
                     entry<AppNavKey.TodoHome> {
-                        HomeScreen()
+                        HomeScreen(onEditTodo = { id ->
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            backStack.add(AppNavKey.EditTodo(id))
+                        })
                     }
                     entry<AppNavKey.TodoList> {
                         ListScreen(
@@ -171,10 +174,10 @@ fun TodoApp(
                     entry<AppNavKey.AddTodo>(
                         metadata =
                             NavDisplay.transitionSpec { todoFormEnterTransition() } +
-                                NavDisplay.popTransitionSpec { todoFormExitTransition() } +
-                                NavDisplay.predictivePopTransitionSpec {
-                                    todoFormExitTransition()
-                                }
+                                    NavDisplay.popTransitionSpec { todoFormExitTransition() } +
+                                    NavDisplay.predictivePopTransitionSpec {
+                                        todoFormExitTransition()
+                                    }
                     ) {
                         val snackbarMessage = stringResource(R.string.todo_added)
                         AddScreen(
@@ -190,10 +193,10 @@ fun TodoApp(
                     entry<AppNavKey.EditTodo>(
                         metadata =
                             NavDisplay.transitionSpec { todoFormEnterTransition() } +
-                                NavDisplay.popTransitionSpec { todoFormExitTransition() } +
-                                NavDisplay.predictivePopTransitionSpec {
-                                    todoFormExitTransition()
-                                }
+                                    NavDisplay.popTransitionSpec { todoFormExitTransition() } +
+                                    NavDisplay.predictivePopTransitionSpec {
+                                        todoFormExitTransition()
+                                    }
                     ) { key ->
                         val todoUpdatedMessage = stringResource(R.string.todo_updated)
                         val todoDeletedMessage = stringResource(R.string.todo_deleted)
@@ -291,18 +294,18 @@ private fun NavBackStack<NavKey>.navigateToTopLevel(destination: AppNavKey) {
 
 private fun topLevelTransition(): ContentTransform =
     fadeIn(animationSpec = tween(durationMillis = 220)) togetherWith
-        fadeOut(animationSpec = tween(durationMillis = 120))
+            fadeOut(animationSpec = tween(durationMillis = 120))
 
 private fun todoFormEnterTransition(): ContentTransform =
     (slideInVertically(
         animationSpec = tween(durationMillis = 300),
         initialOffsetY = { fullHeight -> fullHeight / 4 }
     ) + fadeIn(animationSpec = tween(durationMillis = 220))) togetherWith
-        fadeOut(animationSpec = tween(durationMillis = 120))
+            fadeOut(animationSpec = tween(durationMillis = 120))
 
 private fun todoFormExitTransition(): ContentTransform =
     fadeIn(animationSpec = tween(durationMillis = 220)) togetherWith
-        (slideOutVertically(
-            animationSpec = tween(durationMillis = 260),
-            targetOffsetY = { fullHeight -> fullHeight / 4 }
-        ) + fadeOut(animationSpec = tween(durationMillis = 180)))
+            (slideOutVertically(
+                animationSpec = tween(durationMillis = 260),
+                targetOffsetY = { fullHeight -> fullHeight / 4 }
+            ) + fadeOut(animationSpec = tween(durationMillis = 180)))

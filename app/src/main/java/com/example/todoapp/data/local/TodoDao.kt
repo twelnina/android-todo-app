@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 @Dao
 interface TodoDao {
@@ -17,6 +18,25 @@ interface TodoDao {
 
     @Delete
     suspend fun delete(todoEntity: TodoEntity)
+
+    @Query(
+        """
+      SELECT * FROM todo_items
+      WHERE targetDate = :today
+      ORDER BY id ASC
+  """
+    )
+    fun observeTodayItems(today: LocalDate): Flow<List<TodoEntity>>
+
+    @Query(
+        """
+      SELECT * FROM todo_items
+      WHERE targetDate < :today
+        AND isCompleted = 0
+      ORDER BY targetDate ASC, id ASC
+  """
+    )
+    fun observeOverdueItems(today: LocalDate): Flow<List<TodoEntity>>
 
     @Query("SELECT * FROM todo_items ORDER BY targetDate IS NULL ASC, targetDate ASC, id ASC")
     fun getAllItem(): Flow<List<TodoEntity>>
