@@ -31,17 +31,19 @@ class ListViewModel(
         _selectedDueDateFilter,
         _showBottomSheet
     ) { items, query, selectedTags, dueDateFilter, showSheet ->
+        val filteredTodos = filterTodos(
+            items = items,
+            query = query,
+            tags = selectedTags,
+            dueDate = dueDateFilter
+        )
+
         ListUiState(
             searchQuery = query,
             selectedTags = selectedTags,
             selectedDueDateFilter = dueDateFilter,
             showBottomSheet = showSheet,
-            todoEntities = filterTodos(
-                items = items,
-                query = query,
-                tags = selectedTags,
-                dueDate = dueDateFilter
-            )
+            todoGroups = groupTodosByDate(filteredTodos)
         )
     }.stateIn(
         scope = viewModelScope,
