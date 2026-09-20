@@ -30,7 +30,14 @@ class ListScreenTest {
             tag = TodoTag.STUDY
         )
 
-        val uiState = ListUiState(todoEntities = listOf(todo))
+        val uiState = ListUiState(
+            todoGroups = listOf(
+                TodoDateGroup(
+                    date = todo.targetDate,
+                    todos = listOf(todo)
+                )
+            )
+        )
 
         composeTestRule.setContent {
             TodoAppTheme {
@@ -48,6 +55,10 @@ class ListScreenTest {
 
         composeTestRule
             .onNodeWithText("Study Kotlin")
+            .assertIsDisplayed()
+
+        composeTestRule
+            .onNodeWithText("Sep 13")
             .assertIsDisplayed()
     }
 
@@ -147,6 +158,86 @@ class ListScreenTest {
                 DueDateFilter.TODAY,
                 selectedFilter
             )
+        }
+    }
+
+    @Test
+    fun displaysNoDateHeaderForTodoWithoutDueDate() {
+        val todo = TodoEntity(
+            id = 2,
+            title = "Read a book",
+            description = "Read one chapter",
+            targetDate = null,
+            tag = null
+        )
+
+        val uiState = ListUiState(
+            todoGroups = listOf(TodoDateGroup(null, listOf(todo)))
+        )
+
+        composeTestRule.setContent {
+            TodoAppTheme {
+                ListScreenContent(
+                    uiState = uiState,
+                    onQueryChange = {},
+                    onTagSelected = {},
+                    onDueDateChipClick = {},
+                    onDueDateFilterChange = {},
+                    onDismissRequest = {},
+                    onEditTodo = {}
+                )
+            }
+        }
+
+        composeTestRule
+            .onNodeWithText("No date")
+            .assertIsDisplayed()
+
+        composeTestRule
+            .onNodeWithText("Read a book")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun tappingTodoCallsOnEditTodoWithTodoId() {
+        val todo = TodoEntity(
+            id = 42,
+            title = "Update project",
+            description = "Review the implementation",
+            targetDate = null,
+            tag = null
+        )
+
+        val uiState = ListUiState(
+            todoGroups = listOf(
+                TodoDateGroup(todo.targetDate, listOf(todo))
+            )
+        )
+
+        var editedTodoId: Int? = null
+
+        composeTestRule.setContent {
+            TodoAppTheme {
+                ListScreenContent(
+                    uiState = uiState,
+                    onQueryChange = {},
+                    onTagSelected = {},
+                    onDueDateChipClick = {},
+                    onDueDateFilterChange = {},
+                    onDismissRequest = {},
+                    onEditTodo = { todoId ->
+                        editedTodoId = todoId
+                    }
+                )
+            }
+        }
+
+        composeTestRule
+            .onNodeWithText("Update project")
+            .performClick()
+
+        composeTestRule.runOnIdle {
+            assertEquals(42, editedTodoId)
         }
     }
 }

@@ -5,11 +5,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +29,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
@@ -101,7 +103,7 @@ internal fun ListScreenContent(
         uiState.selectedDueDateFilter
     )
     val latestFilterKey by rememberUpdatedState(filterKey)
-    val hasTodos by rememberUpdatedState(uiState.todoEntities.isNotEmpty())
+    val hasTodos by rememberUpdatedState(uiState.todoGroups.isNotEmpty())
 
     val navigationBarPadding =
         WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -120,39 +122,57 @@ internal fun ListScreenContent(
     }
 
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
         TodoSearchBar(
-            query = uiState.searchQuery, onQueryChange = { newQuery ->
+            query = uiState.searchQuery,
+            onQueryChange = { newQuery ->
                 onQueryChange(newQuery)
-            })
+            },
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+
         Spacer(modifier = Modifier.padding(vertical = 2.dp))
+
         TodoFilterRow(
             selectedDueDateFilter = uiState.selectedDueDateFilter,
             selectedTags = uiState.selectedTags,
             onDueDateChipClick = onDueDateChipClick,
             onTagSelected = onTagSelected
         )
+
         LazyColumn(
             state = listState,
             contentPadding = PaddingValues(
-                bottom = navigationBarPadding + 80.dp, start = 8.dp, end = 8.dp
+                bottom = navigationBarPadding + 80.dp,
+                start = 16.dp,
+                end = 16.dp
             ),
             modifier = Modifier.fillMaxSize()
         ) {
-            items(
-                items = uiState.todoEntities,
-                key = { it.id },
-                contentType = { "todo_item" }) { todoItemInfo ->
-                TodoItem(
-                    todoItemInfo = todoItemInfo,
-                    onEditTodo = onEditTodo,
-                    modifier = Modifier.animateItem()
-                )
+            uiState.todoGroups.forEach { group ->
+                stickyHeader(
+                    key = group.date ?: "no_date",
+                    contentType = "date_header"
+                ) {
+                    TodoDateHeader(group.date)
+                }
+
+                itemsIndexed(
+                    items = group.todos,
+                    key = { _, todo -> todo.id }
+                ) { index, todo ->
+                    TodoItem(
+                        todoItemInfo = todo,
+                        index = index,
+                        count = group.todos.size,
+                        onEditTodo = onEditTodo,
+                        modifier = Modifier.animateItem()
+                    )
+                }
             }
         }
-        @OptIn(ExperimentalMaterial3Api::class) DueDateSelectionBottomSheet(
+        @OptIn(ExperimentalMaterial3Api::class)
+        DueDateSelectionBottomSheet(
             sheetState = sheetState,
             selectedFilter = uiState.selectedDueDateFilter,
             showBottomSheet = uiState.showBottomSheet,
@@ -171,8 +191,8 @@ private fun TodoFilterRow(
     onTagSelected: (TodoTag) -> Unit
 ) {
     LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
         item {
             val isAllSelected = selectedDueDateFilter == DueDateFilter.ALL
@@ -219,46 +239,60 @@ private fun TodoFilterRow(
 }
 
 @Composable
-private fun TodoItem(
-    todoItemInfo: TodoEntity, onEditTodo: (Int) -> Unit, modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier) {
-        Row(
-            modifier = Modifier
-                .clickable(onClick = { onEditTodo(todoItemInfo.id) })
-                .padding(vertical = 16.dp, horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(text = todoItemInfo.targetDate?.let { "~ ${it.format(dateFormatter)}" }
-                    ?: stringResource(R.string.no_date),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.primary)
-                Text(
-                    text = todoItemInfo.title, fontSize = 22.sp
-                )
-                Text(
-                    text = todoItemInfo.description,
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-            todoItemInfo.tag?.let { tag ->
-                TagChip(tag = tag)
-            }
-        }
-        HorizontalDivider(
-            thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant
+private fun TodoDateHeader(date: LocalDate?, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        Text(
+            text = date?.format(dateFormatter) ?: stringResource(R.string.no_date),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }
 
-
+@Composable
+private fun TodoItem(
+    todoItemInfo: TodoEntity,
+    index: Int,
+    count: Int,
+    onEditTodo: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SegmentedListItem(
+        onClick = { onEditTodo(todoItemInfo.id) },
+        shapes = ListItemDefaults.segmentedShapes(index, count),
+        colors = ListItemDefaults.segmentedColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        ),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier.padding(bottom = ListItemDefaults.SegmentedGap),
+        supportingContent = {
+            Text(
+                text = todoItemInfo.description,
+                fontSize = 12.sp,
+                lineHeight = 18.sp
+            )
+        },
+        trailingContent = {
+            todoItemInfo.tag?.let { tag ->
+                TagChip(
+                    tag = tag,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
+        }
+    ) {
+        Text(
+            text = todoItemInfo.title,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -320,66 +354,21 @@ private fun DueDateSelectionBottomSheet(
 }
 
 
-private val previewUiState = ListUiState(
-    todoEntities = listOf(
-        TodoEntity(
-            id = 1,
-            title = "Grocery Shopping",
-            description = "Visit the local farmers market to pick up fresh seasonal vegetables, organic fruits, and the special sourdough bread that the whole family loves for Sunday brunch.",
-            targetDate = LocalDate.now(),
-            tag = TodoTag.SHOPPING
-        ),
-        TodoEntity(
-            id = 2,
-            title = "Advanced Mathematics",
-            description = "Finish the remaining exercises in Chapter 5, then start reviewing the key concepts and formulas in Chapter 6 to prepare for the upcoming midterm exam next Wednesday.",
-            targetDate = LocalDate.now().plusDays(1),
-            tag = TodoTag.STUDY
-        ),
-        TodoEntity(
-            id = 3,
-            title = "Fitness Routine",
-            description = "Wake up early at 6 AM for a refreshing 5km run through the central park, followed by a ten-minute cool-down stretch and a healthy, protein-packed breakfast at home.",
-            targetDate = LocalDate.now().plusDays(7),
-            tag = TodoTag.HEALTH
-        ),
-        TodoEntity(
-            id = 4,
-            title = "Project Planning",
-            description = "Go through all active projects, check upcoming deadlines, organize tasks for next week, and update the team on the migration progress. Don't forget to review the feedback from the last meeting.",
-            targetDate = LocalDate.now().plusDays(20),
-            tag = TodoTag.WORK
-        )
-    )
-)
-
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun HomeScreenLightPreview() {
-    TodoAppTheme(darkTheme = false) {
-        ListScreenContent(
-            uiState = previewUiState,
-            onEditTodo = {},
-            onTagSelected = {},
-            onDueDateChipClick = {},
-            onDueDateFilterChange = {},
-            onDismissRequest = {},
-            onQueryChange = {},
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenDarkPreview() {
+private fun TodoItemPreview() {
     TodoAppTheme(darkTheme = true) {
-        ListScreenContent(
-            uiState = previewUiState,
-            onEditTodo = {},
-            onTagSelected = {},
-            onDueDateChipClick = {},
-            onDueDateFilterChange = {},
-            onDismissRequest = {},
-            onQueryChange = {})
+        TodoItem(
+            todoItemInfo = TodoEntity(
+                id = 1,
+                title = "Grocery Shopping",
+                description = "Visit the local farmers market to pick up fresh seasonal vegetables, organic fruits, and the special sourdough bread that the whole family loves for Sunday brunch.",
+                targetDate = LocalDate.now(),
+                tag = TodoTag.SHOPPING
+            ),
+            index = 0,
+            count = 1,
+            onEditTodo = {}
+        )
     }
 }
