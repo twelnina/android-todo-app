@@ -26,12 +26,11 @@ import java.time.ZoneOffset
 
 @Composable
 internal fun TargetDatePickerDialog(
+    today: LocalDate,
     previousDate: LocalDate?,
     onConfirmRequest: (LocalDate) -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    val today = LocalDate.now()
-
     val datePickerState = rememberDatePickerState(
         initialSelectedDate = null,
         selectableDates = object : SelectableDates {
@@ -51,7 +50,7 @@ internal fun TargetDatePickerDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = {
             TextButton(
-                enabled = newDate != null,
+                enabled = newDate != null && newDate >= today,
                 onClick = {
                     newDate?.let(onConfirmRequest)
                 }

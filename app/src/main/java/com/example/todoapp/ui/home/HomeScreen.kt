@@ -267,6 +267,7 @@ private fun HomeScreenContent(
 
         reschedulingTodo?.let { todo ->
             TargetDatePickerDialog(
+                today = today,
                 previousDate = todo.targetDate,
                 onDismissRequest = { reschedulingTodoId = null },
                 onConfirmRequest = { newDate ->
