@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.room.Room
 import com.example.todoapp.data.local.AppDatabase
 import com.example.todoapp.data.repository.TodoRepository
+import com.example.todoapp.data.time.CurrentDateProvider
+import com.example.todoapp.data.time.SystemCurrentDateProvider
 
 class TodoApplication : Application() {
     val database: AppDatabase by lazy {
@@ -16,5 +18,9 @@ class TodoApplication : Application() {
 
     val repository: TodoRepository by lazy {
         TodoRepository(database.todoDao())
+    }
+
+    val currentDateProvider: CurrentDateProvider by lazy {
+        SystemCurrentDateProvider(applicationContext)
     }
 }

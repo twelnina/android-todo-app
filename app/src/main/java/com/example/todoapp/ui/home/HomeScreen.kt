@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringArrayResource
@@ -73,6 +75,17 @@ private fun HomeScreenContent(
     var playInitialAnimation by rememberSaveable { mutableStateOf(true) }
     var reschedulingTodoId by rememberSaveable { mutableStateOf<Int?>(null) }
 
+    val today = uiState.today
+    if (today == null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
     val hasItems = uiState.todayItems.isNotEmpty() || uiState.overdueItems.isNotEmpty()
     val reschedulingTodo =
         uiState.overdueItems.firstOrNull { it.todo.id == reschedulingTodoId }?.todo
@@ -98,7 +111,6 @@ private fun HomeScreenContent(
                 val formatter = remember(locale) {
                     DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
                 }
-                val today = LocalDate.now()
                 val now = LocalDateTime.now()
                 Column(
                     modifier = Modifier.height(200.dp),
@@ -115,7 +127,7 @@ private fun HomeScreenContent(
                     Text(
                         text = rememberHomeMessage(
                             hour = now.hour,
-                            dayKey = now.toLocalDate().toEpochDay()
+                            dayKey = today.toEpochDay()
                         ),
                         fontFamily = RobotoFlexExpanded,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -298,7 +310,9 @@ private fun rememberHomeMessage(
 private fun EmptyHomeScreenPreview() {
     TodoAppTheme {
         HomeScreenContent(
-            uiState = HomeUiState(),
+            uiState = HomeUiState(
+                today = LocalDate.of(2026, 9, 21)
+            ),
             onCompletedChange = { _, _ -> },
             onRescheduleTodo = { _, _ -> },
             onEditTodo = {}
