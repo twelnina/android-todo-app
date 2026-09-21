@@ -1,0 +1,90 @@
+package com.example.todoapp.ui.edit
+
+import androidx.lifecycle.viewModelScope
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import com.example.todoapp.data.local.AppDatabase
+import com.example.todoapp.data.local.TodoEntity
+import com.example.todoapp.data.repository.TodoRepository
+import com.example.todoapp.model.TodoTag
+import com.example.todoapp.ui.TodoAppViewModel
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.job
+import kotlinx.coroutines.test.runTest
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Before
+import org.junit.Test
+import java.time.LocalDate
+import kotlin.time.Duration.Companion.seconds
+
+class EditViewModelTest {
+    private lateinit var database: AppDatabase
+    private lateinit var repository: TodoRepository
+    private lateinit var editViewModel: EditViewModel
+    private lateinit var appViewModel: TodoAppViewModel
+
+    @Before
+    fun setUp() {
+        database = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(),
+            AppDatabase::class.java
+        ).build()
+
+        repository = TodoRepository(database.todoDao())
+        editViewModel = EditViewModel(repository)
+        appViewModel = TodoAppViewModel(repository)
+    }
+
+    @After
+    fun tearDown() = runTest(timeout = 10.seconds) {
+        editViewModel.viewModelScope.coroutineContext.job.cancelAndJoin()
+        appViewModel.viewModelScope.coroutineContext.job.cancelAndJoin()
+        database.close()
+    }
+
+    @Test
+    fun deleteAndRestore_completedTodo_preservesAllFields() {
+        assertDeleteAndRestorePreservesAllFields(true)
+    }
+
+    @Test
+    fun deleteAndRestore_incompleteTodo_preservesAllFields() {
+        assertDeleteAndRestorePreservesAllFields(false)
+    }
+
+    private fun assertDeleteAndRestorePreservesAllFields(isCompleted: Boolean) =
+        runTest(timeout = 10.seconds) {
+            val originalTodo = TodoEntity(
+                id = 1,
+                title = "Study Kotlin",
+                description = "Review coroutine basics",
+                targetDate = LocalDate.of(2026, 9, 21),
+                tag = TodoTag.STUDY,
+                isCompleted = isCompleted
+            )
+            repository.insert(originalTodo)
+
+            editViewModel.loadItem(originalTodo.id)
+            editViewModel.uiState.first { it.id == originalTodo.id }
+
+            val deletedTodoResult = CompletableDeferred<TodoEntity>()
+            editViewModel.deleteTodo { deletedTodo ->
+                deletedTodoResult.complete(deletedTodo)
+            }
+            val deletedTodo = deletedTodoResult.await()
+
+            assertNull(repository.getItem(originalTodo.id))
+
+            appViewModel.restoreDeletedTodo(deletedTodo)
+
+            val restoredTodo = repository.getAllItems().first { todos ->
+                todos.any { it.id == originalTodo.id }
+            }.single { it.id == originalTodo.id }
+
+            assertEquals(originalTodo, restoredTodo)
+        }
+}
