@@ -64,7 +64,8 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
                 title = title,
                 description = description,
                 targetDate = targetDate.toLocalDate(),
-                tag = selectedTag
+                tag = selectedTag,
+                isCompleted = isCompleted
             )
         }
 
