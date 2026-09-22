@@ -5,6 +5,8 @@
     <string name="home">Home</string>
     <string name="list">List</string>
     <string name="calendar">Calendar</string>
+    <string name="previous_date">Previous day</string>
+    <string name="next_date">Next day</string>
 
     <!--    Home-->
     <string name="today_section_title">Today(%d)</string>
@@ -17,6 +19,7 @@
 
     <string name="no_todos_today">No todos due today</string>
     <string name="no_overdue_todos">No overdue todos</string>
+    <string name="no_todos_for_selected_date">No todos for this day</string>
 
     <string name="reschedule">Reschedule</string>
 

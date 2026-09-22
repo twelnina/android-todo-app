@@ -169,7 +169,12 @@ fun TodoApp(
                         )
                     }
                     entry<AppNavKey.TodoCalendar> {
-                        CalendarScreen()
+                        CalendarScreen(
+                            onEditTodo = { id ->
+                                snackbarHostState.currentSnackbarData?.dismiss()
+                                backStack.add(AppNavKey.EditTodo(id))
+                            }
+                        )
                     }
                     entry<AppNavKey.AddTodo>(
                         metadata =
