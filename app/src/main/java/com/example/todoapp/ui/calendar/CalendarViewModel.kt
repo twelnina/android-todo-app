@@ -29,11 +29,18 @@ class CalendarViewModel(
         _selectedDate
     ) { today, todos, selectedDate ->
         val date = selectedDate ?: today
+
+        val todoCountsByDate = todos
+            .mapNotNull { it.targetDate }
+            .groupingBy { it }
+            .eachCount()
+
         CalendarUiState(
             today = today,
             selectedDate = date,
             todos = todos,
-            selectedDateTodos = todos.filter { it.targetDate == date }
+            selectedDateTodos = todos.filter { it.targetDate == date },
+            todoCountsByDate = todoCountsByDate
         )
     }.stateIn(
         scope = viewModelScope,

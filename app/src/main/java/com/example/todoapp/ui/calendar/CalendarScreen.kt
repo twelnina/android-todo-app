@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -101,6 +102,7 @@ private fun CalendarScreenContent(
             selectedDate = selectedDate,
             startMonth = startMonth,
             endMonth = endMonth,
+            todoCountsByDate = uiState.todoCountsByDate,
             onDateSelected = onDateSelected
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -156,7 +158,11 @@ private fun CalendarScreenContent(
                 }
             }
         } else {
-            Box(modifier = Modifier.fillMaxSize().padding(bottom = 100.dp)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 100.dp)
+            ) {
                 Text(
                     text = stringResource(R.string.no_todos_for_selected_date),
                     style = MaterialTheme.typography.bodyMedium,
@@ -173,6 +179,7 @@ private fun MonthCalendar(
     selectedDate: LocalDate?,
     startMonth: YearMonth,
     endMonth: YearMonth,
+    todoCountsByDate: Map<LocalDate, Int>,
     onDateSelected: (LocalDate) -> Unit
 ) {
     val currentMonth = remember { YearMonth.now() }
@@ -233,6 +240,7 @@ private fun MonthCalendar(
                     CalendarItem(
                         day = day,
                         isSelected = day.date == selectedDate,
+                        todoCount = todoCountsByDate[day.date] ?: 0,
                         onClick = { onDateSelected(day.date) })
                 }
             )
@@ -241,7 +249,12 @@ private fun MonthCalendar(
 }
 
 @Composable
-private fun CalendarItem(day: CalendarDay, isSelected: Boolean, onClick: () -> Unit) {
+private fun CalendarItem(
+    day: CalendarDay,
+    isSelected: Boolean,
+    todoCount: Int,
+    onClick: () -> Unit
+) {
     val isMonthDate = day.position == DayPosition.MonthDate
     val highlighted = isMonthDate && isSelected
 
@@ -257,6 +270,13 @@ private fun CalendarItem(day: CalendarDay, isSelected: Boolean, onClick: () -> U
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
+    val indicatorColor = if (highlighted) {
+        MaterialTheme.colorScheme.onPrimary
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+    val indicatorAlpha = todoCount.coerceIn(0, 5) / 5f
+
     Box(
         modifier = Modifier
             .aspectRatio(1f)
@@ -269,11 +289,25 @@ private fun CalendarItem(day: CalendarDay, isSelected: Boolean, onClick: () -> U
             ),
         contentAlignment = Alignment.Center
     ) {
-        if (day.position == DayPosition.MonthDate)
-            Text(
-                text = day.date.dayOfMonth.toString(),
-                color = textColor
-            )
+        if (day.position == DayPosition.MonthDate) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = day.date.dayOfMonth.toString(),
+                    color = textColor
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Box(
+                    modifier = Modifier
+                        .size(4.dp)
+                        .background(
+                            color = indicatorColor.copy(alpha = indicatorAlpha),
+                            shape = CircleShape
+                        )
+                )
+            }
+        }
     }
 }
 
@@ -281,11 +315,22 @@ private fun CalendarItem(day: CalendarDay, isSelected: Boolean, onClick: () -> U
 @Composable
 private fun MonthCalendarPreview() {
     val currentMonth = YearMonth.now()
+
+    val sampleCounts = mapOf(
+        currentMonth.atDay(2) to 1,
+        currentMonth.atDay(3) to 2,
+        currentMonth.atDay(4) to 3,
+        currentMonth.atDay(5) to 4,
+        currentMonth.atDay(6) to 5,
+        currentMonth.atDay(7) to 6
+    )
+
     TodoAppTheme {
         MonthCalendar(
             selectedDate = currentMonth.atDay(22),
             startMonth = currentMonth.minusMonths(12),
             endMonth = currentMonth.plusMonths(12),
+            todoCountsByDate = sampleCounts,
             onDateSelected = {}
         )
     }
