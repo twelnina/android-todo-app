@@ -1,6 +1,7 @@
 package com.example.todoapp.ui.calendar
 
 import android.text.format.DateFormat
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -133,23 +135,34 @@ private fun CalendarScreenContent(
             }
         }
 
-        LazyColumn(contentPadding = PaddingValues(top = 8.dp, bottom = 100.dp)) {
-            itemsIndexed(
-                items = uiState.selectedDateTodos,
-                key = { _, todo -> todo.id }
-            ) { index, todo ->
-                CardItem(
-                    todo = todo,
-                    showDaysOverdue = false,
-                    onCheckedChange = { checked ->
-                        onCompletedChange(todo, checked)
-                    },
-                    onEdit = { onEditTodo(todo.id) }
-                )
+        if (uiState.selectedDateTodos.isNotEmpty()) {
+            LazyColumn(contentPadding = PaddingValues(top = 8.dp, bottom = 100.dp)) {
+                itemsIndexed(
+                    items = uiState.selectedDateTodos,
+                    key = { _, todo -> todo.id }
+                ) { index, todo ->
+                    CardItem(
+                        todo = todo,
+                        showDaysOverdue = false,
+                        onCheckedChange = { checked ->
+                            onCompletedChange(todo, checked)
+                        },
+                        onEdit = { onEditTodo(todo.id) }
+                    )
 
-                if (index < uiState.selectedDateTodos.lastIndex) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                    if (index < uiState.selectedDateTodos.lastIndex) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
                 }
+            }
+        } else {
+            Box(modifier = Modifier.fillMaxSize().padding(bottom = 100.dp)) {
+                Text(
+                    text = stringResource(R.string.no_todos_for_selected_date),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
     }
@@ -211,6 +224,10 @@ private fun MonthCalendar(
             Spacer(modifier = Modifier.height(8.dp))
 
             HorizontalCalendar(
+                modifier = Modifier.animateContentSize(
+                    animationSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
+                    alignment = Alignment.TopStart
+                ),
                 state = state,
                 dayContent = { day ->
                     CalendarItem(
