@@ -5,6 +5,8 @@
     <string name="home">Home</string>
     <string name="list">List</string>
     <string name="calendar">Calendar</string>
+    <string name="previous_date">Previous day</string>
+    <string name="next_date">Next day</string>
 
     <!--    Home-->
     <string name="today_section_title">Today(%d)</string>

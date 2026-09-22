@@ -1,4 +1,4 @@
-package com.example.todoapp.ui.home.components
+package com.example.todoapp.ui.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
@@ -37,13 +37,13 @@ import androidx.compose.ui.unit.sp
 import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.TodoTag
-import com.example.todoapp.ui.components.TagChip
 import com.example.todoapp.ui.theme.TodoAppTheme
 
 @Composable
 internal fun CardItem(
     modifier: Modifier = Modifier,
     todo: TodoEntity,
+    showDaysOverdue: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     onEdit: () -> Unit,
     onReschedule: (() -> Unit)? = null,
@@ -80,22 +80,24 @@ internal fun CardItem(
                 daysOverdue?.let {
                     val days = it.toInt()
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.schedule_24px),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onErrorContainer,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Text(
-                            text = pluralStringResource(R.plurals.days_overdue, days, days),
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            fontSize = 12.sp,
-                            lineHeight = 16.sp
-                        )
+                    if (showDaysOverdue) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.schedule_24px),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Text(
+                                text = pluralStringResource(R.plurals.days_overdue, days, days),
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                fontSize = 12.sp,
+                                lineHeight = 16.sp
+                            )
+                        }
                     }
                 }
                 Text(
@@ -171,7 +173,8 @@ private fun CardItemPreview() {
                 tag = TodoTag.STUDY
             ),
             onCheckedChange = {},
-            onEdit = {}
+            onEdit = {},
+            showDaysOverdue = false
         )
     }
 }

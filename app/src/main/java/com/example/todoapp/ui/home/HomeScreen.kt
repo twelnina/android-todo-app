@@ -42,7 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
-import com.example.todoapp.ui.home.components.CardItem
+import com.example.todoapp.ui.components.CardItem
 import com.example.todoapp.ui.home.components.TargetDatePickerDialog
 import com.example.todoapp.ui.theme.RobotoFlexExpanded
 import com.example.todoapp.ui.theme.TodoAppTheme
@@ -185,9 +185,11 @@ private fun HomeScreenContent(
                         CardItem(
                             todo = todo,
                             onEdit = { onEditTodo(todo.id) },
+                            showDaysOverdue = false,
                             onCheckedChange = { checked ->
                                 onCompletedChange(todo, checked)
-                            })
+                            }
+                        )
                     }
 
                     if (index < uiState.todayItems.lastIndex) {
@@ -250,6 +252,7 @@ private fun HomeScreenContent(
                     ) {
                         CardItem(
                             todo = todo.todo,
+                            showDaysOverdue = true,
                             onCheckedChange = { checked ->
                                 onCompletedChange(todo.todo, checked)
                             },
