@@ -6,14 +6,17 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.Text
 import androidx.compose.material3.getSelectedDate
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.todoapp.R
 import com.example.todoapp.ui.theme.TodoAppTheme
 import java.time.Instant
 import java.time.LocalDate
@@ -61,17 +64,30 @@ fun TargetDatePicker(
         title = null,
         headline = {
             ProvideTextStyle(MaterialTheme.typography.titleMedium) {
-                DatePickerDefaults.DatePickerHeadline(
-                    selectedDateMillis = datePickerState.selectedDateMillis,
-                    displayMode = datePickerState.displayMode,
-                    dateFormatter = DatePickerDefaults.dateFormatter(),
-                    modifier = Modifier.padding(
-                        start = 24.dp,
-                        top = 16.dp,
-                        end = 12.dp,
-                        bottom = 12.dp
-                    )
+                val headlineModifier = Modifier.padding(
+                    start = 24.dp, top = 16.dp, end = 12.dp, bottom = 12.dp
                 )
+
+                if (datePickerState.selectedDateMillis == null) {
+                    Text(
+                        text = stringResource(R.string.no_date),
+                        modifier = headlineModifier,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                } else {
+                    DatePickerDefaults.DatePickerHeadline(
+                        selectedDateMillis = datePickerState.selectedDateMillis,
+                        displayMode = datePickerState.displayMode,
+                        dateFormatter = DatePickerDefaults.dateFormatter(),
+                        modifier = Modifier.padding(
+                            start = 24.dp,
+                            top = 16.dp,
+                            end = 12.dp,
+                            bottom = 12.dp
+                        ),
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
         },
         showModeToggle = false
