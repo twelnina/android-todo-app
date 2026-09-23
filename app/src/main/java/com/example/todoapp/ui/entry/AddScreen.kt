@@ -1,9 +1,10 @@
 package com.example.todoapp.ui.entry
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,6 +25,7 @@ import com.example.todoapp.R
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TodoEntryBody
 import com.example.todoapp.ui.theme.TodoAppTheme
+import java.time.LocalDate
 
 @Composable
 fun AddScreen(
@@ -49,7 +51,7 @@ private fun AddScreenContent(
     uiState: AddUiState,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
-    onTargetDateChange: (Long?) -> Unit,
+    onTargetDateChange: (LocalDate?) -> Unit,
     onTagChange: (TodoTag) -> Unit,
     onDone: () -> Unit,
     onBack: () -> Unit,
@@ -82,19 +84,21 @@ private fun AddScreenContent(
             }
         }
     ) { innerPadding ->
-        Column {
-            TodoEntryBody(
-                title = uiState.title,
-                description = uiState.description,
-                targetDate = uiState.targetDate,
-                selectedTag = uiState.selectedTag,
-                onTitleChange = onTitleChange,
-                onDescriptionChange = onDescriptionChange,
-                onTargetDateChange = onTargetDateChange,
-                onTagChange = onTagChange,
-                modifier = Modifier.padding(innerPadding)
-            )
-        }
+        TodoEntryBody(
+            today = uiState.today,
+            title = uiState.title,
+            description = uiState.description,
+            targetDate = uiState.targetDate,
+            selectedTag = uiState.selectedTag,
+            onTitleChange = onTitleChange,
+            onDescriptionChange = onDescriptionChange,
+            onDateChange = onTargetDateChange,
+            onTagChange = onTagChange,
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState())
+        )
     }
 }
 
