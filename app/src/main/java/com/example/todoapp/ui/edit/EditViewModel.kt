@@ -25,6 +25,7 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
             todoRepository.getItem(id)?.run {
                 _uiState.update { currentState ->
                     currentState.copy(
+                        isLoaded = true,
                         id = id,
                         title = title,
                         description = description,

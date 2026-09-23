@@ -4,6 +4,7 @@ import com.example.todoapp.model.TodoTag
 import java.time.LocalDate
 
 data class EditUiState(
+    val isLoaded: Boolean = false,
     val id: Int = 0,
     val title: String = "",
     val description: String = "",
