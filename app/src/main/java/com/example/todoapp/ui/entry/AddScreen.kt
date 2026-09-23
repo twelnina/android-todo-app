@@ -26,6 +26,7 @@ import com.example.todoapp.R
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TodoEntryBody
 import com.example.todoapp.ui.theme.TodoAppTheme
+import java.time.LocalDate
 
 @Composable
 fun AddScreen(
@@ -51,7 +52,7 @@ private fun AddScreenContent(
     uiState: AddUiState,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
-    onTargetDateChange: (Long?) -> Unit,
+    onTargetDateChange: (LocalDate?) -> Unit,
     onTagChange: (TodoTag) -> Unit,
     onDone: () -> Unit,
     onBack: () -> Unit,
@@ -88,9 +89,11 @@ private fun AddScreenContent(
             TodoEntryBody(
                 title = uiState.title,
                 description = uiState.description,
+                targetDate = uiState.targetDate,
                 selectedTag = uiState.selectedTag,
                 onTitleChange = onTitleChange,
                 onDescriptionChange = onDescriptionChange,
+                onDateChange = onTargetDateChange,
                 onTagChange = onTagChange,
                 modifier = Modifier
                     .padding(innerPadding)

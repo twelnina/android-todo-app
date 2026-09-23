@@ -14,9 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneOffset
 
 class AddViewModel(private val todoRepository: TodoRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(AddUiState())
@@ -36,7 +34,7 @@ class AddViewModel(private val todoRepository: TodoRepository) : ViewModel() {
         }
     }
 
-    fun updateTargetDate(newTargetDate: Long?) {
+    fun updateTargetDate(newTargetDate: LocalDate?) {
         _uiState.update { currentState ->
             currentState.copy(
                 targetDate = newTargetDate
@@ -59,7 +57,7 @@ class AddViewModel(private val todoRepository: TodoRepository) : ViewModel() {
                     TodoEntity(
                         title = title,
                         description = description,
-                        targetDate = targetDate?.toLocalDate(),
+                        targetDate = targetDate,
                         tag = selectedTag
                     )
                 )
@@ -67,13 +65,6 @@ class AddViewModel(private val todoRepository: TodoRepository) : ViewModel() {
             }
         }
     }
-
-    private fun Long?.toLocalDate(): LocalDate? =
-        this?.let { millis ->
-            Instant.ofEpochMilli(millis)
-                .atZone(ZoneOffset.UTC)
-                .toLocalDate()
-        }
 
     fun isValid(state: AddUiState) =
         state.title.isNotBlank() && state.description.isNotBlank()
