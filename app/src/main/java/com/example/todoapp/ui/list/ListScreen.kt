@@ -73,7 +73,8 @@ private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH
 @Composable
 fun ListScreen(
     onEditTodo: (Int) -> Unit,
-    viewModel: ListViewModel = viewModel(factory = ListViewModel.Factory)
+    initialDueDateFilter: DueDateFilter = DueDateFilter.ALL,
+    viewModel: ListViewModel = viewModel(factory = ListViewModel.createFactory(initialDueDateFilter))
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 

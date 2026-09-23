@@ -17,11 +17,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
 class ListViewModel(
-    private val todoRepository: TodoRepository
+    private val todoRepository: TodoRepository,
+    initialDueDateFilter: DueDateFilter = DueDateFilter.ALL
 ) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     private val _selectedTags = MutableStateFlow<Set<TodoTag>>(emptySet())
-    private val _selectedDueDateFilter = MutableStateFlow(DueDateFilter.ALL)
+    private val _selectedDueDateFilter = MutableStateFlow(initialDueDateFilter)
     private val _showBottomSheet = MutableStateFlow(false)
 
     val uiState: StateFlow<ListUiState> = combine(
@@ -48,7 +49,9 @@ class ListViewModel(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = ListUiState()
+        initialValue = ListUiState(
+            selectedDueDateFilter = initialDueDateFilter
+        )
     )
 
     fun onQueryChange(newQuery: String) {
@@ -75,12 +78,18 @@ class ListViewModel(
     }
 
     companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
+        fun createFactory(
+            initialDueDateFilter: DueDateFilter = DueDateFilter.ALL
+        ): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application =
                     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as TodoApplication)
                 val repository = application.repository
-                ListViewModel(todoRepository = repository)
+
+                ListViewModel(
+                    todoRepository = repository,
+                    initialDueDateFilter = initialDueDateFilter
+                )
             }
         }
     }

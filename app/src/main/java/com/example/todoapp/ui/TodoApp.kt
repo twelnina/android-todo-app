@@ -70,7 +70,7 @@ fun TodoApp(
 
     val showToolbar = when (currentNavKey) {
         AppNavKey.TodoHome,
-        AppNavKey.TodoList,
+        is AppNavKey.TodoList,
         AppNavKey.TodoCalendar -> true
 
         else -> false
@@ -114,10 +114,14 @@ fun TodoApp(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         FloatingToolbarItem(
-                            selected = currentNavKey == AppNavKey.TodoList,
+                            selected = currentNavKey is AppNavKey.TodoList,
                             iconResourceId = R.drawable.list_24px,
                             stringResourceId = R.string.list,
-                            onClick = { backStack.navigateToTopLevel(AppNavKey.TodoList) }
+                            onClick = {
+                                if (currentNavKey !is AppNavKey.TodoList) {
+                                    backStack.navigateToTopLevel(AppNavKey.TodoList())
+                                }
+                            }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         FloatingToolbarItem(
@@ -160,12 +164,13 @@ fun TodoApp(
                             backStack.add(AppNavKey.EditTodo(id))
                         })
                     }
-                    entry<AppNavKey.TodoList> {
+                    entry<AppNavKey.TodoList> { key ->
                         ListScreen(
                             onEditTodo = { id ->
                                 snackbarHostState.currentSnackbarData?.dismiss()
                                 backStack.add(AppNavKey.EditTodo(id))
-                            }
+                            },
+                            initialDueDateFilter = key.initialDueDateFilter
                         )
                     }
                     entry<AppNavKey.TodoCalendar> {
@@ -287,7 +292,11 @@ private fun NavBackStack<NavKey>.navigateToTopLevel(destination: AppNavKey) {
             }
         }
 
-        AppNavKey.TodoList,
+        is AppNavKey.TodoList -> {
+            removeAll { it is AppNavKey.TodoList }
+            add(destination)
+        }
+
         AppNavKey.TodoCalendar -> {
             removeAll { it == destination }
             add(destination)
