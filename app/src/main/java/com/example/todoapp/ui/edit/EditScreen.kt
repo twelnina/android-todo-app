@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,7 +39,9 @@ import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TodoEntryBody
+import com.example.todoapp.ui.edit.component.TargetDatePicker
 import com.example.todoapp.ui.theme.TodoAppTheme
+import java.time.LocalDate
 
 @Composable
 fun EditScreen(
@@ -54,7 +58,7 @@ fun EditScreen(
         uiState = uiState,
         onTitleChange = viewModel::updateTitle,
         onDescriptionChange = viewModel::updateDescription,
-        onTargetDateChange = viewModel::updateTargetDate,
+        onDateChange = viewModel::updateTargetDate,
         onTagChange = viewModel::updateSelectedTag,
         updateTodo = { viewModel.updateTodo(onUpdated) },
         deleteTodo = { viewModel.deleteTodo(onDeleted) },
@@ -67,7 +71,7 @@ private fun EditScreenContent(
     uiState: EditUiState,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
-    onTargetDateChange: (Long?) -> Unit,
+    onDateChange: (LocalDate?) -> Unit,
     onTagChange: (TodoTag?) -> Unit,
     updateTodo: () -> Unit,
     deleteTodo: () -> Unit,
@@ -123,17 +127,24 @@ private fun EditScreenContent(
             }
         }
     ) { innerPadding ->
-        TodoEntryBody(
-            title = uiState.title,
-            description = uiState.description,
-            targetDate = uiState.targetDate,
-            selectedTag = uiState.selectedTag,
-            onTitleChange = onTitleChange,
-            onDescriptionChange = onDescriptionChange,
-            onTargetDateChange = onTargetDateChange,
-            onTagChange = onTagChange,
-            modifier = Modifier.padding(innerPadding)
-        )
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+        ) {
+            TodoEntryBody(
+                title = uiState.title,
+                description = uiState.description,
+                selectedTag = uiState.selectedTag,
+                onTitleChange = onTitleChange,
+                onDescriptionChange = onDescriptionChange,
+                onTagChange = onTagChange,
+            )
+            TargetDatePicker(
+                onDateChange = onDateChange,
+                selectedDate = uiState.targetDate
+            )
+        }
         DeleteAlertDialog(
             showDeleteDialog = showDeleteDialog,
             onConfirm = deleteTodo,

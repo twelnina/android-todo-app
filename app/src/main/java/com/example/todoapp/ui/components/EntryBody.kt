@@ -4,11 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,11 +22,9 @@ import com.example.todoapp.model.TodoTag
 fun TodoEntryBody(
     title: String,
     description: String,
-    targetDate: Long?,
     selectedTag: TodoTag?,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
-    onTargetDateChange: (Long?) -> Unit,
     onTagChange: (TodoTag) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -35,7 +33,6 @@ fun TodoEntryBody(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
         TextField(
@@ -44,6 +41,10 @@ fun TodoEntryBody(
             label = { Text(text = stringResource(R.string.title)) },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             singleLine = true,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            ),
             modifier = Modifier.fillMaxWidth()
         )
         TextField(
@@ -51,11 +52,10 @@ fun TodoEntryBody(
             onValueChange = onDescriptionChange,
             label = { Text(text = stringResource(R.string.description)) },
             minLines = 5,
-            modifier = Modifier.fillMaxWidth()
-        )
-        DateField(
-            onDateSelected = onTargetDateChange,
-            selectedDate = targetDate,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            ),
             modifier = Modifier.fillMaxWidth()
         )
         TagSelector(

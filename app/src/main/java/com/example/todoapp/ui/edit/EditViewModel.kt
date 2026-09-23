@@ -14,9 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneOffset
 
 class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(EditUiState())
@@ -30,7 +28,7 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
                         id = id,
                         title = title,
                         description = description,
-                        targetDate = targetDate.toEpochMillis(),
+                        targetDate = targetDate,
                         selectedTag = tag,
                         isCompleted = isCompleted
                     )
@@ -47,7 +45,7 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
                         id = id,
                         title = title,
                         description = description,
-                        targetDate = targetDate.toLocalDate(),
+                        targetDate = targetDate,
                         tag = selectedTag,
                         isCompleted = isCompleted
                     )
@@ -63,7 +61,7 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
                 id = id,
                 title = title,
                 description = description,
-                targetDate = targetDate.toLocalDate(),
+                targetDate = targetDate,
                 tag = selectedTag,
                 isCompleted = isCompleted
             )
@@ -87,7 +85,7 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
         }
     }
 
-    fun updateTargetDate(newTargetDate: Long?) {
+    fun updateTargetDate(newTargetDate: LocalDate?) {
         _uiState.update { currentState ->
             currentState.copy(targetDate = newTargetDate)
         }
@@ -100,17 +98,6 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
             )
         }
     }
-
-    private fun LocalDate?.toEpochMillis(): Long? =
-        this?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
-
-    private fun Long?.toLocalDate(): LocalDate? =
-        this?.let { millis ->
-            Instant.ofEpochMilli(millis)
-                .atZone(ZoneOffset.UTC)
-                .toLocalDate()
-        }
-
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {

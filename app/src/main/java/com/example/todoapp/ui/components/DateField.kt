@@ -29,8 +29,8 @@ import java.util.Locale
 
 @Composable
 fun DateField(
-    onDateSelected: (Long?) -> Unit,
     selectedDate: Long?,
+    onDateSelected: (Long?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
