@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.getSelectedDate
 import androidx.compose.material3.rememberDatePickerState
@@ -11,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.todoapp.ui.theme.TodoAppTheme
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -54,10 +57,36 @@ fun TargetDatePicker(
         state = datePickerState,
         modifier = modifier.clip(MaterialTheme.shapes.large),
         colors = DatePickerDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
         title = null,
-        headline = null,
+        headline = {
+            ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+                DatePickerDefaults.DatePickerHeadline(
+                    selectedDateMillis = datePickerState.selectedDateMillis,
+                    displayMode = datePickerState.displayMode,
+                    dateFormatter = DatePickerDefaults.dateFormatter(),
+                    modifier = Modifier.padding(
+                        start = 24.dp,
+                        top = 16.dp,
+                        end = 12.dp,
+                        bottom = 12.dp
+                    )
+                )
+            }
+        },
         showModeToggle = false
     )
+}
+
+
+@Preview
+@Composable
+private fun TargetDatePickerPreview() {
+    TodoAppTheme {
+        TargetDatePicker(
+            selectedDate = LocalDate.of(2026, 9, 23),
+            onDateChange = {}
+        )
+    }
 }
