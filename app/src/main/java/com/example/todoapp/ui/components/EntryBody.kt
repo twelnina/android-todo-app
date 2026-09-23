@@ -17,14 +17,19 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.todoapp.R
 import com.example.todoapp.model.TodoTag
+import com.example.todoapp.ui.edit.component.TagSelector
+import com.example.todoapp.ui.edit.component.TargetDatePicker
+import java.time.LocalDate
 
 @Composable
 fun TodoEntryBody(
     title: String,
     description: String,
+    targetDate: LocalDate?,
     selectedTag: TodoTag?,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
+    onDateChange: (LocalDate?) -> Unit,
     onTagChange: (TodoTag) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -47,6 +52,7 @@ fun TodoEntryBody(
             ),
             modifier = Modifier.fillMaxWidth()
         )
+
         TextField(
             value = description,
             onValueChange = onDescriptionChange,
@@ -57,6 +63,20 @@ fun TodoEntryBody(
                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
             ),
             modifier = Modifier.fillMaxWidth()
+        )
+
+        Text(
+            text = stringResource(R.string.target_date),
+            style = MaterialTheme.typography.titleSmall
+        )
+        TargetDatePicker(
+            onDateChange = onDateChange,
+            selectedDate = targetDate
+        )
+
+        Text(
+            text = stringResource(R.string.tags),
+            style = MaterialTheme.typography.titleSmall
         )
         TagSelector(
             onTagChange = onTagChange,

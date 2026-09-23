@@ -42,7 +42,6 @@ import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TodoEntryBody
-import com.example.todoapp.ui.edit.component.TargetDatePicker
 import com.example.todoapp.ui.theme.TodoAppTheme
 import java.time.LocalDate
 
@@ -149,14 +148,12 @@ private fun EditScreenContent(
             TodoEntryBody(
                 title = uiState.title,
                 description = uiState.description,
+                targetDate = uiState.targetDate,
                 selectedTag = uiState.selectedTag,
                 onTitleChange = onTitleChange,
                 onDescriptionChange = onDescriptionChange,
-                onTagChange = onTagChange,
-            )
-            TargetDatePicker(
                 onDateChange = onDateChange,
-                selectedDate = uiState.targetDate
+                onTagChange = onTagChange,
             )
         }
         DeleteAlertDialog(
