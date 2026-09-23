@@ -497,6 +497,35 @@ class TodoFilterTest {
     }
 
     @Test
+    fun `overdue filter excludes completed todos`() {
+        val today = LocalDate.of(2026, 9, 23)
+
+        val incompleteTodo = TodoEntity(
+            id = 1,
+            title = "Overdue task",
+            description = "",
+            targetDate = today.minusDays(1),
+            tag = null,
+            isCompleted = false
+        )
+
+        val completedTodo = incompleteTodo.copy(
+            id = 2,
+            isCompleted = true
+        )
+
+        val result = filterTodos(
+            items = listOf(incompleteTodo, completedTodo),
+            query = "",
+            tags = emptySet(),
+            dueDate = DueDateFilter.OVERDUE,
+            today = today
+        )
+
+        assertEquals(listOf(incompleteTodo), result)
+    }
+
+    @Test
     fun `combined filters return todos matching every condition`() {
         val today = LocalDate.of(2026, 9, 9)
 

@@ -35,7 +35,9 @@ internal fun filterTodos(
                 } ?: false
             }
 
-            DueDateFilter.OVERDUE -> item.targetDate?.isBefore(today) ?: false
+            DueDateFilter.OVERDUE -> !item.isCompleted &&
+                    (item.targetDate?.isBefore(today) ?: false)
+
             DueDateFilter.NO_DATE -> item.targetDate == null
         }
 
