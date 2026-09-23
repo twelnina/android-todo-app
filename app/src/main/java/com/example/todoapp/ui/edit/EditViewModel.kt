@@ -31,7 +31,8 @@ class EditViewModel(private val todoRepository: TodoRepository) : ViewModel() {
                         description = description,
                         targetDate = targetDate,
                         selectedTag = tag,
-                        isCompleted = isCompleted
+                        isCompleted = isCompleted,
+                        originalTodo = this
                     )
                 }
             }

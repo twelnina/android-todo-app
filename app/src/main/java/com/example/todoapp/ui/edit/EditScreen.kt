@@ -132,7 +132,7 @@ private fun EditScreenContent(
                 }
                 Button(
                     onClick = updateTodo,
-                    enabled = uiState.isEditValid,
+                    enabled = uiState.hasRequiredFields && uiState.hasChanges,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = stringResource(R.string.done))
