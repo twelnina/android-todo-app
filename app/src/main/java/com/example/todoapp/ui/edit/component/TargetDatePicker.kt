@@ -52,9 +52,7 @@ fun TargetDatePicker(
 
     DatePicker(
         state = datePickerState,
-        modifier = modifier
-            .padding(horizontal = 16.dp)
-            .clip(MaterialTheme.shapes.large),
+        modifier = modifier.clip(MaterialTheme.shapes.large),
         colors = DatePickerDefaults.colors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),

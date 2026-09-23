@@ -140,22 +140,20 @@ private fun EditScreenContent(
             }
         }
     ) { innerPadding ->
-        Column(
+        TodoEntryBody(
+            title = uiState.title,
+            description = uiState.description,
+            targetDate = uiState.targetDate,
+            selectedTag = uiState.selectedTag,
+            onTitleChange = onTitleChange,
+            onDescriptionChange = onDescriptionChange,
+            onDateChange = onDateChange,
+            onTagChange = onTagChange,
             modifier = Modifier
                 .padding(innerPadding)
+                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
-        ) {
-            TodoEntryBody(
-                title = uiState.title,
-                description = uiState.description,
-                targetDate = uiState.targetDate,
-                selectedTag = uiState.selectedTag,
-                onTitleChange = onTitleChange,
-                onDescriptionChange = onDescriptionChange,
-                onDateChange = onDateChange,
-                onTagChange = onTagChange,
-            )
-        }
+        )
         DeleteAlertDialog(
             showDeleteDialog = showDeleteDialog,
             onConfirm = deleteTodo,

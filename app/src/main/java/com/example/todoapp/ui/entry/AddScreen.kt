@@ -1,6 +1,5 @@
 package com.example.todoapp.ui.entry
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -85,21 +84,20 @@ private fun AddScreenContent(
             }
         }
     ) { innerPadding ->
-        Column {
-            TodoEntryBody(
-                title = uiState.title,
-                description = uiState.description,
-                targetDate = uiState.targetDate,
-                selectedTag = uiState.selectedTag,
-                onTitleChange = onTitleChange,
-                onDescriptionChange = onDescriptionChange,
-                onDateChange = onTargetDateChange,
-                onTagChange = onTagChange,
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-            )
-        }
+        TodoEntryBody(
+            title = uiState.title,
+            description = uiState.description,
+            targetDate = uiState.targetDate,
+            selectedTag = uiState.selectedTag,
+            onTitleChange = onTitleChange,
+            onDescriptionChange = onDescriptionChange,
+            onDateChange = onTargetDateChange,
+            onTagChange = onTagChange,
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState())
+        )
     }
 }
 
