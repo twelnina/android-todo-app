@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,16 +54,21 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import kotlin.random.Random
 
+private const val OVERDUE_PREVIEW_LIMIT = 3
+
 @Composable
 fun HomeScreen(
-    onEditTodo: (Int) -> Unit, viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
+    onEditTodo: (Int) -> Unit,
+    onSeeAllOverdue: () -> Unit,
+    viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     HomeScreenContent(
         uiState = uiState,
         onCompletedChange = viewModel::updateCompleted,
         onRescheduleTodo = viewModel::updateTargetDate,
-        onEditTodo = onEditTodo
+        onEditTodo = onEditTodo,
+        onSeeAllOverdue = onSeeAllOverdue
     )
 }
 
@@ -70,7 +77,8 @@ private fun HomeScreenContent(
     uiState: HomeUiState,
     onCompletedChange: (TodoEntity, Boolean) -> Unit,
     onRescheduleTodo: (TodoEntity, LocalDate) -> Unit,
-    onEditTodo: (Int) -> Unit
+    onEditTodo: (Int) -> Unit,
+    onSeeAllOverdue: () -> Unit
 ) {
     var playInitialAnimation by rememberSaveable { mutableStateOf(true) }
     var reschedulingTodoId by rememberSaveable { mutableStateOf<Int?>(null) }
@@ -85,6 +93,9 @@ private fun HomeScreenContent(
         }
         return
     }
+
+    val visibleOverdueItems = uiState.overdueItems.take(OVERDUE_PREVIEW_LIMIT)
+    val hasMoreOverdueItems = uiState.overdueItems.size > OVERDUE_PREVIEW_LIMIT
 
     val hasItems = uiState.todayItems.isNotEmpty() || uiState.overdueItems.isNotEmpty()
     val reschedulingTodo =
@@ -203,15 +214,28 @@ private fun HomeScreenContent(
             }
 
             item(key = "overdue-header") {
-                Text(
-                    text = stringResource(
-                        R.string.overdue_section_title,
-                        uiState.overdueItems.size
-                    ),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(
+                            R.string.overdue_section_title,
+                            uiState.overdueItems.size
+                        ),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    if (hasMoreOverdueItems) {
+                        TextButton(onClick = onSeeAllOverdue) {
+                            Text(text = stringResource(R.string.see_all))
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
@@ -229,7 +253,7 @@ private fun HomeScreenContent(
                 }
             } else {
                 itemsIndexed(
-                    items = uiState.overdueItems,
+                    items = visibleOverdueItems,
                     key = { _, todo -> todo.todo.id }) { index, todo ->
 
                     val visibleState = remember {
@@ -261,7 +285,7 @@ private fun HomeScreenContent(
                             daysOverdue = todo.daysOverdue
                         )
                     }
-                    if (index < uiState.overdueItems.lastIndex) {
+                    if (index < visibleOverdueItems.lastIndex) {
                         Spacer(modifier = Modifier.height(4.dp))
                     }
                 }
@@ -319,7 +343,8 @@ private fun EmptyHomeScreenPreview() {
             ),
             onCompletedChange = { _, _ -> },
             onRescheduleTodo = { _, _ -> },
-            onEditTodo = {}
+            onEditTodo = {},
+            onSeeAllOverdue = {}
         )
     }
 }
