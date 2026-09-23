@@ -141,6 +141,7 @@ private fun EditScreenContent(
         }
     ) { innerPadding ->
         TodoEntryBody(
+            today = uiState.today,
             title = uiState.title,
             description = uiState.description,
             targetDate = uiState.targetDate,

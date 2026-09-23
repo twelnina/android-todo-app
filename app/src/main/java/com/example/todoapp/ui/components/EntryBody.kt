@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -22,6 +23,7 @@ import java.time.LocalDate
 
 @Composable
 fun TodoEntryBody(
+    today: LocalDate?,
     title: String,
     description: String,
     targetDate: LocalDate?,
@@ -69,10 +71,15 @@ fun TodoEntryBody(
             style = MaterialTheme.typography.titleSmall
         )
         Spacer(modifier = Modifier.height(8.dp))
-        TargetDatePicker(
-            onDateChange = onDateChange,
-            selectedDate = targetDate
-        )
+        if (today == null) {
+            CircularProgressIndicator()
+        } else {
+            TargetDatePicker(
+                today = today,
+                onDateChange = onDateChange,
+                selectedDate = targetDate
+            )
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 

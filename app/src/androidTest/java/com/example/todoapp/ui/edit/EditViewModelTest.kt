@@ -6,11 +6,14 @@ import androidx.test.core.app.ApplicationProvider
 import com.example.todoapp.data.local.AppDatabase
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.data.repository.TodoRepository
+import com.example.todoapp.data.time.CurrentDateProvider
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.TodoAppViewModel
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.job
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -35,7 +38,16 @@ class EditViewModelTest {
         ).build()
 
         repository = TodoRepository(database.todoDao())
-        editViewModel = EditViewModel(repository)
+
+        val dateProvider = object : CurrentDateProvider {
+            override fun observeDate(): Flow<LocalDate> =
+                flowOf(LocalDate.of(2026, 9, 23))
+        }
+
+        editViewModel = EditViewModel(
+            todoRepository = repository,
+            currentDateProvider = dateProvider
+        )
         appViewModel = TodoAppViewModel(repository)
     }
 

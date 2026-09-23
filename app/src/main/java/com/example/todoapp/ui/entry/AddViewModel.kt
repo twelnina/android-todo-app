@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.todoapp.TodoApplication
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.data.repository.TodoRepository
+import com.example.todoapp.data.time.CurrentDateProvider
 import com.example.todoapp.model.TodoTag
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,9 +17,22 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-class AddViewModel(private val todoRepository: TodoRepository) : ViewModel() {
+class AddViewModel(
+    private val todoRepository: TodoRepository,
+    private val currentDateProvider: CurrentDateProvider
+) : ViewModel() {
     private val _uiState = MutableStateFlow(AddUiState())
     val uiState: StateFlow<AddUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            currentDateProvider.observeDate().collect { today ->
+                _uiState.update { currentState ->
+                    currentState.copy(today = today)
+                }
+            }
+        }
+    }
 
     fun updateTitle(newTitle: String) {
         _uiState.update { currentState ->
@@ -75,7 +89,10 @@ class AddViewModel(private val todoRepository: TodoRepository) : ViewModel() {
                 val application =
                     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as TodoApplication)
                 val repository = application.repository
-                AddViewModel(todoRepository = repository)
+                AddViewModel(
+                    todoRepository = repository,
+                    currentDateProvider = application.currentDateProvider
+                )
             }
         }
     }

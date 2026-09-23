@@ -21,12 +21,11 @@ import java.time.ZoneOffset
 
 @Composable
 fun TargetDatePicker(
+    today: LocalDate,
     selectedDate: LocalDate?,
     onDateChange: (LocalDate?) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val today = LocalDate.now()
-
     val datePickerState = rememberDatePickerState(
         initialSelectedDate = selectedDate,
         selectableDates = object : SelectableDates {
@@ -85,6 +84,7 @@ fun TargetDatePicker(
 private fun TargetDatePickerPreview() {
     TodoAppTheme {
         TargetDatePicker(
+            today = LocalDate.of(2026, 9, 23),
             selectedDate = LocalDate.of(2026, 9, 23),
             onDateChange = {}
         )

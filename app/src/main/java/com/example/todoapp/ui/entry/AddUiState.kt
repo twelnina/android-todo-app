@@ -4,6 +4,8 @@ import com.example.todoapp.model.TodoTag
 import java.time.LocalDate
 
 data class AddUiState(
+    val today: LocalDate? = null,
+
     val title: String = "",
     val description: String = "",
     val targetDate: LocalDate? = null,
