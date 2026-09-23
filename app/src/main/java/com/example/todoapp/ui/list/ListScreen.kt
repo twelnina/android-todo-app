@@ -1,8 +1,10 @@
 package com.example.todoapp.ui.list
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -43,6 +45,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -240,9 +243,18 @@ private fun TodoFilterRow(
 
 @Composable
 private fun TodoDateHeader(date: LocalDate?, modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface
+    val backgroundColor = MaterialTheme.colorScheme.surface
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(
+                brush = Brush.verticalGradient(
+                    0.0f to backgroundColor.copy(alpha = 1.0f),
+                    0.75f to backgroundColor.copy(alpha = 0.8f),
+                    1.0f to backgroundColor.copy(alpha = 0.6f)
+                )
+            )
     ) {
         Text(
             text = date?.format(dateFormatter) ?: stringResource(R.string.no_date),
@@ -266,7 +278,7 @@ private fun TodoItem(
         onClick = { onEditTodo(todoItemInfo.id) },
         shapes = ListItemDefaults.segmentedShapes(index, count),
         colors = ListItemDefaults.segmentedColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.padding(bottom = ListItemDefaults.SegmentedGap),
