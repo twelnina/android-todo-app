@@ -51,12 +51,12 @@ class TodoGroupingTest {
     }
 
 
-    private fun createTodo(id: Int, targetDate: LocalDate?): TodoEntity {
+    private fun createTodo(id: Int, plannedDate: LocalDate?): TodoEntity {
         return TodoEntity(
             id = id,
             title = "Todo $id",
             description = "Description $id",
-            targetDate = targetDate,
+            plannedDate = plannedDate,
             tag = null
         )
     }

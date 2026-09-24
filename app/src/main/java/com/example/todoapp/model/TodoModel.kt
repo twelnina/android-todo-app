@@ -12,11 +12,11 @@ enum class TodoTag(@get:StringRes val labelRes: Int, val color: Color) {
     SHOPPING(R.string.shopping, Color(0xFFFFF0AD))
 }
 
-enum class DueDateFilter(@get:StringRes val labelRes: Int) {
+enum class PlannedDateFilter(@get:StringRes val labelRes: Int) {
     ALL(R.string.all),
     TODAY(R.string.today),
     TOMORROW(R.string.tomorrow),
     THIS_WEEK(R.string.this_week),
-    OVERDUE(R.string.overdue),
-    NO_DATE(R.string.no_date)
+    PAST_INCOMPLETE(R.string.past_incomplete),
+    UNSCHEDULED(R.string.unscheduled)
 }

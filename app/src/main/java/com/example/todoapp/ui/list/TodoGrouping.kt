@@ -4,7 +4,7 @@ import com.example.todoapp.data.local.TodoEntity
 
 internal fun groupTodosByDate(todos: List<TodoEntity>): List<TodoDateGroup> {
     return todos
-        .groupBy { todo -> todo.targetDate }
+        .groupBy { todo -> todo.plannedDate }
         .map { (date, todoForDate) ->
             TodoDateGroup(date, todoForDate)
         }

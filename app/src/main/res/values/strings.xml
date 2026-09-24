@@ -10,20 +10,20 @@
 
     <!--    Home-->
     <string name="today_section_title">Today(%d)</string>
-    <string name="overdue_section_title">Overdue(%d)</string>
+    <string name="past_incomplete_section_title">Past unfinished(%d)</string>
 
-    <plurals name="days_overdue">
-        <item quantity="one">%d day overdue</item>
-        <item quantity="other">%d days overdue</item>
+    <plurals name="days_since_planned_date">
+        <item quantity="one">Planned %d day ago</item>
+        <item quantity="other">Planned %d days ago</item>
     </plurals>
 
     <string name="see_all">See all</string>
 
-    <string name="no_todos_today">No todos due today</string>
-    <string name="no_overdue_todos">No overdue todos</string>
-    <string name="no_todos_for_selected_date">No todos for this day</string>
+    <string name="no_todos_today">No todos planned for today</string>
+    <string name="no_past_incomplete_todos">No unfinished todos from earlier days</string>
+    <string name="no_todos_for_selected_date">No todos planned for this day</string>
 
-    <string name="reschedule">Reschedule</string>
+    <string name="change_planned_date">Change planned date</string>
 
     <string name="previous">Previous</string>
     <string name="new_date">New</string>
@@ -45,8 +45,7 @@
     <string name="search">Search</string>
     <string name="title">Title</string>
     <string name="description">Description</string>
-    <string name="target_date">Target Date</string>
-    <string name="due_date">Due date</string>
+    <string name="planned_date">Planned date</string>
     <string name="tags">Tags</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
@@ -60,8 +59,8 @@
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="this_week">This week</string>
-    <string name="overdue">Overdue</string>
-    <string name="no_date">No date</string>
+    <string name="past_incomplete">Past unfinished</string>
+    <string name="unscheduled">Unscheduled</string>
 
     <string name="study">Study</string>
     <string name="work">Work</string>

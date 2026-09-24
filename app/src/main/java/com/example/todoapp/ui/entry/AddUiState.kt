@@ -8,7 +8,7 @@ data class AddUiState(
 
     val title: String = "",
     val description: String = "",
-    val targetDate: LocalDate? = null,
+    val plannedDate: LocalDate? = null,
     val selectedTag: TodoTag? = null,
     val isEntryValid: Boolean = false
 )

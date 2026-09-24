@@ -1,7 +1,7 @@
 package com.example.todoapp.ui.list
 
 import com.example.todoapp.data.local.TodoEntity
-import com.example.todoapp.model.DueDateFilter
+import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.model.TodoTag
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -16,7 +16,7 @@ class TodoFilterTest {
             id = 1,
             title = "Study Kotlin",
             description = "Read the documentation",
-            targetDate = today,
+            plannedDate = today,
             tag = TodoTag.STUDY
         )
 
@@ -24,7 +24,7 @@ class TodoFilterTest {
             id = 2,
             title = "Buy milk",
             description = "Go to the supermarket",
-            targetDate = today,
+            plannedDate = today,
             tag = TodoTag.SHOPPING
         )
 
@@ -32,7 +32,7 @@ class TodoFilterTest {
             items = listOf(kotlinTodo, shoppingTodo),
             query = "KOTLIN",
             tags = emptySet(),
-            dueDate = DueDateFilter.ALL,
+            plannedDateFilter = PlannedDateFilter.ALL,
             today = today
         )
 
@@ -47,7 +47,7 @@ class TodoFilterTest {
             id = 1,
             title = "Study Programming",
             description = "Read the kotlin documentation",
-            targetDate = today,
+            plannedDate = today,
             tag = TodoTag.STUDY
         )
 
@@ -55,7 +55,7 @@ class TodoFilterTest {
             id = 2,
             title = "Buy milk",
             description = "Go to the supermarket",
-            targetDate = today,
+            plannedDate = today,
             tag = TodoTag.SHOPPING
         )
 
@@ -63,7 +63,7 @@ class TodoFilterTest {
             items = listOf(kotlinTodo, shoppingTodo),
             query = "DOCUMENTATION",
             tags = emptySet(),
-            dueDate = DueDateFilter.ALL,
+            plannedDateFilter = PlannedDateFilter.ALL,
             today = today
         )
 
@@ -78,7 +78,7 @@ class TodoFilterTest {
             id = 1,
             title = "Write report",
             description = "Prepare the monthly report",
-            targetDate = today,
+            plannedDate = today,
             tag = TodoTag.WORK
         )
 
@@ -86,7 +86,7 @@ class TodoFilterTest {
             id = 2,
             title = "Study Kotlin",
             description = "Read the documentation",
-            targetDate = today,
+            plannedDate = today,
             tag = TodoTag.STUDY
         )
 
@@ -94,7 +94,7 @@ class TodoFilterTest {
             id = 3,
             title = "Clean room",
             description = "Organize the desk",
-            targetDate = today,
+            plannedDate = today,
             tag = null
         )
 
@@ -102,7 +102,7 @@ class TodoFilterTest {
             items = listOf(workTodo, studyTodo, noTagTodo),
             query = "",
             tags = setOf(TodoTag.WORK),
-            dueDate = DueDateFilter.ALL,
+            plannedDateFilter = PlannedDateFilter.ALL,
             today = today
         )
 
@@ -117,7 +117,7 @@ class TodoFilterTest {
             id = 1,
             title = "Write report",
             description = "Prepare the monthly report",
-            targetDate = today,
+            plannedDate = today,
             tag = TodoTag.WORK
         )
 
@@ -125,7 +125,7 @@ class TodoFilterTest {
             id = 2,
             title = "Study Kotlin",
             description = "Read the documentation",
-            targetDate = today,
+            plannedDate = today,
             tag = TodoTag.STUDY
         )
 
@@ -133,7 +133,7 @@ class TodoFilterTest {
             id = 3,
             title = "Buy milk",
             description = "Go to the supermarket",
-            targetDate = today,
+            plannedDate = today,
             tag = TodoTag.SHOPPING
         )
 
@@ -141,7 +141,7 @@ class TodoFilterTest {
             items = listOf(workTodo, studyTodo, shoppingTodo),
             query = "",
             tags = setOf(TodoTag.WORK, TodoTag.STUDY),
-            dueDate = DueDateFilter.ALL,
+            plannedDateFilter = PlannedDateFilter.ALL,
             today = today
         )
 
@@ -149,38 +149,38 @@ class TodoFilterTest {
     }
 
     @Test
-    fun `today filter returns only todos due today`() {
+    fun `today filter returns only todos planned for today`() {
         val today = LocalDate.of(2026, 9, 9)
 
         val yesterdayTodo = TodoEntity(
             id = 1,
             title = "Yesterday task",
-            description = "This task was due yesterday",
-            targetDate = today.minusDays(1),
+            description = "This task was planned for yesterday",
+            plannedDate = today.minusDays(1),
             tag = TodoTag.WORK
         )
 
         val todayTodo = TodoEntity(
             id = 2,
             title = "Today task",
-            description = "This task is due today",
-            targetDate = today,
+            description = "This task is planned for today",
+            plannedDate = today,
             tag = TodoTag.STUDY
         )
 
         val tomorrowTodo = TodoEntity(
             id = 3,
             title = "Tomorrow task",
-            description = "This task is due tomorrow",
-            targetDate = today.plusDays(1),
+            description = "This task is planned for tomorrow",
+            plannedDate = today.plusDays(1),
             tag = TodoTag.SHOPPING
         )
 
         val noDateTodo = TodoEntity(
             id = 4,
-            title = "No date task",
-            description = "This task has no due date",
-            targetDate = null,
+            title = "Unscheduled task",
+            description = "This task has no planned date",
+            plannedDate = null,
             tag = null
         )
 
@@ -193,7 +193,7 @@ class TodoFilterTest {
             ),
             query = "",
             tags = emptySet(),
-            dueDate = DueDateFilter.TODAY,
+            plannedDateFilter = PlannedDateFilter.TODAY,
             today = today
         )
 
@@ -201,38 +201,38 @@ class TodoFilterTest {
     }
 
     @Test
-    fun `tomorrow filter returns only todos due tomorrow`() {
+    fun `tomorrow filter returns only todos planned for tomorrow`() {
         val today = LocalDate.of(2026, 9, 9)
 
         val todayTodo = TodoEntity(
             id = 1,
             title = "Today task",
-            description = "This task is due today",
-            targetDate = today,
+            description = "This task is planned for today",
+            plannedDate = today,
             tag = TodoTag.WORK
         )
 
         val tomorrowTodo = TodoEntity(
             id = 2,
             title = "Tomorrow task",
-            description = "This task is due tomorrow",
-            targetDate = today.plusDays(1),
+            description = "This task is planned for tomorrow",
+            plannedDate = today.plusDays(1),
             tag = TodoTag.STUDY
         )
 
         val dayAfterTomorrowTodo = TodoEntity(
             id = 3,
             title = "Day after tomorrow task",
-            description = "This task is due in two days",
-            targetDate = today.plusDays(2),
+            description = "This task is planned for in two days",
+            plannedDate = today.plusDays(2),
             tag = TodoTag.SHOPPING
         )
 
         val noDateTodo = TodoEntity(
             id = 4,
-            title = "No date task",
-            description = "This task has no due date",
-            targetDate = null,
+            title = "Unscheduled task",
+            description = "This task has no planned date",
+            plannedDate = null,
             tag = null
         )
 
@@ -245,7 +245,7 @@ class TodoFilterTest {
             ),
             query = "",
             tags = emptySet(),
-            dueDate = DueDateFilter.TOMORROW,
+            plannedDateFilter = PlannedDateFilter.TOMORROW,
             today = today
         )
 
@@ -260,48 +260,48 @@ class TodoFilterTest {
         val yesterdayTodo = TodoEntity(
             id = 1,
             title = "Yesterday task",
-            description = "This task was due yesterday",
-            targetDate = today.minusDays(1),
+            description = "This task was planned for yesterday",
+            plannedDate = today.minusDays(1),
             tag = null
         )
 
         val todayTodo = TodoEntity(
             id = 2,
             title = "Today task",
-            description = "This task is due today",
-            targetDate = today,
+            description = "This task is planned for today",
+            plannedDate = today,
             tag = null
         )
 
         val fridayTodo = TodoEntity(
             id = 3,
             title = "Friday task",
-            description = "This task is due on Friday",
-            targetDate = today.plusDays(2),
+            description = "This task is planned for on Friday",
+            plannedDate = today.plusDays(2),
             tag = null
         )
 
         val sundayTodo = TodoEntity(
             id = 4,
             title = "Sunday task",
-            description = "This task is due on Sunday",
-            targetDate = today.plusDays(4),
+            description = "This task is planned for on Sunday",
+            plannedDate = today.plusDays(4),
             tag = null
         )
 
         val nextMondayTodo = TodoEntity(
             id = 5,
             title = "Next Monday task",
-            description = "This task is due next week",
-            targetDate = today.plusDays(5),
+            description = "This task is planned for next week",
+            plannedDate = today.plusDays(5),
             tag = null
         )
 
         val noDateTodo = TodoEntity(
             id = 6,
-            title = "No date task",
-            description = "This task has no due date",
-            targetDate = null,
+            title = "Unscheduled task",
+            description = "This task has no planned date",
+            plannedDate = null,
             tag = null
         )
 
@@ -316,7 +316,7 @@ class TodoFilterTest {
             ),
             query = "",
             tags = emptySet(),
-            dueDate = DueDateFilter.THIS_WEEK,
+            plannedDateFilter = PlannedDateFilter.THIS_WEEK,
             today = today
         )
 
@@ -324,46 +324,46 @@ class TodoFilterTest {
     }
 
     @Test
-    fun `overdue filter returns only todos before today`() {
+    fun `past incomplete filter returns only todos before today`() {
         val today = LocalDate.of(2026, 9, 9)
 
         val lastWeekTodo = TodoEntity(
             id = 1,
             title = "Last week task",
-            description = "This task was due last week",
-            targetDate = today.minusDays(7),
+            description = "This task was planned for last week",
+            plannedDate = today.minusDays(7),
             tag = null
         )
 
         val yesterdayTodo = TodoEntity(
             id = 2,
             title = "Yesterday task",
-            description = "This task was due yesterday",
-            targetDate = today.minusDays(1),
+            description = "This task was planned for yesterday",
+            plannedDate = today.minusDays(1),
             tag = null
         )
 
         val todayTodo = TodoEntity(
             id = 3,
             title = "Today task",
-            description = "This task is due today",
-            targetDate = today,
+            description = "This task is planned for today",
+            plannedDate = today,
             tag = null
         )
 
         val tomorrowTodo = TodoEntity(
             id = 4,
             title = "Tomorrow task",
-            description = "This task is due tomorrow",
-            targetDate = today.plusDays(1),
+            description = "This task is planned for tomorrow",
+            plannedDate = today.plusDays(1),
             tag = null
         )
 
         val noDateTodo = TodoEntity(
             id = 5,
-            title = "No date task",
-            description = "This task has no due date",
-            targetDate = null,
+            title = "Unscheduled task",
+            description = "This task has no planned date",
+            plannedDate = null,
             tag = null
         )
 
@@ -377,7 +377,7 @@ class TodoFilterTest {
             ),
             query = "",
             tags = emptySet(),
-            dueDate = DueDateFilter.OVERDUE,
+            plannedDateFilter = PlannedDateFilter.PAST_INCOMPLETE,
             today = today
         )
 
@@ -385,51 +385,51 @@ class TodoFilterTest {
     }
 
     @Test
-    fun `no date filter returns only todos without due date`() {
+    fun `unscheduled filter returns only todos without planned date`() {
         val today = LocalDate.of(2026, 9, 9)
 
-        val overdueTodo = TodoEntity(
+        val pastIncompleteTodo = TodoEntity(
             id = 1,
-            title = "Overdue task",
-            description = "This task was due yesterday",
-            targetDate = today.minusDays(1),
+            title = "Earlier task",
+            description = "This task was planned for yesterday",
+            plannedDate = today.minusDays(1),
             tag = null
         )
 
         val todayTodo = TodoEntity(
             id = 2,
             title = "Today task",
-            description = "This task is due today",
-            targetDate = today,
+            description = "This task is planned for today",
+            plannedDate = today,
             tag = null
         )
 
         val futureTodo = TodoEntity(
             id = 3,
             title = "Future task",
-            description = "This task is due next week",
-            targetDate = today.plusDays(7),
+            description = "This task is planned for next week",
+            plannedDate = today.plusDays(7),
             tag = null
         )
 
         val noDateTodo = TodoEntity(
             id = 4,
-            title = "No date task",
-            description = "This task has no due date",
-            targetDate = null,
+            title = "Unscheduled task",
+            description = "This task has no planned date",
+            plannedDate = null,
             tag = null
         )
 
         val result = filterTodos(
             items = listOf(
-                overdueTodo,
+                pastIncompleteTodo,
                 todayTodo,
                 futureTodo,
                 noDateTodo
             ),
             query = "",
             tags = emptySet(),
-            dueDate = DueDateFilter.NO_DATE,
+            plannedDateFilter = PlannedDateFilter.UNSCHEDULED,
             today = today
         )
 
@@ -440,54 +440,54 @@ class TodoFilterTest {
     fun `all date filter returns dated and undated todos`() {
         val today = LocalDate.of(2026, 9, 9)
 
-        val overdueTodo = TodoEntity(
+        val pastIncompleteTodo = TodoEntity(
             id = 1,
-            title = "Overdue task",
-            description = "This task was due yesterday",
-            targetDate = today.minusDays(1),
+            title = "Earlier task",
+            description = "This task was planned for yesterday",
+            plannedDate = today.minusDays(1),
             tag = null
         )
 
         val todayTodo = TodoEntity(
             id = 2,
             title = "Today task",
-            description = "This task is due today",
-            targetDate = today,
+            description = "This task is planned for today",
+            plannedDate = today,
             tag = null
         )
 
         val futureTodo = TodoEntity(
             id = 3,
             title = "Future task",
-            description = "This task is due next week",
-            targetDate = today.plusDays(7),
+            description = "This task is planned for next week",
+            plannedDate = today.plusDays(7),
             tag = null
         )
 
         val noDateTodo = TodoEntity(
             id = 4,
-            title = "No date task",
-            description = "This task has no due date",
-            targetDate = null,
+            title = "Unscheduled task",
+            description = "This task has no planned date",
+            plannedDate = null,
             tag = null
         )
 
         val result = filterTodos(
             items = listOf(
-                overdueTodo,
+                pastIncompleteTodo,
                 todayTodo,
                 futureTodo,
                 noDateTodo
             ),
             query = "",
             tags = emptySet(),
-            dueDate = DueDateFilter.ALL,
+            plannedDateFilter = PlannedDateFilter.ALL,
             today = today
         )
 
         assertEquals(
             listOf(
-                overdueTodo,
+                pastIncompleteTodo,
                 todayTodo,
                 futureTodo,
                 noDateTodo
@@ -497,14 +497,14 @@ class TodoFilterTest {
     }
 
     @Test
-    fun `overdue filter excludes completed todos`() {
+    fun `past incomplete filter excludes completed todos`() {
         val today = LocalDate.of(2026, 9, 23)
 
         val incompleteTodo = TodoEntity(
             id = 1,
-            title = "Overdue task",
+            title = "Earlier task",
             description = "",
-            targetDate = today.minusDays(1),
+            plannedDate = today.minusDays(1),
             tag = null,
             isCompleted = false
         )
@@ -518,7 +518,7 @@ class TodoFilterTest {
             items = listOf(incompleteTodo, completedTodo),
             query = "",
             tags = emptySet(),
-            dueDate = DueDateFilter.OVERDUE,
+            plannedDateFilter = PlannedDateFilter.PAST_INCOMPLETE,
             today = today
         )
 
@@ -533,7 +533,7 @@ class TodoFilterTest {
             id = 1,
             title = "Write report",
             description = "Prepare the monthly summary",
-            targetDate = today,
+            plannedDate = today,
             tag = TodoTag.WORK
         )
 
@@ -541,7 +541,7 @@ class TodoFilterTest {
             id = 2,
             title = "Prepare slides",
             description = "Create the presentation",
-            targetDate = today,
+            plannedDate = today,
             tag = TodoTag.WORK
         )
 
@@ -549,7 +549,7 @@ class TodoFilterTest {
             id = 3,
             title = "Study report",
             description = "Read the study materials",
-            targetDate = today,
+            plannedDate = today,
             tag = TodoTag.STUDY
         )
 
@@ -557,7 +557,7 @@ class TodoFilterTest {
             id = 4,
             title = "Future report",
             description = "Prepare next month's summary",
-            targetDate = today.plusDays(1),
+            plannedDate = today.plusDays(1),
             tag = TodoTag.WORK
         )
 
@@ -570,7 +570,7 @@ class TodoFilterTest {
             ),
             query = "report",
             tags = setOf(TodoTag.WORK),
-            dueDate = DueDateFilter.TODAY,
+            plannedDateFilter = PlannedDateFilter.TODAY,
             today = today
         )
 

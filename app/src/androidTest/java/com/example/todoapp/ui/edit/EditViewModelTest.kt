@@ -74,7 +74,7 @@ class EditViewModelTest {
                 id = 1,
                 title = "Study Kotlin",
                 description = "Review coroutine basics",
-                targetDate = LocalDate.of(2026, 9, 21),
+                plannedDate = LocalDate.of(2026, 9, 21),
                 tag = TodoTag.STUDY,
                 isCompleted = isCompleted
             )

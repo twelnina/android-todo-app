@@ -45,7 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.ui.components.CardItem
-import com.example.todoapp.ui.home.components.TargetDatePickerDialog
+import com.example.todoapp.ui.home.components.PlannedDatePickerDialog
 import com.example.todoapp.ui.theme.RobotoFlexExpanded
 import com.example.todoapp.ui.theme.TodoAppTheme
 import java.time.LocalDate
@@ -54,21 +54,21 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import kotlin.random.Random
 
-private const val OVERDUE_PREVIEW_LIMIT = 3
+private const val PAST_INCOMPLETE_PREVIEW_LIMIT = 3
 
 @Composable
 fun HomeScreen(
     onEditTodo: (Int) -> Unit,
-    onSeeAllOverdue: () -> Unit,
+    onSeeAllPastIncomplete: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     HomeScreenContent(
         uiState = uiState,
         onCompletedChange = viewModel::updateCompleted,
-        onRescheduleTodo = viewModel::updateTargetDate,
+        onPlannedDateChange = viewModel::updatePlannedDate,
         onEditTodo = onEditTodo,
-        onSeeAllOverdue = onSeeAllOverdue
+        onSeeAllPastIncomplete = onSeeAllPastIncomplete
     )
 }
 
@@ -76,12 +76,12 @@ fun HomeScreen(
 private fun HomeScreenContent(
     uiState: HomeUiState,
     onCompletedChange: (TodoEntity, Boolean) -> Unit,
-    onRescheduleTodo: (TodoEntity, LocalDate) -> Unit,
+    onPlannedDateChange: (TodoEntity, LocalDate) -> Unit,
     onEditTodo: (Int) -> Unit,
-    onSeeAllOverdue: () -> Unit
+    onSeeAllPastIncomplete: () -> Unit
 ) {
     var playInitialAnimation by rememberSaveable { mutableStateOf(true) }
-    var reschedulingTodoId by rememberSaveable { mutableStateOf<Int?>(null) }
+    var dateChangeTodoId by rememberSaveable { mutableStateOf<Int?>(null) }
 
     val today = uiState.today
     if (today == null) {
@@ -94,12 +94,12 @@ private fun HomeScreenContent(
         return
     }
 
-    val visibleOverdueItems = uiState.overdueItems.take(OVERDUE_PREVIEW_LIMIT)
-    val hasMoreOverdueItems = uiState.overdueItems.size > OVERDUE_PREVIEW_LIMIT
+    val visiblePastIncompleteItems = uiState.pastIncompleteItems.take(PAST_INCOMPLETE_PREVIEW_LIMIT)
+    val hasMorePastIncompleteItems = uiState.pastIncompleteItems.size > PAST_INCOMPLETE_PREVIEW_LIMIT
 
-    val hasItems = uiState.todayItems.isNotEmpty() || uiState.overdueItems.isNotEmpty()
-    val reschedulingTodo =
-        uiState.overdueItems.firstOrNull { it.todo.id == reschedulingTodoId }?.todo
+    val hasItems = uiState.todayItems.isNotEmpty() || uiState.pastIncompleteItems.isNotEmpty()
+    val todoForDateChange =
+        uiState.pastIncompleteItems.firstOrNull { it.todo.id == dateChangeTodoId }?.todo
 
     LaunchedEffect(hasItems) {
         if (hasItems && playInitialAnimation) {
@@ -196,7 +196,7 @@ private fun HomeScreenContent(
                         CardItem(
                             todo = todo,
                             onEdit = { onEditTodo(todo.id) },
-                            showDaysOverdue = false,
+                            showDaysSincePlannedDate = false,
                             onCheckedChange = { checked ->
                                 onCompletedChange(todo, checked)
                             }
@@ -213,15 +213,15 @@ private fun HomeScreenContent(
                 Spacer(modifier = Modifier.height(32.dp))
             }
 
-            item(key = "overdue-header") {
+            item(key = "past-incomplete-header") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = stringResource(
-                            R.string.overdue_section_title,
-                            uiState.overdueItems.size
+                            R.string.past_incomplete_section_title,
+                            uiState.pastIncompleteItems.size
                         ),
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary,
@@ -229,8 +229,8 @@ private fun HomeScreenContent(
                         modifier = Modifier.weight(1f)
                     )
 
-                    if (hasMoreOverdueItems) {
-                        TextButton(onClick = onSeeAllOverdue) {
+                    if (hasMorePastIncompleteItems) {
+                        TextButton(onClick = onSeeAllPastIncomplete) {
                             Text(text = stringResource(R.string.see_all))
                         }
                     }
@@ -239,10 +239,10 @@ private fun HomeScreenContent(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            if (uiState.overdueItems.isEmpty()) {
+            if (uiState.pastIncompleteItems.isEmpty()) {
                 item {
                     Text(
-                        stringResource(R.string.no_overdue_todos),
+                        stringResource(R.string.no_past_incomplete_todos),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 20.dp),
@@ -253,7 +253,7 @@ private fun HomeScreenContent(
                 }
             } else {
                 itemsIndexed(
-                    items = visibleOverdueItems,
+                    items = visiblePastIncompleteItems,
                     key = { _, todo -> todo.todo.id }) { index, todo ->
 
                     val visibleState = remember {
@@ -276,30 +276,30 @@ private fun HomeScreenContent(
                     ) {
                         CardItem(
                             todo = todo.todo,
-                            showDaysOverdue = true,
+                            showDaysSincePlannedDate = true,
                             onCheckedChange = { checked ->
                                 onCompletedChange(todo.todo, checked)
                             },
-                            onReschedule = { reschedulingTodoId = todo.todo.id },
+                            onChangePlannedDate = { dateChangeTodoId = todo.todo.id },
                             onEdit = { onEditTodo(todo.todo.id) },
-                            daysOverdue = todo.daysOverdue
+                            daysSincePlannedDate = todo.daysSincePlannedDate
                         )
                     }
-                    if (index < visibleOverdueItems.lastIndex) {
+                    if (index < visiblePastIncompleteItems.lastIndex) {
                         Spacer(modifier = Modifier.height(4.dp))
                     }
                 }
             }
         }
 
-        reschedulingTodo?.let { todo ->
-            TargetDatePickerDialog(
+        todoForDateChange?.let { todo ->
+            PlannedDatePickerDialog(
                 today = today,
-                previousDate = todo.targetDate,
-                onDismissRequest = { reschedulingTodoId = null },
+                previousDate = todo.plannedDate,
+                onDismissRequest = { dateChangeTodoId = null },
                 onConfirmRequest = { newDate ->
-                    onRescheduleTodo(todo, newDate)
-                    reschedulingTodoId = null
+                    onPlannedDateChange(todo, newDate)
+                    dateChangeTodoId = null
                 }
             )
         }
@@ -342,9 +342,9 @@ private fun EmptyHomeScreenPreview() {
                 today = LocalDate.of(2026, 9, 21)
             ),
             onCompletedChange = { _, _ -> },
-            onRescheduleTodo = { _, _ -> },
+            onPlannedDateChange = { _, _ -> },
             onEditTodo = {},
-            onSeeAllOverdue = {}
+            onSeeAllPastIncomplete = {}
         )
     }
 }

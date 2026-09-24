@@ -49,7 +49,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.example.todoapp.R
-import com.example.todoapp.model.DueDateFilter
+import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.ui.calendar.CalendarScreen
 import com.example.todoapp.ui.edit.EditScreen
 import com.example.todoapp.ui.entry.AddScreen
@@ -165,11 +165,11 @@ fun TodoApp(
                                 snackbarHostState.currentSnackbarData?.dismiss()
                                 backStack.add(AppNavKey.EditTodo(id))
                             },
-                            onSeeAllOverdue = {
+                            onSeeAllPastIncomplete = {
                                 snackbarHostState.currentSnackbarData?.dismiss()
                                 backStack.navigateToTopLevel(
                                     AppNavKey.TodoList(
-                                        initialDueDateFilter = DueDateFilter.OVERDUE
+                                        initialPlannedDateFilter = PlannedDateFilter.PAST_INCOMPLETE
                                     )
                                 )
                             }
@@ -181,7 +181,7 @@ fun TodoApp(
                                 snackbarHostState.currentSnackbarData?.dismiss()
                                 backStack.add(AppNavKey.EditTodo(id))
                             },
-                            initialDueDateFilter = key.initialDueDateFilter
+                            initialPlannedDateFilter = key.initialPlannedDateFilter
                         )
                     }
                     entry<AppNavKey.TodoCalendar> {

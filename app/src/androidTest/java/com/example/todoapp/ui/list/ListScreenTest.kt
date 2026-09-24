@@ -8,7 +8,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.example.todoapp.data.local.TodoEntity
-import com.example.todoapp.model.DueDateFilter
+import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.theme.TodoAppTheme
 import org.junit.Assert.assertEquals
@@ -26,14 +26,14 @@ class ListScreenTest {
             id = 1,
             title = "Study Kotlin",
             description = "Read the documentation",
-            targetDate = LocalDate.of(2026, 9, 13),
+            plannedDate = LocalDate.of(2026, 9, 13),
             tag = TodoTag.STUDY
         )
 
         val uiState = ListUiState(
             todoGroups = listOf(
                 TodoDateGroup(
-                    date = todo.targetDate,
+                    date = todo.plannedDate,
                     todos = listOf(todo)
                 )
             )
@@ -45,8 +45,8 @@ class ListScreenTest {
                     uiState = uiState,
                     onQueryChange = {},
                     onTagSelected = {},
-                    onDueDateChipClick = {},
-                    onDueDateFilterChange = {},
+                    onPlannedDateChipClick = {},
+                    onPlannedDateFilterChange = {},
                     onDismissRequest = {},
                     onEditTodo = {}
                 )
@@ -74,8 +74,8 @@ class ListScreenTest {
                         query.value = newQuery
                     },
                     onTagSelected = {},
-                    onDueDateChipClick = {},
-                    onDueDateFilterChange = {},
+                    onPlannedDateChipClick = {},
+                    onPlannedDateFilterChange = {},
                     onDismissRequest = {},
                     onEditTodo = {}
                 )
@@ -103,8 +103,8 @@ class ListScreenTest {
                     onTagSelected = { tag ->
                         selectedTag = tag
                     },
-                    onDueDateChipClick = {},
-                    onDueDateFilterChange = {},
+                    onPlannedDateChipClick = {},
+                    onPlannedDateFilterChange = {},
                     onDismissRequest = {},
                     onEditTodo = {}
                 )
@@ -121,9 +121,9 @@ class ListScreenTest {
     }
 
     @Test
-    fun selectingDueDateCallsOnDueDateFilterChange() {
+    fun selectingPlannedDateCallsOnPlannedDateFilterChange() {
         val showBottomSheet = mutableStateOf(false)
-        var selectedFilter: DueDateFilter? = null
+        var selectedFilter: PlannedDateFilter? = null
 
         composeTestRule.setContent {
             TodoAppTheme {
@@ -131,10 +131,10 @@ class ListScreenTest {
                     uiState = ListUiState(showBottomSheet = showBottomSheet.value),
                     onQueryChange = {},
                     onTagSelected = {},
-                    onDueDateChipClick = {
+                    onPlannedDateChipClick = {
                         showBottomSheet.value = true
                     },
-                    onDueDateFilterChange = { filter ->
+                    onPlannedDateFilterChange = { filter ->
                         selectedFilter = filter
                         showBottomSheet.value = false
                     },
@@ -145,7 +145,7 @@ class ListScreenTest {
         }
 
         composeTestRule
-            .onNodeWithText("Due date")
+            .onNodeWithText("Planned date")
             .performClick()
 
         composeTestRule
@@ -155,19 +155,19 @@ class ListScreenTest {
 
         composeTestRule.runOnIdle {
             assertEquals(
-                DueDateFilter.TODAY,
+                PlannedDateFilter.TODAY,
                 selectedFilter
             )
         }
     }
 
     @Test
-    fun displaysNoDateHeaderForTodoWithoutDueDate() {
+    fun displaysUnscheduledHeaderForTodoWithoutPlannedDate() {
         val todo = TodoEntity(
             id = 2,
             title = "Read a book",
             description = "Read one chapter",
-            targetDate = null,
+            plannedDate = null,
             tag = null
         )
 
@@ -181,8 +181,8 @@ class ListScreenTest {
                     uiState = uiState,
                     onQueryChange = {},
                     onTagSelected = {},
-                    onDueDateChipClick = {},
-                    onDueDateFilterChange = {},
+                    onPlannedDateChipClick = {},
+                    onPlannedDateFilterChange = {},
                     onDismissRequest = {},
                     onEditTodo = {}
                 )
@@ -190,7 +190,7 @@ class ListScreenTest {
         }
 
         composeTestRule
-            .onNodeWithText("No date")
+            .onNodeWithText("Unscheduled")
             .assertIsDisplayed()
 
         composeTestRule
@@ -204,13 +204,13 @@ class ListScreenTest {
             id = 42,
             title = "Update project",
             description = "Review the implementation",
-            targetDate = null,
+            plannedDate = null,
             tag = null
         )
 
         val uiState = ListUiState(
             todoGroups = listOf(
-                TodoDateGroup(todo.targetDate, listOf(todo))
+                TodoDateGroup(todo.plannedDate, listOf(todo))
             )
         )
 
@@ -222,8 +222,8 @@ class ListScreenTest {
                     uiState = uiState,
                     onQueryChange = {},
                     onTagSelected = {},
-                    onDueDateChipClick = {},
-                    onDueDateFilterChange = {},
+                    onPlannedDateChipClick = {},
+                    onPlannedDateFilterChange = {},
                     onDismissRequest = {},
                     onEditTodo = { todoId ->
                         editedTodoId = todoId

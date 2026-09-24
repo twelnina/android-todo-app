@@ -43,7 +43,7 @@ class EditViewModel(
                         id = id,
                         title = title,
                         description = description,
-                        targetDate = targetDate,
+                        plannedDate = plannedDate,
                         selectedTag = tag,
                         isCompleted = isCompleted,
                         originalTodo = this
@@ -61,7 +61,7 @@ class EditViewModel(
                         id = id,
                         title = title,
                         description = description,
-                        targetDate = targetDate,
+                        plannedDate = plannedDate,
                         tag = selectedTag,
                         isCompleted = isCompleted
                     )
@@ -77,7 +77,7 @@ class EditViewModel(
                 id = id,
                 title = title,
                 description = description,
-                targetDate = targetDate,
+                plannedDate = plannedDate,
                 tag = selectedTag,
                 isCompleted = isCompleted
             )
@@ -101,9 +101,9 @@ class EditViewModel(
         }
     }
 
-    fun updateTargetDate(newTargetDate: LocalDate?) {
+    fun updatePlannedDate(newPlannedDate: LocalDate?) {
         _uiState.update { currentState ->
-            currentState.copy(targetDate = newTargetDate)
+            currentState.copy(plannedDate = newPlannedDate)
         }
     }
 

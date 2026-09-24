@@ -30,7 +30,7 @@ class TodoRepository(private val todoDao: TodoDao) {
         return todoDao.observeTodayItems(today)
     }
 
-    fun observeOverdueItems(today: LocalDate): Flow<List<TodoEntity>> {
-        return todoDao.observeOverdueItems(today)
+    fun observePastIncompleteItems(today: LocalDate): Flow<List<TodoEntity>> {
+        return todoDao.observePastIncompleteItems(today)
     }
 }

@@ -31,7 +31,7 @@ class CalendarViewModel(
         val date = selectedDate ?: today
 
         val todoCountsByDate = todos
-            .mapNotNull { it.targetDate }
+            .mapNotNull { it.plannedDate }
             .groupingBy { it }
             .eachCount()
 
@@ -39,7 +39,7 @@ class CalendarViewModel(
             today = today,
             selectedDate = date,
             todos = todos,
-            selectedDateTodos = todos.filter { it.targetDate == date },
+            selectedDateTodos = todos.filter { it.plannedDate == date },
             todoCountsByDate = todoCountsByDate
         )
     }.stateIn(
