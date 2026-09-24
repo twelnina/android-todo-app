@@ -3,7 +3,6 @@ package com.example.todoapp.ui.list
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,23 +14,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
@@ -40,27 +32,28 @@ import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.model.TodoTag
-import com.example.todoapp.ui.components.TagChip
-import com.example.todoapp.ui.components.TodoSearchBar
+import com.example.todoapp.ui.component.dialogs.PlannedDatePickerDialog
+import com.example.todoapp.ui.list.component.TodoItem
+import com.example.todoapp.ui.list.component.TodoListControls
 import com.example.todoapp.ui.theme.TodoAppTheme
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
@@ -72,34 +65,62 @@ private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH
 
 @Composable
 fun ListScreen(
-    onEditTodo: (Int) -> Unit,
     initialPlannedDateFilter: PlannedDateFilter = PlannedDateFilter.ALL,
-    viewModel: ListViewModel = viewModel(factory = ListViewModel.createFactory(initialPlannedDateFilter))
+    onEdit: (Int) -> Unit,
+    onDeleted: (TodoEntity) -> Unit,
+    viewModel: ListViewModel = viewModel(
+        factory = ListViewModel.createFactory(
+            initialPlannedDateFilter
+        )
+    )
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     ListScreenContent(
         uiState = uiState,
+        onCheckedChange = viewModel::updateCompleted,
+        onPlannedDateChange = viewModel::updatePlannedDate,
+        onDelete = { todo ->
+            viewModel.deleteTodo(
+                todo = todo,
+                onDeleted = onDeleted
+            )
+        },
+        onEdit = onEdit,
         onQueryChange = viewModel::onQueryChange,
         onTagSelected = viewModel::onTagSelected,
         onPlannedDateChipClick = viewModel::showBottomSheet,
         onPlannedDateFilterChange = viewModel::onPlannedDateFilterSelected,
         onDismissRequest = viewModel::dismissBottomSheet,
-        onEditTodo = onEditTodo
     )
 }
 
 @Composable
 internal fun ListScreenContent(
     uiState: ListUiState,
+    onCheckedChange: (TodoEntity, Boolean) -> Unit,
+    onPlannedDateChange: (TodoEntity, LocalDate) -> Unit,
+    onDelete: (TodoEntity) -> Unit,
+    onEdit: (Int) -> Unit,
     onQueryChange: (String) -> Unit,
     onTagSelected: (TodoTag) -> Unit,
     onPlannedDateChipClick: () -> Unit,
     onPlannedDateFilterChange: (PlannedDateFilter) -> Unit,
     onDismissRequest: () -> Unit,
-    onEditTodo: (Int) -> Unit
 ) {
     val listState = rememberLazyListState()
+
+    var expandedTodoId by rememberSaveable { mutableStateOf<Int?>(null) }
+
+    var dateChangeTodoId by rememberSaveable { mutableStateOf<Int?>(null) }
+    val todoForDateChange = uiState.todoGroups
+        .asSequence()
+        .flatMap { group ->
+            group.todos.asSequence()
+        }
+        .firstOrNull { todo ->
+            todo.id == dateChangeTodoId
+        }
 
     val filterKey = Triple(
         uiState.searchQuery,
@@ -127,19 +148,11 @@ internal fun ListScreenContent(
 
 
     Column(modifier = Modifier.fillMaxSize()) {
-        TodoSearchBar(
+        TodoListControls(
             query = uiState.searchQuery,
-            onQueryChange = { newQuery ->
-                onQueryChange(newQuery)
-            },
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-
-        Spacer(modifier = Modifier.padding(vertical = 2.dp))
-
-        TodoFilterRow(
             selectedPlannedDateFilter = uiState.selectedPlannedDateFilter,
             selectedTags = uiState.selectedTags,
+            onQueryChange = onQueryChange,
             onPlannedDateChipClick = onPlannedDateChipClick,
             onTagSelected = onTagSelected
         )
@@ -165,11 +178,29 @@ internal fun ListScreenContent(
                     items = group.todos,
                     key = { _, todo -> todo.id }
                 ) { index, todo ->
+                    val expanded = expandedTodoId == todo.id
+
                     TodoItem(
                         todoItemInfo = todo,
                         index = index,
                         count = group.todos.size,
-                        onEditTodo = onEditTodo,
+                        expanded = expanded,
+                        onCheckedChange = onCheckedChange,
+                        onMoreClick = {
+                            expandedTodoId = if (expanded) null else todo.id
+                        },
+                        onChangePlannedDate = {
+                            expandedTodoId = null
+                            dateChangeTodoId = todo.id
+                        },
+                        onEdit = {
+                            expandedTodoId = null
+                            onEdit(todo.id)
+                        },
+                        onDelete = {
+                            expandedTodoId = null
+                            onDelete(todo)
+                        },
                         modifier = Modifier.animateItem()
                     )
                 }
@@ -185,60 +216,20 @@ internal fun ListScreenContent(
         )
     }
 
-}
+    val today = uiState.today
 
-@Composable
-private fun TodoFilterRow(
-    selectedPlannedDateFilter: PlannedDateFilter,
-    selectedTags: Set<TodoTag>,
-    onPlannedDateChipClick: () -> Unit,
-    onTagSelected: (TodoTag) -> Unit
-) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp)
-    ) {
-        item {
-            val isAllSelected = selectedPlannedDateFilter == PlannedDateFilter.ALL
-            FilterChip(
-                selected = !isAllSelected, label = {
-                    Text(
-                        if (isAllSelected) stringResource(R.string.planned_date)
-                        else stringResource(selectedPlannedDateFilter.labelRes)
-                    )
-                },
-                leadingIcon = if (!isAllSelected) {
-                    {
-                        Icon(
-                            painter = painterResource(R.drawable.check_24px),
-                            contentDescription = null,
-                            modifier = Modifier.size(FilterChipDefaults.IconSize)
-                        )
-                    }
-                } else null, trailingIcon = {
-                    Icon(
-                        painter = painterResource(R.drawable.arrow_drop_down_24px),
-                        contentDescription = null,
-                        modifier = Modifier.size(FilterChipDefaults.IconSize)
-                    )
-                }, onClick = onPlannedDateChipClick
-            )
-        }
-        items(TodoTag.entries) { tag ->
-            FilterChip(
-                selected = selectedTags.contains(tag),
-                label = { Text(stringResource(tag.labelRes)) },
-                leadingIcon = if (selectedTags.contains(tag)) {
-                    {
-                        Icon(
-                            painter = painterResource(R.drawable.check_24px),
-                            contentDescription = null,
-                            modifier = Modifier.size(FilterChipDefaults.IconSize)
-                        )
-                    }
-                } else null,
-                onClick = { onTagSelected(tag) })
-        }
+    if (todoForDateChange != null && today != null) {
+        PlannedDatePickerDialog(
+            today = today,
+            previousDate = todoForDateChange.plannedDate,
+            onDismissRequest = {
+                dateChangeTodoId = null
+            },
+            onConfirmRequest = { newDate ->
+                onPlannedDateChange(todoForDateChange, newDate)
+                dateChangeTodoId = null
+            }
+        )
     }
 }
 
@@ -267,45 +258,6 @@ private fun TodoDateHeader(date: LocalDate?, modifier: Modifier = Modifier) {
     }
 }
 
-@Composable
-private fun TodoItem(
-    todoItemInfo: TodoEntity,
-    index: Int,
-    count: Int,
-    onEditTodo: (Int) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    SegmentedListItem(
-        onClick = { onEditTodo(todoItemInfo.id) },
-        shapes = ListItemDefaults.segmentedShapes(index, count),
-        colors = ListItemDefaults.segmentedColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        ),
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier.padding(bottom = ListItemDefaults.SegmentedGap),
-        supportingContent = {
-            Text(
-                text = todoItemInfo.description,
-                fontSize = 12.sp,
-                lineHeight = 18.sp
-            )
-        },
-        trailingContent = {
-            todoItemInfo.tag?.let { tag ->
-                TagChip(
-                    tag = tag,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-            }
-        }
-    ) {
-        Text(
-            text = todoItemInfo.title,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(vertical = 4.dp)
-        )
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -381,7 +333,12 @@ private fun TodoItemPreview() {
             ),
             index = 0,
             count = 1,
-            onEditTodo = {}
+            expanded = false,
+            onCheckedChange = { _, _ -> },
+            onMoreClick = {},
+            onChangePlannedDate = {},
+            onDelete = {},
+            onEdit = {}
         )
     }
 }

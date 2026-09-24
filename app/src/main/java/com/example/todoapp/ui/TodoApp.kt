@@ -176,10 +176,28 @@ fun TodoApp(
                         )
                     }
                     entry<AppNavKey.TodoList> { key ->
+                        val todoDeletedMessage = stringResource(R.string.todo_deleted)
+                        val undoLabel = stringResource(R.string.undo)
+
                         ListScreen(
-                            onEditTodo = { id ->
+                            onEdit = { id ->
                                 snackbarHostState.currentSnackbarData?.dismiss()
                                 backStack.add(AppNavKey.EditTodo(id))
+                            },
+                            onDeleted = { deletedTodo ->
+                                coroutineScope.launch {
+                                    val result =
+                                        snackbarHostState.showSnackbar(
+                                            message = todoDeletedMessage,
+                                            actionLabel = undoLabel,
+                                            withDismissAction = true,
+                                            duration = SnackbarDuration.Long
+                                        )
+
+                                    if (result == SnackbarResult.ActionPerformed) {
+                                        viewModel.restoreDeletedTodo(deletedTodo)
+                                    }
+                                }
                             },
                             initialPlannedDateFilter = key.initialPlannedDateFilter
                         )

@@ -46,7 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
-import com.example.todoapp.ui.components.CardItem
+import com.example.todoapp.ui.component.CardItem
 import com.example.todoapp.ui.theme.TodoAppTheme
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState

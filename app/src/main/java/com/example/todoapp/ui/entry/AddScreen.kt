@@ -23,7 +23,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
 import com.example.todoapp.model.TodoTag
-import com.example.todoapp.ui.components.TodoEntryBody
+import com.example.todoapp.ui.component.TodoEntryBody
 import com.example.todoapp.ui.theme.TodoAppTheme
 import java.time.LocalDate
 

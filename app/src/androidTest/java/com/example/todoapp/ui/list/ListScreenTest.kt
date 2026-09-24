@@ -1,12 +1,16 @@
 package com.example.todoapp.ui.list
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.test.platform.app.InstrumentationRegistry
+import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.model.TodoTag
@@ -39,19 +43,7 @@ class ListScreenTest {
             )
         )
 
-        composeTestRule.setContent {
-            TodoAppTheme {
-                ListScreenContent(
-                    uiState = uiState,
-                    onQueryChange = {},
-                    onTagSelected = {},
-                    onPlannedDateChipClick = {},
-                    onPlannedDateFilterChange = {},
-                    onDismissRequest = {},
-                    onEditTodo = {}
-                )
-            }
-        }
+        setListScreenContent(uiStateProvider = { uiState })
 
         composeTestRule
             .onNodeWithText("Study Kotlin")
@@ -66,21 +58,14 @@ class ListScreenTest {
     fun enteringSearchQueryCallsOnQueryChange() {
         val query = mutableStateOf("")
 
-        composeTestRule.setContent {
-            TodoAppTheme {
-                ListScreenContent(
-                    uiState = ListUiState(searchQuery = query.value),
-                    onQueryChange = { newQuery ->
-                        query.value = newQuery
-                    },
-                    onTagSelected = {},
-                    onPlannedDateChipClick = {},
-                    onPlannedDateFilterChange = {},
-                    onDismissRequest = {},
-                    onEditTodo = {}
-                )
+        setListScreenContent(
+            uiStateProvider = {
+                ListUiState(searchQuery = query.value)
+            },
+            onQueryChange = { newQuery ->
+                query.value = newQuery
             }
-        }
+        )
 
         composeTestRule
             .onNode(hasSetTextAction())
@@ -95,21 +80,11 @@ class ListScreenTest {
     fun tappingTagCallsOnTagSelected() {
         var selectedTag: TodoTag? = null
 
-        composeTestRule.setContent {
-            TodoAppTheme {
-                ListScreenContent(
-                    uiState = ListUiState(),
-                    onQueryChange = {},
-                    onTagSelected = { tag ->
-                        selectedTag = tag
-                    },
-                    onPlannedDateChipClick = {},
-                    onPlannedDateFilterChange = {},
-                    onDismissRequest = {},
-                    onEditTodo = {}
-                )
+        setListScreenContent(
+            onTagSelected = { tag ->
+                selectedTag = tag
             }
-        }
+        )
 
         composeTestRule
             .onNodeWithText("Work")
@@ -125,24 +100,21 @@ class ListScreenTest {
         val showBottomSheet = mutableStateOf(false)
         var selectedFilter: PlannedDateFilter? = null
 
-        composeTestRule.setContent {
-            TodoAppTheme {
-                ListScreenContent(
-                    uiState = ListUiState(showBottomSheet = showBottomSheet.value),
-                    onQueryChange = {},
-                    onTagSelected = {},
-                    onPlannedDateChipClick = {
-                        showBottomSheet.value = true
-                    },
-                    onPlannedDateFilterChange = { filter ->
-                        selectedFilter = filter
-                        showBottomSheet.value = false
-                    },
-                    onDismissRequest = { showBottomSheet.value = false },
-                    onEditTodo = {}
-                )
+        setListScreenContent(
+            uiStateProvider = {
+                ListUiState(showBottomSheet = showBottomSheet.value)
+            },
+            onPlannedDateChipClick = {
+                showBottomSheet.value = true
+            },
+            onPlannedDateFilterChange = { filter ->
+                selectedFilter = filter
+                showBottomSheet.value = false
+            },
+            onDismissRequest = {
+                showBottomSheet.value = false
             }
-        }
+        )
 
         composeTestRule
             .onNodeWithText("Planned date")
@@ -175,19 +147,7 @@ class ListScreenTest {
             todoGroups = listOf(TodoDateGroup(null, listOf(todo)))
         )
 
-        composeTestRule.setContent {
-            TodoAppTheme {
-                ListScreenContent(
-                    uiState = uiState,
-                    onQueryChange = {},
-                    onTagSelected = {},
-                    onPlannedDateChipClick = {},
-                    onPlannedDateFilterChange = {},
-                    onDismissRequest = {},
-                    onEditTodo = {}
-                )
-            }
-        }
+        setListScreenContent(uiStateProvider = { uiState })
 
         composeTestRule
             .onNodeWithText("Unscheduled")
@@ -199,7 +159,7 @@ class ListScreenTest {
     }
 
     @Test
-    fun tappingTodoCallsOnEditTodoWithTodoId() {
+    fun tappingEditQuickActionCallsOnEditWithTodoId() {
         val todo = TodoEntity(
             id = 42,
             title = "Update project",
@@ -216,28 +176,60 @@ class ListScreenTest {
 
         var editedTodoId: Int? = null
 
-        composeTestRule.setContent {
-            TodoAppTheme {
-                ListScreenContent(
-                    uiState = uiState,
-                    onQueryChange = {},
-                    onTagSelected = {},
-                    onPlannedDateChipClick = {},
-                    onPlannedDateFilterChange = {},
-                    onDismissRequest = {},
-                    onEditTodo = { todoId ->
-                        editedTodoId = todoId
-                    }
-                )
+        setListScreenContent(
+            uiStateProvider = { uiState },
+            onEdit = { todoId ->
+                editedTodoId = todoId
             }
-        }
+        )
 
         composeTestRule
-            .onNodeWithText("Update project")
+            .onNodeWithContentDescription(getString(R.string.more_options))
+            .performClick()
+
+        composeTestRule
+            .onNodeWithContentDescription(getString(R.string.edit_todo))
             .performClick()
 
         composeTestRule.runOnIdle {
             assertEquals(42, editedTodoId)
         }
+    }
+
+    private fun setListScreenContent(
+        uiStateProvider: () -> ListUiState = { ListUiState() },
+        onCheckedChange: (TodoEntity, Boolean) -> Unit = { _, _ -> },
+        onPlannedDateChange: (TodoEntity, LocalDate) -> Unit = { _, _ -> },
+        onDelete: (TodoEntity) -> Unit = {},
+        onEdit: (Int) -> Unit = {},
+        onQueryChange: (String) -> Unit = {},
+        onTagSelected: (TodoTag) -> Unit = {},
+        onPlannedDateChipClick: () -> Unit = {},
+        onPlannedDateFilterChange: (PlannedDateFilter) -> Unit = {},
+        onDismissRequest: () -> Unit = {}
+    ) {
+        composeTestRule.setContent {
+            TodoAppTheme {
+                ListScreenContent(
+                    uiState = uiStateProvider(),
+                    onCheckedChange = onCheckedChange,
+                    onPlannedDateChange = onPlannedDateChange,
+                    onDelete = onDelete,
+                    onEdit = onEdit,
+                    onQueryChange = onQueryChange,
+                    onTagSelected = onTagSelected,
+                    onPlannedDateChipClick = onPlannedDateChipClick,
+                    onPlannedDateFilterChange = onPlannedDateFilterChange,
+                    onDismissRequest = onDismissRequest
+                )
+            }
+        }
+    }
+
+    private fun getString(@StringRes resourceId: Int): String {
+        return InstrumentationRegistry
+            .getInstrumentation()
+            .targetContext
+            .getString(resourceId)
     }
 }

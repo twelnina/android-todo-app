@@ -1,0 +1,105 @@
+package com.example.todoapp.ui.list
+
+import androidx.lifecycle.viewModelScope
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import com.example.todoapp.data.local.AppDatabase
+import com.example.todoapp.data.local.TodoEntity
+import com.example.todoapp.data.repository.TodoRepository
+import com.example.todoapp.data.time.CurrentDateProvider
+import com.example.todoapp.model.PlannedDateFilter
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runTest
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Test
+import java.time.LocalDate
+import kotlin.time.Duration.Companion.seconds
+
+class ListViewModelTest {
+    private lateinit var database: AppDatabase
+
+    @Before
+    fun setUp() {
+        database = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(),
+            AppDatabase::class.java
+        ).build()
+    }
+
+    @After
+    fun tearDown() {
+        database.close()
+    }
+
+    @Test
+    fun uiState_updatesTodayFilteredTodosWhenDateChanges() =
+        runTest(timeout = 10.seconds) {
+            val firstDate = LocalDate.of(2026, 9, 24)
+            val nextDate = firstDate.plusDays(1)
+
+            val plannedToday = createTodo(1, firstDate)
+            val plannedTomorrow = createTodo(2, nextDate)
+
+            val dao = database.todoDao()
+            dao.insert(plannedToday)
+            dao.insert(plannedTomorrow)
+
+            val currentDate = MutableStateFlow(firstDate)
+            val dateProvider = object : CurrentDateProvider {
+                override fun observeDate(): Flow<LocalDate> = currentDate
+            }
+
+            val viewModel = ListViewModel(
+                todoRepository = TodoRepository(dao),
+                currentDateProvider = dateProvider,
+                initialPlannedDateFilter = PlannedDateFilter.TODAY
+            )
+
+            val collector = launch(start = CoroutineStart.UNDISPATCHED) {
+                viewModel.uiState.collect { }
+            }
+
+            try {
+                val before = viewModel.uiState.first { state ->
+                    state.today == firstDate
+                }
+
+                assertEquals(
+                    listOf(plannedToday),
+                    before.todoGroups.flatMap { group -> group.todos }
+                )
+
+                currentDate.value = nextDate
+
+                val after = viewModel.uiState.first { state ->
+                    state.today == nextDate
+                }
+
+                assertEquals(
+                    listOf(plannedTomorrow),
+                    after.todoGroups.flatMap { group -> group.todos }
+                )
+            } finally {
+                collector.cancelAndJoin()
+                viewModel.viewModelScope.coroutineContext.job.cancelAndJoin()
+            }
+        }
+
+    private fun createTodo(id: Int, plannedDate: LocalDate): TodoEntity {
+        return TodoEntity(
+            id = id,
+            title = "Todo $id",
+            description = "Description $id",
+            plannedDate = plannedDate,
+            tag = null
+        )
+    }
+}
