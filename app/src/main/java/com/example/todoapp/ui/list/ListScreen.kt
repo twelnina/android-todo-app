@@ -3,7 +3,6 @@ package com.example.todoapp.ui.list
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,18 +14,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -48,7 +41,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -59,8 +51,8 @@ import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.model.TodoTag
-import com.example.todoapp.ui.component.TodoSearchBar
 import com.example.todoapp.ui.list.component.TodoItem
+import com.example.todoapp.ui.list.component.TodoListControls
 import com.example.todoapp.ui.theme.TodoAppTheme
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
@@ -135,19 +127,11 @@ internal fun ListScreenContent(
 
 
     Column(modifier = Modifier.fillMaxSize()) {
-        TodoSearchBar(
+        TodoListControls(
             query = uiState.searchQuery,
-            onQueryChange = { newQuery ->
-                onQueryChange(newQuery)
-            },
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-
-        Spacer(modifier = Modifier.padding(vertical = 2.dp))
-
-        TodoFilterRow(
             selectedPlannedDateFilter = uiState.selectedPlannedDateFilter,
             selectedTags = uiState.selectedTags,
+            onQueryChange = onQueryChange,
             onPlannedDateChipClick = onPlannedDateChipClick,
             onTagSelected = onTagSelected
         )
@@ -199,61 +183,6 @@ internal fun ListScreenContent(
         )
     }
 
-}
-
-@Composable
-private fun TodoFilterRow(
-    selectedPlannedDateFilter: PlannedDateFilter,
-    selectedTags: Set<TodoTag>,
-    onPlannedDateChipClick: () -> Unit,
-    onTagSelected: (TodoTag) -> Unit
-) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp)
-    ) {
-        item {
-            val isAllSelected = selectedPlannedDateFilter == PlannedDateFilter.ALL
-            FilterChip(
-                selected = !isAllSelected, label = {
-                    Text(
-                        if (isAllSelected) stringResource(R.string.planned_date)
-                        else stringResource(selectedPlannedDateFilter.labelRes)
-                    )
-                },
-                leadingIcon = if (!isAllSelected) {
-                    {
-                        Icon(
-                            painter = painterResource(R.drawable.check_24px),
-                            contentDescription = null,
-                            modifier = Modifier.size(FilterChipDefaults.IconSize)
-                        )
-                    }
-                } else null, trailingIcon = {
-                    Icon(
-                        painter = painterResource(R.drawable.arrow_drop_down_24px),
-                        contentDescription = null,
-                        modifier = Modifier.size(FilterChipDefaults.IconSize)
-                    )
-                }, onClick = onPlannedDateChipClick
-            )
-        }
-        items(TodoTag.entries) { tag ->
-            FilterChip(
-                selected = selectedTags.contains(tag),
-                label = { Text(stringResource(tag.labelRes)) },
-                leadingIcon = if (selectedTags.contains(tag)) {
-                    {
-                        Icon(
-                            painter = painterResource(R.drawable.check_24px),
-                            contentDescription = null,
-                            modifier = Modifier.size(FilterChipDefaults.IconSize)
-                        )
-                    }
-                } else null,
-                onClick = { onTagSelected(tag) })
-        }
-    }
 }
 
 @Composable
