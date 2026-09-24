@@ -34,68 +34,68 @@ class TodoDaoTest {
 
 
     @Test
-    fun observeTodayItems_returnsOnlyTodosDueToday() = runBlocking {
+    fun observeTodayItems_returnsOnlyTodosPlannedToday() = runBlocking {
         val today = LocalDate.of(2026, 9, 19)
 
-        val dueToday = TodoEntity(
+        val plannedToday = TodoEntity(
             id = 1,
-            title = "Due today",
+            title = "Planned for today",
             description = "Should be returned",
-            targetDate = today,
+            plannedDate = today,
             tag = null
         )
 
-        val dueTomorrow = TodoEntity(
+        val plannedTomorrow = TodoEntity(
             id = 2,
-            title = "Due tomorrow",
+            title = "Planned for tomorrow",
             description = "Should not be returned",
-            targetDate = today.plusDays(1),
+            plannedDate = today.plusDays(1),
             tag = null
         )
 
-        todoDao.insert(dueToday)
-        todoDao.insert(dueTomorrow)
+        todoDao.insert(plannedToday)
+        todoDao.insert(plannedTomorrow)
 
         val actual = todoDao.observeTodayItems(today).first()
 
-        assertEquals(listOf(dueToday), actual)
+        assertEquals(listOf(plannedToday), actual)
     }
 
     @Test
-    fun observeOverdueItems_returnsOnlyIncompleteTodosBeforeToday() = runBlocking {
+    fun observePastIncompleteItems_returnsOnlyIncompleteTodosBeforeToday() = runBlocking {
         val today = LocalDate.of(2026, 9, 19)
 
-        val overdue = TodoEntity(
+        val pastIncomplete = TodoEntity(
             id = 1,
-            title = "Overdue",
+            title = "Earlier task",
             description = "Should be returned",
-            targetDate = today.minusDays(1),
+            plannedDate = today.minusDays(1),
             tag = null
         )
 
-        val dueToday = TodoEntity(
+        val plannedToday = TodoEntity(
             id = 2,
-            title = "Due today",
+            title = "Planned for today",
             description = "Should not be returned",
-            targetDate = today,
+            plannedDate = today,
             tag = null
         )
 
-        val completedOverdue = TodoEntity(
+        val completedEarlier = TodoEntity(
             id = 3,
-            title = "Completed overdue",
+            title = "Completed earlier task",
             description = "Should not be returned",
-            targetDate = today.minusDays(2),
+            plannedDate = today.minusDays(2),
             tag = null,
             isCompleted = true
         )
 
-        todoDao.insert(overdue)
-        todoDao.insert(dueToday)
-        todoDao.insert(completedOverdue)
+        todoDao.insert(pastIncomplete)
+        todoDao.insert(plannedToday)
+        todoDao.insert(completedEarlier)
 
-        val actual = todoDao.observeOverdueItems(today).first()
+        val actual = todoDao.observePastIncompleteItems(today).first()
 
-        assertEquals(listOf(overdue), actual)
+        assertEquals(listOf(pastIncomplete), actual)
     }
 }

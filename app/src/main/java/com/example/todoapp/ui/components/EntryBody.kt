@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.example.todoapp.R
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.edit.component.TagSelector
-import com.example.todoapp.ui.edit.component.TargetDatePicker
+import com.example.todoapp.ui.edit.component.PlannedDatePicker
 import java.time.LocalDate
 
 @Composable
@@ -26,7 +26,7 @@ fun TodoEntryBody(
     today: LocalDate?,
     title: String,
     description: String,
-    targetDate: LocalDate?,
+    plannedDate: LocalDate?,
     selectedTag: TodoTag?,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
@@ -67,17 +67,17 @@ fun TodoEntryBody(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = stringResource(R.string.target_date),
+            text = stringResource(R.string.planned_date),
             style = MaterialTheme.typography.titleSmall
         )
         Spacer(modifier = Modifier.height(8.dp))
         if (today == null) {
             CircularProgressIndicator()
         } else {
-            TargetDatePicker(
+            PlannedDatePicker(
                 today = today,
                 onDateChange = onDateChange,
-                selectedDate = targetDate
+                selectedDate = plannedDate
             )
         }
 

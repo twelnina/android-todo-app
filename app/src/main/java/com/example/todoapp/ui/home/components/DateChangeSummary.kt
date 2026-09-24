@@ -39,7 +39,7 @@ fun DateChangeSummary(
         DateSummaryItem(
             label = stringResource(R.string.previous),
             date = previousDate?.format(formatter)
-                ?: stringResource(R.string.no_date),
+                ?: stringResource(R.string.unscheduled),
             modifier = Modifier.weight(1f)
         )
 
@@ -52,7 +52,7 @@ fun DateChangeSummary(
         DateSummaryItem(
             label = stringResource(R.string.new_date),
             date = newDate?.format(formatter)
-                ?: stringResource(R.string.no_date),
+                ?: stringResource(R.string.unscheduled),
             modifier = Modifier.weight(1f)
         )
     }

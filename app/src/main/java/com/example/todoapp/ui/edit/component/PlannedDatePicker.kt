@@ -23,7 +23,7 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 
 @Composable
-fun TargetDatePicker(
+fun PlannedDatePicker(
     today: LocalDate,
     selectedDate: LocalDate?,
     onDateChange: (LocalDate?) -> Unit,
@@ -70,7 +70,7 @@ fun TargetDatePicker(
 
                 if (datePickerState.selectedDateMillis == null) {
                     Text(
-                        text = stringResource(R.string.no_date),
+                        text = stringResource(R.string.unscheduled),
                         modifier = headlineModifier,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -97,9 +97,9 @@ fun TargetDatePicker(
 
 @Preview
 @Composable
-private fun TargetDatePickerPreview() {
+private fun PlannedDatePickerPreview() {
     TodoAppTheme {
-        TargetDatePicker(
+        PlannedDatePicker(
             today = LocalDate.of(2026, 9, 23),
             selectedDate = LocalDate.of(2026, 9, 23),
             onDateChange = {}

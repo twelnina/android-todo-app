@@ -1,7 +1,7 @@
 package com.example.todoapp.ui.navigation
 
 import androidx.navigation3.runtime.NavKey
-import com.example.todoapp.model.DueDateFilter
+import com.example.todoapp.model.PlannedDateFilter
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -11,7 +11,7 @@ sealed interface AppNavKey : NavKey {
 
     @Serializable
     data class TodoList(
-        val initialDueDateFilter: DueDateFilter = DueDateFilter.ALL
+        val initialPlannedDateFilter: PlannedDateFilter = PlannedDateFilter.ALL
     ) : AppNavKey
 
     @Serializable

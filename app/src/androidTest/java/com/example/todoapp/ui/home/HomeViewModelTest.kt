@@ -36,17 +36,17 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun uiState_updatesItemAndDaysOverdueWhenDateChanges() = runBlocking {
+    fun uiState_updatesItemAndDaysSincePlannedDateWhenDateChanges() = runBlocking {
         val firstDate = LocalDate.of(2026, 9, 21)
         val nextDate = firstDate.plusDays(1)
 
-        val alreadyOverdue = createTodo(1, firstDate.minusDays(1))
-        val dueToday = createTodo(2, firstDate)
-        val dueTomorrow = createTodo(3, nextDate)
-        val completedOverdue = createTodo(4, firstDate.minusDays(1), true)
+        val earlierIncomplete = createTodo(1, firstDate.minusDays(1))
+        val plannedToday = createTodo(2, firstDate)
+        val plannedTomorrow = createTodo(3, nextDate)
+        val completedEarlier = createTodo(4, firstDate.minusDays(1), true)
 
         val dao = database.todoDao()
-        listOf(alreadyOverdue, dueToday, dueTomorrow, completedOverdue).forEach { dao.insert(it) }
+        listOf(earlierIncomplete, plannedToday, plannedTomorrow, completedEarlier).forEach { dao.insert(it) }
 
         val dateProvider = FakeCurrentDateProvider(firstDate)
         val viewModel = HomeViewModel(
@@ -62,12 +62,12 @@ class HomeViewModelTest {
                 val before = viewModel.uiState.first {
                     it.today == firstDate
                 }
-                assertEquals(listOf(dueToday), before.todayItems)
+                assertEquals(listOf(plannedToday), before.todayItems)
                 assertEquals(
                     listOf(
-                        OverdueItem(todo = alreadyOverdue, daysOverdue = 1L)
+                        PastIncompleteItem(todo = earlierIncomplete, daysSincePlannedDate = 1L)
                     ),
-                    before.overdueItems
+                    before.pastIncompleteItems
                 )
 
                 dateProvider.changeDate(nextDate)
@@ -75,13 +75,13 @@ class HomeViewModelTest {
                 val after = viewModel.uiState.first {
                     it.today == nextDate
                 }
-                assertEquals(listOf(dueTomorrow), after.todayItems)
+                assertEquals(listOf(plannedTomorrow), after.todayItems)
                 assertEquals(
                     listOf(
-                        OverdueItem(todo = alreadyOverdue, daysOverdue = 2L),
-                        OverdueItem(todo = dueToday, daysOverdue = 1L)
+                        PastIncompleteItem(todo = earlierIncomplete, daysSincePlannedDate = 2L),
+                        PastIncompleteItem(todo = plannedToday, daysSincePlannedDate = 1L)
                     ),
-                    after.overdueItems
+                    after.pastIncompleteItems
                 )
             }
         } finally {
@@ -90,12 +90,12 @@ class HomeViewModelTest {
         }
     }
 
-    private fun createTodo(id: Int, targetDate: LocalDate, isCompleted: Boolean = false) =
+    private fun createTodo(id: Int, plannedDate: LocalDate, isCompleted: Boolean = false) =
         TodoEntity(
             id = id,
             title = "Todo $id",
             description = "",
-            targetDate = targetDate,
+            plannedDate = plannedDate,
             tag = null,
             isCompleted = isCompleted
         )

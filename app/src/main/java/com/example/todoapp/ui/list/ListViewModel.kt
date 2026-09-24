@@ -7,7 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.todoapp.TodoApplication
 import com.example.todoapp.data.repository.TodoRepository
-import com.example.todoapp.model.DueDateFilter
+import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.model.TodoTag
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,31 +18,31 @@ import kotlinx.coroutines.flow.update
 
 class ListViewModel(
     private val todoRepository: TodoRepository,
-    initialDueDateFilter: DueDateFilter = DueDateFilter.ALL
+    initialPlannedDateFilter: PlannedDateFilter = PlannedDateFilter.ALL
 ) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     private val _selectedTags = MutableStateFlow<Set<TodoTag>>(emptySet())
-    private val _selectedDueDateFilter = MutableStateFlow(initialDueDateFilter)
+    private val _selectedPlannedDateFilter = MutableStateFlow(initialPlannedDateFilter)
     private val _showBottomSheet = MutableStateFlow(false)
 
     val uiState: StateFlow<ListUiState> = combine(
         todoRepository.getAllItems(),
         _searchQuery,
         _selectedTags,
-        _selectedDueDateFilter,
+        _selectedPlannedDateFilter,
         _showBottomSheet
-    ) { items, query, selectedTags, dueDateFilter, showSheet ->
+    ) { items, query, selectedTags, plannedDateFilter, showSheet ->
         val filteredTodos = filterTodos(
             items = items,
             query = query,
             tags = selectedTags,
-            dueDate = dueDateFilter
+            plannedDateFilter = plannedDateFilter
         )
 
         ListUiState(
             searchQuery = query,
             selectedTags = selectedTags,
-            selectedDueDateFilter = dueDateFilter,
+            selectedPlannedDateFilter = plannedDateFilter,
             showBottomSheet = showSheet,
             todoGroups = groupTodosByDate(filteredTodos)
         )
@@ -50,7 +50,7 @@ class ListViewModel(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = ListUiState(
-            selectedDueDateFilter = initialDueDateFilter
+            selectedPlannedDateFilter = initialPlannedDateFilter
         )
     )
 
@@ -64,8 +64,8 @@ class ListViewModel(
         }
     }
 
-    fun onDueDateFilterSelected(filter: DueDateFilter) {
-        _selectedDueDateFilter.value = filter
+    fun onPlannedDateFilterSelected(filter: PlannedDateFilter) {
+        _selectedPlannedDateFilter.value = filter
         _showBottomSheet.value = false
     }
 
@@ -79,7 +79,7 @@ class ListViewModel(
 
     companion object {
         fun createFactory(
-            initialDueDateFilter: DueDateFilter = DueDateFilter.ALL
+            initialPlannedDateFilter: PlannedDateFilter = PlannedDateFilter.ALL
         ): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application =
@@ -88,7 +88,7 @@ class ListViewModel(
 
                 ListViewModel(
                     todoRepository = repository,
-                    initialDueDateFilter = initialDueDateFilter
+                    initialPlannedDateFilter = initialPlannedDateFilter
                 )
             }
         }

@@ -1,7 +1,7 @@
 package com.example.todoapp.ui.list
 
 import com.example.todoapp.data.local.TodoEntity
-import com.example.todoapp.model.DueDateFilter
+import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.model.TodoTag
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -11,7 +11,7 @@ internal fun filterTodos(
     items: List<TodoEntity>,
     query: String,
     tags: Set<TodoTag>,
-    dueDate: DueDateFilter,
+    plannedDateFilter: PlannedDateFilter,
     today: LocalDate = LocalDate.now()
 ): List<TodoEntity> {
     return items.filter { item ->
@@ -23,22 +23,22 @@ internal fun filterTodos(
         } else {
             item.tag in tags
         }
-        val matchesDate = when (dueDate) {
-            DueDateFilter.ALL -> true
-            DueDateFilter.TODAY -> item.targetDate == today
-            DueDateFilter.TOMORROW -> item.targetDate == today.plusDays(1)
-            DueDateFilter.THIS_WEEK -> {
+        val matchesDate = when (plannedDateFilter) {
+            PlannedDateFilter.ALL -> true
+            PlannedDateFilter.TODAY -> item.plannedDate == today
+            PlannedDateFilter.TOMORROW -> item.plannedDate == today.plusDays(1)
+            PlannedDateFilter.THIS_WEEK -> {
                 val endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
-                item.targetDate?.let { date ->
+                item.plannedDate?.let { date ->
                     (date.isEqual(today) || date.isAfter(today)) &&
                             (date.isEqual(endOfWeek) || date.isBefore(endOfWeek))
                 } ?: false
             }
 
-            DueDateFilter.OVERDUE -> !item.isCompleted &&
-                    (item.targetDate?.isBefore(today) ?: false)
+            PlannedDateFilter.PAST_INCOMPLETE -> !item.isCompleted &&
+                    (item.plannedDate?.isBefore(today) ?: false)
 
-            DueDateFilter.NO_DATE -> item.targetDate == null
+            PlannedDateFilter.UNSCHEDULED -> item.plannedDate == null
         }
 
         matchesQuery && matchesTag && matchesDate

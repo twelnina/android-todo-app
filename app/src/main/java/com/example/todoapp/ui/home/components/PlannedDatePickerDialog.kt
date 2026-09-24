@@ -25,7 +25,7 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 
 @Composable
-internal fun TargetDatePickerDialog(
+internal fun PlannedDatePickerDialog(
     today: LocalDate,
     previousDate: LocalDate?,
     onConfirmRequest: (LocalDate) -> Unit,
@@ -71,7 +71,7 @@ internal fun TargetDatePickerDialog(
             ) {
                 Spacer(modifier = Modifier.height(20.dp))
                 Text(
-                    text = stringResource(R.string.reschedule),
+                    text = stringResource(R.string.change_planned_date),
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.titleLarge
                 )

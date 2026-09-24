@@ -145,7 +145,7 @@ private fun CalendarScreenContent(
                 ) { index, todo ->
                     CardItem(
                         todo = todo,
-                        showDaysOverdue = false,
+                        showDaysSincePlannedDate = false,
                         onCheckedChange = { checked ->
                             onCompletedChange(todo, checked)
                         },

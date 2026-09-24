@@ -26,16 +26,16 @@ class HomeViewModel(
         currentDateProvider.observeDate().flatMapLatest { today ->
             combine(
                 repository.observeTodayItems(today),
-                repository.observeOverdueItems(today)
-            ) { todayItems, overdueItems ->
+                repository.observePastIncompleteItems(today)
+            ) { todayItems, pastIncompleteItems ->
                 HomeUiState(
                     today = today,
                     todayItems = todayItems,
-                    overdueItems = overdueItems.map { entity ->
-                        val targetDate = entity.targetDate
-                        OverdueItem(
+                    pastIncompleteItems = pastIncompleteItems.map { entity ->
+                        val plannedDate = entity.plannedDate
+                        PastIncompleteItem(
                             todo = entity,
-                            daysOverdue = ChronoUnit.DAYS.between(targetDate, today)
+                            daysSincePlannedDate = ChronoUnit.DAYS.between(plannedDate, today)
                         )
                     }
                 )
@@ -54,10 +54,10 @@ class HomeViewModel(
         }
     }
 
-    fun updateTargetDate(todo: TodoEntity, newTargetDate: LocalDate) {
+    fun updatePlannedDate(todo: TodoEntity, newPlannedDate: LocalDate) {
         viewModelScope.launch {
             repository.update(
-                todo.copy(targetDate = newTargetDate)
+                todo.copy(plannedDate = newPlannedDate)
             )
         }
     }

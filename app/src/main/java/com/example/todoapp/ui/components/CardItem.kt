@@ -43,11 +43,11 @@ import com.example.todoapp.ui.theme.TodoAppTheme
 internal fun CardItem(
     modifier: Modifier = Modifier,
     todo: TodoEntity,
-    showDaysOverdue: Boolean,
+    showDaysSincePlannedDate: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     onEdit: () -> Unit,
-    onReschedule: (() -> Unit)? = null,
-    daysOverdue: Long? = null
+    onChangePlannedDate: (() -> Unit)? = null,
+    daysSincePlannedDate: Long? = null
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     Card(
@@ -77,10 +77,10 @@ internal fun CardItem(
                 onCheckedChange = onCheckedChange,
             )
             Column(modifier = Modifier.weight(1f)) {
-                daysOverdue?.let {
+                daysSincePlannedDate?.let {
                     val days = it.toInt()
 
-                    if (showDaysOverdue) {
+                    if (showDaysSincePlannedDate) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -92,7 +92,7 @@ internal fun CardItem(
                                 modifier = Modifier.size(14.dp)
                             )
                             Text(
-                                text = pluralStringResource(R.plurals.days_overdue, days, days),
+                                text = pluralStringResource(R.plurals.days_since_planned_date, days, days),
                                 color = MaterialTheme.colorScheme.onErrorContainer,
                                 fontSize = 12.sp,
                                 lineHeight = 16.sp
@@ -129,8 +129,8 @@ internal fun CardItem(
                 Row(
                     modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End
                 ) {
-                    if (onReschedule != null) {
-                        TextButton(onClick = onReschedule) {
+                    if (onChangePlannedDate != null) {
+                        TextButton(onClick = onChangePlannedDate) {
                             Icon(
                                 painter = painterResource(R.drawable.edit_calendar_24px),
                                 contentDescription = null,
@@ -138,7 +138,7 @@ internal fun CardItem(
                             )
                             Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                             Text(
-                                text = stringResource(R.string.reschedule),
+                                text = stringResource(R.string.change_planned_date),
                                 style = MaterialTheme.typography.labelMedium
                             )
                         }
@@ -169,12 +169,12 @@ private fun CardItemPreview() {
             todo = TodoEntity(
                 title = "Review English vocabulary",
                 description = "Review this week's vocabulary list, practice each word in a sentence. and flag difficult terms for another focused study session",
-                targetDate = null,
+                plannedDate = null,
                 tag = TodoTag.STUDY
             ),
             onCheckedChange = {},
             onEdit = {},
-            showDaysOverdue = false
+            showDaysSincePlannedDate = false
         )
     }
 }

@@ -4,13 +4,13 @@ import com.example.todoapp.data.local.TodoEntity
 import java.time.LocalDate
 
 
-data class OverdueItem(
+data class PastIncompleteItem(
     val todo: TodoEntity,
-    val daysOverdue: Long
+    val daysSincePlannedDate: Long
 )
 
 data class HomeUiState(
     val today: LocalDate? = null,
     val todayItems: List<TodoEntity> = emptyList(),
-    val overdueItems: List<OverdueItem> = emptyList()
+    val pastIncompleteItems: List<PastIncompleteItem> = emptyList()
 )

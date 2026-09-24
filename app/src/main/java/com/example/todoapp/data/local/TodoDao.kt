@@ -22,7 +22,7 @@ interface TodoDao {
     @Query(
         """
       SELECT * FROM todo_items
-      WHERE targetDate = :today
+      WHERE plannedDate = :today
       ORDER BY id ASC
   """
     )
@@ -31,14 +31,14 @@ interface TodoDao {
     @Query(
         """
       SELECT * FROM todo_items
-      WHERE targetDate < :today
+      WHERE plannedDate < :today
         AND isCompleted = 0
-      ORDER BY targetDate ASC, id ASC
+      ORDER BY plannedDate ASC, id ASC
   """
     )
-    fun observeOverdueItems(today: LocalDate): Flow<List<TodoEntity>>
+    fun observePastIncompleteItems(today: LocalDate): Flow<List<TodoEntity>>
 
-    @Query("SELECT * FROM todo_items ORDER BY targetDate IS NULL ASC, targetDate ASC, id ASC")
+    @Query("SELECT * FROM todo_items ORDER BY plannedDate IS NULL ASC, plannedDate ASC, id ASC")
     fun getAllItem(): Flow<List<TodoEntity>>
 
     @Query("SELECT * FROM todo_items WHERE id = :id")

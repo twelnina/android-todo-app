@@ -57,7 +57,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
-import com.example.todoapp.model.DueDateFilter
+import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TagChip
 import com.example.todoapp.ui.components.TodoSearchBar
@@ -73,8 +73,8 @@ private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH
 @Composable
 fun ListScreen(
     onEditTodo: (Int) -> Unit,
-    initialDueDateFilter: DueDateFilter = DueDateFilter.ALL,
-    viewModel: ListViewModel = viewModel(factory = ListViewModel.createFactory(initialDueDateFilter))
+    initialPlannedDateFilter: PlannedDateFilter = PlannedDateFilter.ALL,
+    viewModel: ListViewModel = viewModel(factory = ListViewModel.createFactory(initialPlannedDateFilter))
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -82,8 +82,8 @@ fun ListScreen(
         uiState = uiState,
         onQueryChange = viewModel::onQueryChange,
         onTagSelected = viewModel::onTagSelected,
-        onDueDateChipClick = viewModel::showBottomSheet,
-        onDueDateFilterChange = viewModel::onDueDateFilterSelected,
+        onPlannedDateChipClick = viewModel::showBottomSheet,
+        onPlannedDateFilterChange = viewModel::onPlannedDateFilterSelected,
         onDismissRequest = viewModel::dismissBottomSheet,
         onEditTodo = onEditTodo
     )
@@ -94,8 +94,8 @@ internal fun ListScreenContent(
     uiState: ListUiState,
     onQueryChange: (String) -> Unit,
     onTagSelected: (TodoTag) -> Unit,
-    onDueDateChipClick: () -> Unit,
-    onDueDateFilterChange: (DueDateFilter) -> Unit,
+    onPlannedDateChipClick: () -> Unit,
+    onPlannedDateFilterChange: (PlannedDateFilter) -> Unit,
     onDismissRequest: () -> Unit,
     onEditTodo: (Int) -> Unit
 ) {
@@ -104,7 +104,7 @@ internal fun ListScreenContent(
     val filterKey = Triple(
         uiState.searchQuery,
         uiState.selectedTags,
-        uiState.selectedDueDateFilter
+        uiState.selectedPlannedDateFilter
     )
     val latestFilterKey by rememberUpdatedState(filterKey)
     val hasTodos by rememberUpdatedState(uiState.todoGroups.isNotEmpty())
@@ -138,9 +138,9 @@ internal fun ListScreenContent(
         Spacer(modifier = Modifier.padding(vertical = 2.dp))
 
         TodoFilterRow(
-            selectedDueDateFilter = uiState.selectedDueDateFilter,
+            selectedPlannedDateFilter = uiState.selectedPlannedDateFilter,
             selectedTags = uiState.selectedTags,
-            onDueDateChipClick = onDueDateChipClick,
+            onPlannedDateChipClick = onPlannedDateChipClick,
             onTagSelected = onTagSelected
         )
 
@@ -155,7 +155,7 @@ internal fun ListScreenContent(
         ) {
             uiState.todoGroups.forEach { group ->
                 stickyHeader(
-                    key = group.date ?: "no_date",
+                    key = group.date ?: "unscheduled",
                     contentType = "date_header"
                 ) {
                     TodoDateHeader(group.date)
@@ -176,12 +176,12 @@ internal fun ListScreenContent(
             }
         }
         @OptIn(ExperimentalMaterial3Api::class)
-        DueDateSelectionBottomSheet(
+        PlannedDateSelectionBottomSheet(
             sheetState = sheetState,
-            selectedFilter = uiState.selectedDueDateFilter,
+            selectedFilter = uiState.selectedPlannedDateFilter,
             showBottomSheet = uiState.showBottomSheet,
             onDismissRequest = onDismissRequest,
-            onDueDateFilterChange = onDueDateFilterChange
+            onPlannedDateFilterChange = onPlannedDateFilterChange
         )
     }
 
@@ -189,9 +189,9 @@ internal fun ListScreenContent(
 
 @Composable
 private fun TodoFilterRow(
-    selectedDueDateFilter: DueDateFilter,
+    selectedPlannedDateFilter: PlannedDateFilter,
     selectedTags: Set<TodoTag>,
-    onDueDateChipClick: () -> Unit,
+    onPlannedDateChipClick: () -> Unit,
     onTagSelected: (TodoTag) -> Unit
 ) {
     LazyRow(
@@ -199,12 +199,12 @@ private fun TodoFilterRow(
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
         item {
-            val isAllSelected = selectedDueDateFilter == DueDateFilter.ALL
+            val isAllSelected = selectedPlannedDateFilter == PlannedDateFilter.ALL
             FilterChip(
                 selected = !isAllSelected, label = {
                     Text(
-                        if (isAllSelected) stringResource(R.string.due_date)
-                        else stringResource(selectedDueDateFilter.labelRes)
+                        if (isAllSelected) stringResource(R.string.planned_date)
+                        else stringResource(selectedPlannedDateFilter.labelRes)
                     )
                 },
                 leadingIcon = if (!isAllSelected) {
@@ -221,7 +221,7 @@ private fun TodoFilterRow(
                         contentDescription = null,
                         modifier = Modifier.size(FilterChipDefaults.IconSize)
                     )
-                }, onClick = onDueDateChipClick
+                }, onClick = onPlannedDateChipClick
             )
         }
         items(TodoTag.entries) { tag ->
@@ -258,7 +258,7 @@ private fun TodoDateHeader(date: LocalDate?, modifier: Modifier = Modifier) {
             )
     ) {
         Text(
-            text = date?.format(dateFormatter) ?: stringResource(R.string.no_date),
+            text = date?.format(dateFormatter) ?: stringResource(R.string.unscheduled),
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.SemiBold,
@@ -309,12 +309,12 @@ private fun TodoItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DueDateSelectionBottomSheet(
+private fun PlannedDateSelectionBottomSheet(
     sheetState: SheetState,
-    selectedFilter: DueDateFilter,
+    selectedFilter: PlannedDateFilter,
     showBottomSheet: Boolean,
     onDismissRequest: () -> Unit,
-    onDueDateFilterChange: (DueDateFilter) -> Unit,
+    onPlannedDateFilterChange: (PlannedDateFilter) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
@@ -324,7 +324,7 @@ private fun DueDateSelectionBottomSheet(
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             Text(
-                stringResource(R.string.due_date), style = MaterialTheme.typography.titleMedium
+                stringResource(R.string.planned_date), style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(12.dp))
             Surface(
@@ -334,7 +334,7 @@ private fun DueDateSelectionBottomSheet(
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
                 Column {
-                    DueDateFilter.entries.forEachIndexed { index, filter ->
+                    PlannedDateFilter.entries.forEachIndexed { index, filter ->
                         ListItem(
                             colors = if (filter == selectedFilter) {
                                 ListItemDefaults.colors(
@@ -345,7 +345,7 @@ private fun DueDateSelectionBottomSheet(
                             modifier = Modifier.clickable {
                                 scope.launch {
                                     sheetState.hide()
-                                    onDueDateFilterChange(filter)
+                                    onPlannedDateFilterChange(filter)
                                 }
                             }) {
                             Text(
@@ -353,7 +353,7 @@ private fun DueDateSelectionBottomSheet(
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
-                        if (index < DueDateFilter.entries.size - 1) {
+                        if (index < PlannedDateFilter.entries.size - 1) {
                             HorizontalDivider(
                                 thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant
                             )
@@ -376,7 +376,7 @@ private fun TodoItemPreview() {
                 id = 1,
                 title = "Grocery Shopping",
                 description = "Visit the local farmers market to pick up fresh seasonal vegetables, organic fruits, and the special sourdough bread that the whole family loves for Sunday brunch.",
-                targetDate = LocalDate.now(),
+                plannedDate = LocalDate.now(),
                 tag = TodoTag.SHOPPING
             ),
             index = 0,

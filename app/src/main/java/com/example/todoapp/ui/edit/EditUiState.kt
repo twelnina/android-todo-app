@@ -12,7 +12,7 @@ data class EditUiState(
     val id: Int = 0,
     val title: String = "",
     val description: String = "",
-    val targetDate: LocalDate? = null,
+    val plannedDate: LocalDate? = null,
     val selectedTag: TodoTag? = null,
 
     val isCompleted: Boolean = false
@@ -23,7 +23,7 @@ data class EditUiState(
         get() = originalTodo != null && (
                 title != originalTodo.title ||
                         description != originalTodo.description ||
-                        targetDate != originalTodo.targetDate ||
+                        plannedDate != originalTodo.plannedDate ||
                         selectedTag != originalTodo.tag
                 )
 }

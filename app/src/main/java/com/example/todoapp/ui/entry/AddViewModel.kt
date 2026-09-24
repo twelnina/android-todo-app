@@ -48,10 +48,10 @@ class AddViewModel(
         }
     }
 
-    fun updateTargetDate(newTargetDate: LocalDate?) {
+    fun updatePlannedDate(newPlannedDate: LocalDate?) {
         _uiState.update { currentState ->
             currentState.copy(
-                targetDate = newTargetDate
+                plannedDate = newPlannedDate
             )
         }
     }
@@ -71,7 +71,7 @@ class AddViewModel(
                     TodoEntity(
                         title = title,
                         description = description,
-                        targetDate = targetDate,
+                        plannedDate = plannedDate,
                         tag = selectedTag
                     )
                 )
