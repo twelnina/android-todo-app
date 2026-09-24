@@ -11,6 +11,7 @@ data class TodoDateGroup(
 )
 
 data class ListUiState(
+    val today: LocalDate? = null,
     val searchQuery: String = "",
     val selectedTags: Set<TodoTag> = emptySet(),
     val selectedPlannedDateFilter: PlannedDateFilter = PlannedDateFilter.ALL,

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.todoapp.TodoApplication
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.data.repository.TodoRepository
+import com.example.todoapp.data.time.CurrentDateProvider
 import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.model.TodoTag
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,32 +24,41 @@ import java.time.temporal.TemporalAdjusters
 
 class ListViewModel(
     private val todoRepository: TodoRepository,
+    private val currentDateProvider: CurrentDateProvider,
     initialPlannedDateFilter: PlannedDateFilter = PlannedDateFilter.ALL
 ) : ViewModel() {
-    private val _searchQuery = MutableStateFlow("")
-    private val _selectedTags = MutableStateFlow<Set<TodoTag>>(emptySet())
-    private val _selectedPlannedDateFilter = MutableStateFlow(initialPlannedDateFilter)
-    private val _showBottomSheet = MutableStateFlow(false)
+    private data class ControlsState(
+        val searchQuery: String = "",
+        val selectedTags: Set<TodoTag> = emptySet(),
+        val selectedPlannedDateFilter: PlannedDateFilter,
+        val showBottomSheet: Boolean = false
+    )
+
+    private val _controlsState = MutableStateFlow(
+        ControlsState(
+            selectedPlannedDateFilter = initialPlannedDateFilter
+        )
+    )
 
     val uiState: StateFlow<ListUiState> = combine(
+        currentDateProvider.observeDate(),
         todoRepository.getAllItems(),
-        _searchQuery,
-        _selectedTags,
-        _selectedPlannedDateFilter,
-        _showBottomSheet
-    ) { items, query, selectedTags, plannedDateFilter, showSheet ->
+        _controlsState
+    ) { today, items, controls ->
         val filteredTodos = filterTodos(
             items = items,
-            query = query,
-            tags = selectedTags,
-            plannedDateFilter = plannedDateFilter
+            query = controls.searchQuery,
+            tags = controls.selectedTags,
+            plannedDateFilter = controls.selectedPlannedDateFilter,
+            today = today
         )
 
         ListUiState(
-            searchQuery = query,
-            selectedTags = selectedTags,
-            selectedPlannedDateFilter = plannedDateFilter,
-            showBottomSheet = showSheet,
+            today = today,
+            searchQuery = controls.searchQuery,
+            selectedTags = controls.selectedTags,
+            selectedPlannedDateFilter = controls.selectedPlannedDateFilter,
+            showBottomSheet = controls.showBottomSheet,
             todoGroups = groupTodosByDate(filteredTodos)
         )
     }.stateIn(
@@ -60,26 +70,42 @@ class ListViewModel(
     )
 
     fun onQueryChange(newQuery: String) {
-        _searchQuery.value = newQuery
+        _controlsState.update { currentState ->
+            currentState.copy(searchQuery = newQuery)
+        }
     }
 
     fun onTagSelected(tag: TodoTag) {
-        _selectedTags.update { currentState ->
-            if (tag in currentState) currentState - tag else currentState + tag
+        _controlsState.update { currentState ->
+            val selectedTags = if (tag in currentState.selectedTags) {
+                currentState.selectedTags - tag
+            } else {
+                currentState.selectedTags + tag
+            }
+
+            currentState.copy(selectedTags = selectedTags)
         }
     }
 
     fun onPlannedDateFilterSelected(filter: PlannedDateFilter) {
-        _selectedPlannedDateFilter.value = filter
-        _showBottomSheet.value = false
+        _controlsState.update { currentState ->
+            currentState.copy(
+                selectedPlannedDateFilter = filter,
+                showBottomSheet = false
+            )
+        }
     }
 
     fun showBottomSheet() {
-        _showBottomSheet.value = true
+        _controlsState.update { currentState ->
+            currentState.copy(showBottomSheet = true)
+        }
     }
 
     fun dismissBottomSheet() {
-        _showBottomSheet.value = false
+        _controlsState.update { currentState ->
+            currentState.copy(showBottomSheet = false)
+        }
     }
 
     fun updateCompleted(todo: TodoEntity, isCompleted: Boolean) {
@@ -101,6 +127,7 @@ class ListViewModel(
 
                 ListViewModel(
                     todoRepository = repository,
+                    currentDateProvider = application.currentDateProvider,
                     initialPlannedDateFilter = initialPlannedDateFilter
                 )
             }
@@ -114,7 +141,7 @@ internal fun filterTodos(
     query: String,
     tags: Set<TodoTag>,
     plannedDateFilter: PlannedDateFilter,
-    today: LocalDate = LocalDate.now()
+    today: LocalDate
 ): List<TodoEntity> {
     return items.filter { item ->
         val matchesQuery =
