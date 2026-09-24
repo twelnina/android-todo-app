@@ -17,6 +17,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 
 class ListViewModel(
     private val todoRepository: TodoRepository,
@@ -103,4 +106,59 @@ class ListViewModel(
             }
         }
     }
+}
+
+
+internal fun filterTodos(
+    items: List<TodoEntity>,
+    query: String,
+    tags: Set<TodoTag>,
+    plannedDateFilter: PlannedDateFilter,
+    today: LocalDate = LocalDate.now()
+): List<TodoEntity> {
+    return items.filter { item ->
+        val matchesQuery =
+            item.title.contains(query, ignoreCase = true) ||
+                    item.description.contains(query, ignoreCase = true)
+        val matchesTag = if (tags.isEmpty()) {
+            true
+        } else {
+            item.tag in tags
+        }
+        val matchesDate = when (plannedDateFilter) {
+            PlannedDateFilter.ALL -> true
+            PlannedDateFilter.TODAY -> item.plannedDate == today
+            PlannedDateFilter.TOMORROW -> item.plannedDate == today.plusDays(1)
+            PlannedDateFilter.THIS_WEEK -> {
+                val endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+                item.plannedDate?.let { date ->
+                    (date.isEqual(today) || date.isAfter(today)) &&
+                            (date.isEqual(endOfWeek) || date.isBefore(endOfWeek))
+                } ?: false
+            }
+
+            PlannedDateFilter.PAST_INCOMPLETE -> !item.isCompleted &&
+                    (item.plannedDate?.isBefore(today) ?: false)
+
+            PlannedDateFilter.UNSCHEDULED -> item.plannedDate == null
+        }
+
+        matchesQuery && matchesTag && matchesDate
+    }
+}
+
+internal fun groupTodosByDate(todos: List<TodoEntity>): List<TodoDateGroup> {
+    return todos
+        .groupBy { todo -> todo.plannedDate }
+        .map { (date, todoForDate) ->
+            TodoDateGroup(date, todoForDate)
+        }
+        .sortedWith { firstGroup, secondGroup ->
+            when {
+                firstGroup.date == null && secondGroup.date == null -> 0
+                firstGroup.date == null -> 1
+                secondGroup.date == null -> -1
+                else -> firstGroup.date.compareTo(secondGroup.date)
+            }
+        }
 }
