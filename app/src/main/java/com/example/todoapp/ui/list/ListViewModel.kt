@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.todoapp.TodoApplication
+import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.data.repository.TodoRepository
 import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.model.TodoTag
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class ListViewModel(
     private val todoRepository: TodoRepository,
@@ -75,6 +77,14 @@ class ListViewModel(
 
     fun dismissBottomSheet() {
         _showBottomSheet.value = false
+    }
+
+    fun updateCompleted(todo: TodoEntity, isCompleted: Boolean) {
+        viewModelScope.launch {
+            todoRepository.update(
+                todo.copy(isCompleted = isCompleted)
+            )
+        }
     }
 
     companion object {

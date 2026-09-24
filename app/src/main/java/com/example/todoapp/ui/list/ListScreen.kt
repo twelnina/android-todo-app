@@ -22,11 +22,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -50,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,7 +62,6 @@ import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.model.TodoTag
-import com.example.todoapp.ui.components.TagChip
 import com.example.todoapp.ui.components.TodoSearchBar
 import com.example.todoapp.ui.theme.TodoAppTheme
 import kotlinx.coroutines.flow.drop
@@ -74,12 +76,17 @@ private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH
 fun ListScreen(
     onEditTodo: (Int) -> Unit,
     initialPlannedDateFilter: PlannedDateFilter = PlannedDateFilter.ALL,
-    viewModel: ListViewModel = viewModel(factory = ListViewModel.createFactory(initialPlannedDateFilter))
+    viewModel: ListViewModel = viewModel(
+        factory = ListViewModel.createFactory(
+            initialPlannedDateFilter
+        )
+    )
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     ListScreenContent(
         uiState = uiState,
+        onCheckedChange = viewModel::updateCompleted,
         onQueryChange = viewModel::onQueryChange,
         onTagSelected = viewModel::onTagSelected,
         onPlannedDateChipClick = viewModel::showBottomSheet,
@@ -92,6 +99,7 @@ fun ListScreen(
 @Composable
 internal fun ListScreenContent(
     uiState: ListUiState,
+    onCheckedChange: (TodoEntity, Boolean) -> Unit,
     onQueryChange: (String) -> Unit,
     onTagSelected: (TodoTag) -> Unit,
     onPlannedDateChipClick: () -> Unit,
@@ -169,6 +177,7 @@ internal fun ListScreenContent(
                         todoItemInfo = todo,
                         index = index,
                         count = group.todos.size,
+                        onCheckedChange = onCheckedChange,
                         onEditTodo = onEditTodo,
                         modifier = Modifier.animateItem()
                     )
@@ -272,17 +281,49 @@ private fun TodoItem(
     todoItemInfo: TodoEntity,
     index: Int,
     count: Int,
+    onCheckedChange: (TodoEntity, Boolean) -> Unit,
     onEditTodo: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val containerColor = if (todoItemInfo.isCompleted) {
+        MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.35f)
+    } else {
+        MaterialTheme.colorScheme.surfaceContainer
+    }
+
+    val contentColor = if (todoItemInfo.isCompleted) {
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
     SegmentedListItem(
         onClick = { onEditTodo(todoItemInfo.id) },
         shapes = ListItemDefaults.segmentedShapes(index, count),
         colors = ListItemDefaults.segmentedColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
+            containerColor = containerColor,
+            contentColor = contentColor,
+            leadingContentColor = contentColor,
+            supportingContentColor = contentColor
         ),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.padding(bottom = ListItemDefaults.SegmentedGap),
+        leadingContent = {
+            Checkbox(
+                checked = todoItemInfo.isCompleted,
+                onCheckedChange = { checked ->
+                    onCheckedChange(todoItemInfo, checked)
+                }
+            )
+        },
+        trailingContent = {
+            IconButton(onClick = {}) {
+                Icon(
+                    painter = painterResource(R.drawable.more_vert_24px),
+                    contentDescription = null
+                )
+            }
+        },
         supportingContent = {
             Text(
                 text = todoItemInfo.description,
@@ -290,18 +331,12 @@ private fun TodoItem(
                 lineHeight = 18.sp
             )
         },
-        trailingContent = {
-            todoItemInfo.tag?.let { tag ->
-                TagChip(
-                    tag = tag,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-            }
-        }
     ) {
         Text(
             text = todoItemInfo.title,
             fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(vertical = 4.dp)
         )
     }
@@ -381,6 +416,7 @@ private fun TodoItemPreview() {
             ),
             index = 0,
             count = 1,
+            onCheckedChange = { _, _ -> },
             onEditTodo = {}
         )
     }
