@@ -116,6 +116,21 @@ class ListViewModel(
         }
     }
 
+    fun updatePlannedDate(todo: TodoEntity, newPlannedDate: LocalDate) {
+        viewModelScope.launch {
+            todoRepository.update(
+                todo.copy(plannedDate = newPlannedDate)
+            )
+        }
+    }
+
+    fun deleteTodo(todo: TodoEntity, onDeleted: (TodoEntity) -> Unit) {
+        viewModelScope.launch {
+            todoRepository.delete(todo)
+            onDeleted(todo)
+        }
+    }
+
     companion object {
         fun createFactory(
             initialPlannedDateFilter: PlannedDateFilter = PlannedDateFilter.ALL

@@ -43,6 +43,9 @@ fun TodoItem(
     expanded: Boolean,
     onCheckedChange: (TodoEntity, Boolean) -> Unit,
     onMoreClick: () -> Unit,
+    onChangePlannedDate: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val quickActionsWidth = 176.dp
@@ -73,9 +76,9 @@ fun TodoItem(
             Box(modifier = Modifier.matchParentSize()) {
                 TodoQuickActions(
                     enabled = expanded,
-                    onChangePlannedDate = {},
-                    onEdit = {},
-                    onDelete = {},
+                    onChangePlannedDate = onChangePlannedDate,
+                    onEdit = onEdit,
+                    onDelete = onDelete,
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .fillMaxHeight()
@@ -106,7 +109,7 @@ fun TodoItem(
                     IconButton(onClick = onMoreClick) {
                         Icon(
                             painter = painterResource(R.drawable.more_vert_24px),
-                            contentDescription = null
+                            contentDescription = stringResource(R.string.more_options)
                         )
                     }
                 },

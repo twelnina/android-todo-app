@@ -51,6 +51,7 @@ import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.model.TodoTag
+import com.example.todoapp.ui.component.dialogs.PlannedDatePickerDialog
 import com.example.todoapp.ui.list.component.TodoItem
 import com.example.todoapp.ui.list.component.TodoListControls
 import com.example.todoapp.ui.theme.TodoAppTheme
@@ -65,7 +66,8 @@ private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH
 @Composable
 fun ListScreen(
     initialPlannedDateFilter: PlannedDateFilter = PlannedDateFilter.ALL,
-    onEdit : (Int) -> Unit,
+    onEdit: (Int) -> Unit,
+    onDeleted: (TodoEntity) -> Unit,
     viewModel: ListViewModel = viewModel(
         factory = ListViewModel.createFactory(
             initialPlannedDateFilter
@@ -77,6 +79,13 @@ fun ListScreen(
     ListScreenContent(
         uiState = uiState,
         onCheckedChange = viewModel::updateCompleted,
+        onPlannedDateChange = viewModel::updatePlannedDate,
+        onDelete = { todo ->
+            viewModel.deleteTodo(
+                todo = todo,
+                onDeleted = onDeleted
+            )
+        },
         onEdit = onEdit,
         onQueryChange = viewModel::onQueryChange,
         onTagSelected = viewModel::onTagSelected,
@@ -90,6 +99,8 @@ fun ListScreen(
 internal fun ListScreenContent(
     uiState: ListUiState,
     onCheckedChange: (TodoEntity, Boolean) -> Unit,
+    onPlannedDateChange: (TodoEntity, LocalDate) -> Unit,
+    onDelete: (TodoEntity) -> Unit,
     onEdit: (Int) -> Unit,
     onQueryChange: (String) -> Unit,
     onTagSelected: (TodoTag) -> Unit,
@@ -100,6 +111,16 @@ internal fun ListScreenContent(
     val listState = rememberLazyListState()
 
     var expandedTodoId by rememberSaveable { mutableStateOf<Int?>(null) }
+
+    var dateChangeTodoId by rememberSaveable { mutableStateOf<Int?>(null) }
+    val todoForDateChange = uiState.todoGroups
+        .asSequence()
+        .flatMap { group ->
+            group.todos.asSequence()
+        }
+        .firstOrNull { todo ->
+            todo.id == dateChangeTodoId
+        }
 
     val filterKey = Triple(
         uiState.searchQuery,
@@ -168,6 +189,18 @@ internal fun ListScreenContent(
                         onMoreClick = {
                             expandedTodoId = if (expanded) null else todo.id
                         },
+                        onChangePlannedDate = {
+                            expandedTodoId = null
+                            dateChangeTodoId = todo.id
+                        },
+                        onEdit = {
+                            expandedTodoId = null
+                            onEdit(todo.id)
+                        },
+                        onDelete = {
+                            expandedTodoId = null
+                            onDelete(todo)
+                        },
                         modifier = Modifier.animateItem()
                     )
                 }
@@ -183,6 +216,21 @@ internal fun ListScreenContent(
         )
     }
 
+    val today = uiState.today
+
+    if (todoForDateChange != null && today != null) {
+        PlannedDatePickerDialog(
+            today = today,
+            previousDate = todoForDateChange.plannedDate,
+            onDismissRequest = {
+                dateChangeTodoId = null
+            },
+            onConfirmRequest = { newDate ->
+                onPlannedDateChange(todoForDateChange, newDate)
+                dateChangeTodoId = null
+            }
+        )
+    }
 }
 
 @Composable
@@ -209,7 +257,6 @@ private fun TodoDateHeader(date: LocalDate?, modifier: Modifier = Modifier) {
         )
     }
 }
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -289,6 +336,9 @@ private fun TodoItemPreview() {
             expanded = false,
             onCheckedChange = { _, _ -> },
             onMoreClick = {},
+            onChangePlannedDate = {},
+            onDelete = {},
+            onEdit = {}
         )
     }
 }
