@@ -43,12 +43,13 @@ class ListScreenTest {
             TodoAppTheme {
                 ListScreenContent(
                     uiState = uiState,
+                    onCheckedChange = { _, _ -> },
                     onQueryChange = {},
                     onTagSelected = {},
                     onPlannedDateChipClick = {},
                     onPlannedDateFilterChange = {},
                     onDismissRequest = {},
-                    onEditTodo = {}
+                    onEdit = {}
                 )
             }
         }
@@ -70,6 +71,7 @@ class ListScreenTest {
             TodoAppTheme {
                 ListScreenContent(
                     uiState = ListUiState(searchQuery = query.value),
+                    onCheckedChange = { _, _ -> },
                     onQueryChange = { newQuery ->
                         query.value = newQuery
                     },
@@ -77,7 +79,7 @@ class ListScreenTest {
                     onPlannedDateChipClick = {},
                     onPlannedDateFilterChange = {},
                     onDismissRequest = {},
-                    onEditTodo = {}
+                    onEdit = {}
                 )
             }
         }
@@ -99,6 +101,7 @@ class ListScreenTest {
             TodoAppTheme {
                 ListScreenContent(
                     uiState = ListUiState(),
+                    onCheckedChange = { _, _ -> },
                     onQueryChange = {},
                     onTagSelected = { tag ->
                         selectedTag = tag
@@ -106,7 +109,7 @@ class ListScreenTest {
                     onPlannedDateChipClick = {},
                     onPlannedDateFilterChange = {},
                     onDismissRequest = {},
-                    onEditTodo = {}
+                    onEdit = {}
                 )
             }
         }
@@ -129,6 +132,7 @@ class ListScreenTest {
             TodoAppTheme {
                 ListScreenContent(
                     uiState = ListUiState(showBottomSheet = showBottomSheet.value),
+                    onCheckedChange = { _, _ -> },
                     onQueryChange = {},
                     onTagSelected = {},
                     onPlannedDateChipClick = {
@@ -139,7 +143,7 @@ class ListScreenTest {
                         showBottomSheet.value = false
                     },
                     onDismissRequest = { showBottomSheet.value = false },
-                    onEditTodo = {}
+                    onEdit = {}
                 )
             }
         }
@@ -179,12 +183,13 @@ class ListScreenTest {
             TodoAppTheme {
                 ListScreenContent(
                     uiState = uiState,
+                    onCheckedChange = { _, _ -> },
                     onQueryChange = {},
                     onTagSelected = {},
                     onPlannedDateChipClick = {},
                     onPlannedDateFilterChange = {},
                     onDismissRequest = {},
-                    onEditTodo = {}
+                    onEdit = {}
                 )
             }
         }
@@ -220,12 +225,13 @@ class ListScreenTest {
             TodoAppTheme {
                 ListScreenContent(
                     uiState = uiState,
+                    onCheckedChange = { _, _ -> },
                     onQueryChange = {},
                     onTagSelected = {},
                     onPlannedDateChipClick = {},
                     onPlannedDateFilterChange = {},
                     onDismissRequest = {},
-                    onEditTodo = { todoId ->
+                    onEdit = { todoId ->
                         editedTodoId = todoId
                     }
                 )

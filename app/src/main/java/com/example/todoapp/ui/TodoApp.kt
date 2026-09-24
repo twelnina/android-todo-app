@@ -177,7 +177,7 @@ fun TodoApp(
                     }
                     entry<AppNavKey.TodoList> { key ->
                         ListScreen(
-                            onEditTodo = { id ->
+                            onEdit = { id ->
                                 snackbarHostState.currentSnackbarData?.dismiss()
                                 backStack.add(AppNavKey.EditTodo(id))
                             },

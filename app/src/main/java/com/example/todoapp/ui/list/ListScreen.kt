@@ -22,18 +22,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
@@ -42,20 +39,20 @@ import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
@@ -63,6 +60,7 @@ import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.components.TodoSearchBar
+import com.example.todoapp.ui.list.component.TodoItem
 import com.example.todoapp.ui.theme.TodoAppTheme
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
@@ -74,8 +72,8 @@ private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH
 
 @Composable
 fun ListScreen(
-    onEditTodo: (Int) -> Unit,
     initialPlannedDateFilter: PlannedDateFilter = PlannedDateFilter.ALL,
+    onEdit : (Int) -> Unit,
     viewModel: ListViewModel = viewModel(
         factory = ListViewModel.createFactory(
             initialPlannedDateFilter
@@ -87,12 +85,12 @@ fun ListScreen(
     ListScreenContent(
         uiState = uiState,
         onCheckedChange = viewModel::updateCompleted,
+        onEdit = onEdit,
         onQueryChange = viewModel::onQueryChange,
         onTagSelected = viewModel::onTagSelected,
         onPlannedDateChipClick = viewModel::showBottomSheet,
         onPlannedDateFilterChange = viewModel::onPlannedDateFilterSelected,
         onDismissRequest = viewModel::dismissBottomSheet,
-        onEditTodo = onEditTodo
     )
 }
 
@@ -100,14 +98,16 @@ fun ListScreen(
 internal fun ListScreenContent(
     uiState: ListUiState,
     onCheckedChange: (TodoEntity, Boolean) -> Unit,
+    onEdit: (Int) -> Unit,
     onQueryChange: (String) -> Unit,
     onTagSelected: (TodoTag) -> Unit,
     onPlannedDateChipClick: () -> Unit,
     onPlannedDateFilterChange: (PlannedDateFilter) -> Unit,
     onDismissRequest: () -> Unit,
-    onEditTodo: (Int) -> Unit
 ) {
     val listState = rememberLazyListState()
+
+    var expandedTodoId by rememberSaveable { mutableStateOf<Int?>(null) }
 
     val filterKey = Triple(
         uiState.searchQuery,
@@ -173,12 +173,17 @@ internal fun ListScreenContent(
                     items = group.todos,
                     key = { _, todo -> todo.id }
                 ) { index, todo ->
+                    val expanded = expandedTodoId == todo.id
+
                     TodoItem(
                         todoItemInfo = todo,
                         index = index,
                         count = group.todos.size,
+                        expanded = expanded,
                         onCheckedChange = onCheckedChange,
-                        onEditTodo = onEditTodo,
+                        onMoreClick = {
+                            expandedTodoId = if (expanded) null else todo.id
+                        },
                         modifier = Modifier.animateItem()
                     )
                 }
@@ -276,71 +281,7 @@ private fun TodoDateHeader(date: LocalDate?, modifier: Modifier = Modifier) {
     }
 }
 
-@Composable
-private fun TodoItem(
-    todoItemInfo: TodoEntity,
-    index: Int,
-    count: Int,
-    onCheckedChange: (TodoEntity, Boolean) -> Unit,
-    onEditTodo: (Int) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val containerColor = if (todoItemInfo.isCompleted) {
-        MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.35f)
-    } else {
-        MaterialTheme.colorScheme.surfaceContainer
-    }
 
-    val contentColor = if (todoItemInfo.isCompleted) {
-        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
-
-    SegmentedListItem(
-        onClick = { onEditTodo(todoItemInfo.id) },
-        shapes = ListItemDefaults.segmentedShapes(index, count),
-        colors = ListItemDefaults.segmentedColors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            leadingContentColor = contentColor,
-            supportingContentColor = contentColor
-        ),
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier.padding(bottom = ListItemDefaults.SegmentedGap),
-        leadingContent = {
-            Checkbox(
-                checked = todoItemInfo.isCompleted,
-                onCheckedChange = { checked ->
-                    onCheckedChange(todoItemInfo, checked)
-                }
-            )
-        },
-        trailingContent = {
-            IconButton(onClick = {}) {
-                Icon(
-                    painter = painterResource(R.drawable.more_vert_24px),
-                    contentDescription = null
-                )
-            }
-        },
-        supportingContent = {
-            Text(
-                text = todoItemInfo.description,
-                fontSize = 12.sp,
-                lineHeight = 18.sp
-            )
-        },
-    ) {
-        Text(
-            text = todoItemInfo.title,
-            fontWeight = FontWeight.SemiBold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(vertical = 4.dp)
-        )
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -416,8 +357,9 @@ private fun TodoItemPreview() {
             ),
             index = 0,
             count = 1,
+            expanded = false,
             onCheckedChange = { _, _ -> },
-            onEditTodo = {}
+            onMoreClick = {},
         )
     }
 }
