@@ -59,7 +59,7 @@ import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.model.TodoTag
-import com.example.todoapp.ui.components.TodoSearchBar
+import com.example.todoapp.ui.component.TodoSearchBar
 import com.example.todoapp.ui.list.component.TodoItem
 import com.example.todoapp.ui.theme.TodoAppTheme
 import kotlinx.coroutines.flow.drop

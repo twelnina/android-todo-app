@@ -1,4 +1,4 @@
-package com.example.todoapp.ui.components
+package com.example.todoapp.ui.component
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
