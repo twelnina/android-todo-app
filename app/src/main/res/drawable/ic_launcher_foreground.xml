@@ -4,74 +4,79 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-  <group android:scaleX="0.77"
-      android:scaleY="0.77"
-      android:translateX="12.42"
-      android:translateY="12.42">
+  <group android:scaleX="0.65"
+      android:scaleY="0.65"
+      android:translateX="18.9"
+      android:translateY="18.9">
 
-      <!-- Checklist frame -->
-      <path
-          android:fillColor="@android:color/transparent"
-          android:strokeColor="#FFFFFFFF"
-          android:strokeWidth="4.8"
-          android:strokeLineCap="round"
-          android:strokeLineJoin="round"
-          android:pathData="M37,28 H71
-                            Q74,28 74,31
-                            V77
-                            Q74,80 71,80
-                            H37
-                            Q34,80 34,77
-                            V31
-                            Q34,28 37,28 Z" />
+      <!--
+          Android adaptive icon safe-zone adjustment:
+          the original Fold geometry is uniformly scaled around the center so that
+          the complete mark stays inside the guaranteed 66x66dp region.
+      -->
+      <group
+          android:pivotX="54"
+          android:pivotY="54"
+          android:scaleX="0.925"
+          android:scaleY="0.925">
 
-      <!-- Check 1 -->
-      <path
-          android:fillColor="@android:color/transparent"
-          android:strokeColor="#FFFFFFFF"
-          android:strokeWidth="4.8"
-          android:strokeLineCap="round"
-          android:strokeLineJoin="round"
-          android:pathData="M41,42 L45,46 L51,38" />
+          <!-- Rear folded card -->
+          <group
+              android:pivotX="54"
+              android:pivotY="54"
+              android:rotation="-12">
+              <path
+                  android:fillColor="#C5CBFF"
+                  android:fillAlpha="0.28"
+                  android:pathData="
+                      M44.5,25.75
+                      H69.5
+                      A13,13 0,0 1 82.5,38.75
+                      V73.25
+                      A13,13 0,0 1 69.5,86.25
+                      H44.5
+                      A13,13 0,0 1 31.5,73.25
+                      V38.75
+                      A13,13 0,0 1 44.5,25.75
+                      Z" />
+          </group>
 
-      <!-- Row 1 -->
-      <path
-          android:fillColor="@android:color/transparent"
-          android:strokeColor="#FFFFFFFF"
-          android:strokeWidth="4.8"
-          android:strokeLineCap="round"
-          android:pathData="M56,42 H66" />
+          <!-- Front task card -->
+          <group
+              android:pivotX="54"
+              android:pivotY="54"
+              android:rotation="7">
+              <path
+                  android:fillColor="#FAFAFF"
+                  android:pathData="
+                      M40.75,23.5
+                      H67.75
+                      A14.5,14.5 0,0 1 82.25,38
+                      V72
+                      A14.5,14.5 0,0 1 67.75,86.5
+                      H40.75
+                      A14.5,14.5 0,0 1 26.25,72
+                      V38
+                      A14.5,14.5 0,0 1 40.75,23.5
+                      Z" />
 
-      <!-- Check 2 -->
-      <path
-          android:fillColor="@android:color/transparent"
-          android:strokeColor="#FFFFFFFF"
-          android:strokeWidth="4.8"
-          android:strokeLineCap="round"
-          android:strokeLineJoin="round"
-          android:pathData="M41,56 L45,60 L51,52" />
+              <path
+                  android:fillColor="@android:color/transparent"
+                  android:strokeColor="#4F46E5"
+                  android:strokeWidth="7.75"
+                  android:strokeLineCap="round"
+                  android:strokeLineJoin="round"
+                  android:pathData="M37.25,56 L48.75,66.75 L71.75,41" />
+          </group>
 
-      <!-- Row 2 -->
-      <path
-          android:fillColor="@android:color/transparent"
-          android:strokeColor="#FFFFFFFF"
-          android:strokeWidth="4.8"
-          android:strokeLineCap="round"
-          android:pathData="M56,56 H66" />
-
-      <!-- Unchecked item -->
-      <path
-          android:fillColor="#FFFFFFFF"
-          android:pathData="M45,66
-                            A3,3 0,1 1,45,72
-                            A3,3 0,1 1,45,66 Z" />
-
-      <!-- Row 3 -->
-      <path
-          android:fillColor="@android:color/transparent"
-          android:strokeColor="#FFFFFFFF"
-          android:strokeWidth="4.8"
-          android:strokeLineCap="round"
-          android:pathData="M56,69 H66" />
+          <!-- Mint accent dot -->
+          <path
+              android:fillColor="#84F1D0"
+              android:pathData="
+                  M83.25,25.75
+                  A2.75,2.75 0,1 1 77.75,25.75
+                  A2.75,2.75 0,1 1 83.25,25.75
+                  Z" />
+      </group>
   </group>
 </vector>
