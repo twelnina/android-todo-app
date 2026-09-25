@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.todoapp.R
 import com.example.todoapp.model.TodoTag
+import com.example.todoapp.ui.theme.TodoAppTheme
 
 @Composable
 fun TagSelector(
@@ -23,12 +24,15 @@ fun TagSelector(
     onTagChange: (TodoTag) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val tagColors = TodoAppTheme.tagColors
+
     Column(modifier = modifier) {
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             TodoTag.entries.forEach { tag ->
+                val tagColor = tagColors.colorFor(tag)
                 FilterChip(
                     selected = selectedTag == tag,
                     onClick = { onTagChange(tag) },
@@ -43,7 +47,7 @@ fun TagSelector(
                         }
                     } else null,
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = tag.color.copy(alpha = 0.2f)
+                        selectedContainerColor = tagColor.copy(alpha = 0.2f)
                     )
                 )
             }

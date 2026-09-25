@@ -1,15 +1,14 @@
 package com.example.todoapp.model
 
 import androidx.annotation.StringRes
-import androidx.compose.ui.graphics.Color
 import com.example.todoapp.R
 
-enum class TodoTag(@get:StringRes val labelRes: Int, val color: Color) {
-    STUDY(R.string.todo_tag_study, Color(0xFFD1E4FF)),
-    WORK(R.string.todo_tag_work, Color(0xFFB4F2BE)),
-    HEALTH(R.string.todo_tag_health, Color(0xFFFFDAD6)),
-    HOBBY(R.string.todo_tag_hobby, Color(0xFFF5D9FF)),
-    SHOPPING(R.string.todo_tag_shopping, Color(0xFFFFF0AD))
+enum class TodoTag(@get:StringRes val labelRes: Int) {
+    STUDY(R.string.todo_tag_study),
+    WORK(R.string.todo_tag_work),
+    HEALTH(R.string.todo_tag_health),
+    HOBBY(R.string.todo_tag_hobby),
+    SHOPPING(R.string.todo_tag_shopping)
 }
 
 enum class PlannedDateFilter(@get:StringRes val labelRes: Int) {
