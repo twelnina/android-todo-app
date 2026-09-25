@@ -95,12 +95,12 @@ private fun EditScreenContent(
         topBar = {
             @OptIn(ExperimentalMaterial3Api::class)
             TopAppBar(
-                title = { Text(stringResource(R.string.edit_todo)) },
+                title = { Text(stringResource(R.string.todo_edit_screen_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             painter = painterResource((R.drawable.arrow_back_24px)),
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = stringResource(R.string.common_action_back)
                         )
                     }
                 }
@@ -124,7 +124,7 @@ private fun EditScreenContent(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = stringResource(R.string.delete),
+                            text = stringResource(R.string.todo_editor_action_delete),
                             color = MaterialTheme.colorScheme.error
                         )
                     }
@@ -134,7 +134,7 @@ private fun EditScreenContent(
                     enabled = uiState.hasRequiredFields && uiState.hasChanges,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = stringResource(R.string.done))
+                    Text(text = stringResource(R.string.todo_editor_action_done))
                 }
             }
         }

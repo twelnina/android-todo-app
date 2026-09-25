@@ -92,7 +92,11 @@ internal fun CardItem(
                                 modifier = Modifier.size(14.dp)
                             )
                             Text(
-                                text = pluralStringResource(R.plurals.days_since_planned_date, days, days),
+                                text = pluralStringResource(
+                                    R.plurals.todo_card_status_days_since_planned_date,
+                                    days,
+                                    days
+                                ),
                                 color = MaterialTheme.colorScheme.onErrorContainer,
                                 fontSize = 12.sp,
                                 lineHeight = 16.sp
@@ -138,7 +142,9 @@ internal fun CardItem(
                             )
                             Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                             Text(
-                                text = stringResource(R.string.change_planned_date),
+                                text = stringResource(
+                                    R.string.todo_card_action_change_planned_date
+                                ),
                                 style = MaterialTheme.typography.labelMedium
                             )
                         }
@@ -151,7 +157,7 @@ internal fun CardItem(
                         )
                         Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                         Text(
-                            text = stringResource(R.string.edit_todo),
+                            text = stringResource(R.string.todo_card_action_edit),
                             style = MaterialTheme.typography.labelMedium
                         )
                     }

@@ -1,78 +1,98 @@
 <resources>
+    <!-- Application -->
     <string name="app_name">ToDoApp</string>
 
+    <!-- Navigation -->
+    <string name="navigation_destination_home">Home</string>
+    <string name="navigation_destination_list">List</string>
+    <string name="navigation_destination_calendar">Calendar</string>
+    <string name="navigation_action_add_todo">Add Todo</string>
 
-    <string name="home">Home</string>
-    <string name="list">List</string>
-    <string name="calendar">Calendar</string>
-    <string name="previous_date">Previous day</string>
-    <string name="next_date">Next day</string>
+    <!-- Common actions -->
+    <string name="common_action_back">Back</string>
+    <string name="common_action_cancel">Cancel</string>
+    <string name="common_action_ok">OK</string>
 
-    <string name="today_section_title">Today(%d)</string>
-    <string name="past_incomplete_section_title">Past unfinished(%d)</string>
+    <!-- Todo editor -->
+    <string name="todo_add_screen_title">Add Todo</string>
+    <string name="todo_edit_screen_title">Edit Todo</string>
+    <string name="todo_editor_field_title">Title</string>
+    <string name="todo_editor_field_description">Description</string>
+    <string name="todo_editor_section_planned_date">Planned date</string>
+    <string name="todo_editor_section_tags">Tags</string>
+    <string name="todo_editor_action_delete">Delete</string>
+    <string name="todo_editor_action_done">Done</string>
 
-    <plurals name="days_since_planned_date">
-        <item quantity="one">Planned %d day ago</item>
-        <item quantity="other">Planned %d days ago</item>
-    </plurals>
+    <!-- Todo tags -->
+    <string name="todo_tag_study">Study</string>
+    <string name="todo_tag_work">Work</string>
+    <string name="todo_tag_health">Health</string>
+    <string name="todo_tag_hobby">Hobby</string>
+    <string name="todo_tag_shopping">Shopping</string>
 
-    <string name="see_all">See all</string>
-
-    <string name="no_todos_today">No todos planned for today</string>
-    <string name="no_past_incomplete_todos">No unfinished todos from earlier days</string>
-    <string name="no_todos_for_selected_date">No todos planned for this day</string>
-
-    <string name="change_planned_date">Change planned date</string>
-
-    <string name="previous">Previous</string>
-    <string name="new_date">New</string>
-    <string name="select_date">Select a date</string>
-
-    <string name="home_message_format">%1$s\n%2$s</string>
-
-    <string name="greeting_morning">Good morning!</string>
-    <string name="greeting_afternoon">Good afternoon!</string>
-    <string name="greeting_evening">Good evening!</string>
-
-    <string-array name="home_phrases">
+    <!-- Home screen -->
+    <string name="home_greeting_morning">Good morning!</string>
+    <string name="home_greeting_afternoon">Good afternoon!</string>
+    <string name="home_greeting_evening">Good evening!</string>
+    <string name="home_greeting_message_format">%1$s\n%2$s</string>
+    <string-array name="home_motivation_phrases">
         <item>Let’s take it one task at a time.</item>
         <item>Small steps can make a big difference.</item>
         <item>Let’s make steady progress today.</item>
         <item>You’ve got this—start with one thing.</item>
     </string-array>
+    <string name="home_section_today_title">Today(%d)</string>
+    <string name="home_empty_message_today">No todos planned for today</string>
+    <string name="home_section_past_incomplete_title">Past unfinished(%d)</string>
+    <string name="home_action_see_all">See all</string>
+    <string name="home_empty_message_past_incomplete">No unfinished todos from earlier days</string>
 
-    <string name="search">Search</string>
-    <string name="title">Title</string>
-    <string name="description">Description</string>
-    <string name="planned_date">Planned date</string>
-    <string name="tags">Tags</string>
-    <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
-    <string name="back">Back</string>
-    <string name="delete">Delete</string>
-    <string name="done">Done</string>
-    <string name="add_todo">Add Todo</string>
-    <string name="edit_todo">Edit Todo</string>
-    <string name="more_options">More options</string>
+    <!-- Calendar screen -->
+    <string name="calendar_action_previous_date">Previous day</string>
+    <string name="calendar_action_next_date">Next day</string>
+    <string name="calendar_empty_message_selected_date">No todos planned for this day</string>
 
-    <string name="all">All</string>
-    <string name="today">Today</string>
-    <string name="tomorrow">Tomorrow</string>
-    <string name="this_week">This week</string>
-    <string name="past_incomplete">Past unfinished</string>
-    <string name="unscheduled">Unscheduled</string>
+    <!-- Todo list -->
+    <string name="todo_list_search_placeholder">Search</string>
+    <string name="todo_list_filter_planned_date">Planned date</string>
+    <string name="todo_list_filter_all">All</string>
+    <string name="todo_list_filter_today">Today</string>
+    <string name="todo_list_filter_tomorrow">Tomorrow</string>
+    <string name="todo_list_filter_this_week">This week</string>
+    <string name="todo_list_filter_past_incomplete">Past unfinished</string>
+    <string name="todo_list_filter_unscheduled">Unscheduled</string>
 
-    <string name="study">Study</string>
-    <string name="work">Work</string>
-    <string name="health">Health</string>
-    <string name="hobby">Hobby</string>
-    <string name="shopping">Shopping</string>
+    <!-- Todo card -->
+    <plurals name="todo_card_status_days_since_planned_date">
+        <item quantity="one">Planned %d day ago</item>
+        <item quantity="other">Planned %d days ago</item>
+    </plurals>
+    <string name="todo_card_action_change_planned_date">Change planned date</string>
+    <string name="todo_card_action_edit">Edit Todo</string>
 
-    <string name="delete_confirmation_title">Delete it?</string>
-    <string name="delete_confirmation_message">You can undo this action for a short time after deletion.</string>
+    <!-- Todo item -->
+    <string name="todo_item_action_more_options">More options</string>
+    <string name="todo_item_action_delete">Delete</string>
+    <string name="todo_item_action_change_planned_date">Change planned date</string>
+    <string name="todo_item_action_edit">Edit Todo</string>
 
-    <string name="todo_added">Todo added</string>
-    <string name="todo_updated">Todo updated</string>
-    <string name="todo_deleted">Todo deleted</string>
-    <string name="undo">Undo</string>
+    <!-- Planned date picker -->
+    <string name="planned_date_picker_status_unscheduled">Unscheduled</string>
+
+    <!-- Planned date dialog -->
+    <string name="planned_date_dialog_title">Change planned date</string>
+    <string name="planned_date_dialog_label_previous">Previous</string>
+    <string name="planned_date_dialog_label_new">New</string>
+    <string name="planned_date_dialog_status_unscheduled">Unscheduled</string>
+
+    <!-- Delete dialog -->
+    <string name="delete_dialog_title">Delete it?</string>
+    <string name="delete_dialog_message">You can undo this action for a short time after deletion.</string>
+    <string name="delete_dialog_action_delete">Delete</string>
+
+    <!-- Snackbar -->
+    <string name="todo_snackbar_added">Todo added</string>
+    <string name="todo_snackbar_updated">Todo updated</string>
+    <string name="todo_snackbar_deleted">Todo deleted</string>
+    <string name="todo_snackbar_action_undo">Undo</string>
 </resources>

@@ -102,7 +102,7 @@ fun TodoApp(
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.add_24px),
-                                    contentDescription = stringResource(R.string.add_todo)
+                                    contentDescription = stringResource(R.string.navigation_action_add_todo)
                                 )
                             }
                         }
@@ -110,14 +110,14 @@ fun TodoApp(
                         FloatingToolbarItem(
                             selected = currentNavKey == AppNavKey.TodoHome,
                             iconResourceId = R.drawable.home_24px,
-                            stringResourceId = R.string.home,
+                            stringResourceId = R.string.navigation_destination_home,
                             onClick = { backStack.navigateToTopLevel(AppNavKey.TodoHome) }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         FloatingToolbarItem(
                             selected = currentNavKey is AppNavKey.TodoList,
                             iconResourceId = R.drawable.list_24px,
-                            stringResourceId = R.string.list,
+                            stringResourceId = R.string.navigation_destination_list,
                             onClick = {
                                 if (currentNavKey !is AppNavKey.TodoList) {
                                     backStack.navigateToTopLevel(AppNavKey.TodoList())
@@ -128,7 +128,7 @@ fun TodoApp(
                         FloatingToolbarItem(
                             selected = currentNavKey == AppNavKey.TodoCalendar,
                             iconResourceId = R.drawable.calendar_month_24px,
-                            stringResourceId = R.string.calendar,
+                            stringResourceId = R.string.navigation_destination_calendar,
                             onClick = { backStack.navigateToTopLevel(AppNavKey.TodoCalendar) }
                         )
                     }
@@ -176,8 +176,8 @@ fun TodoApp(
                         )
                     }
                     entry<AppNavKey.TodoList> { key ->
-                        val todoDeletedMessage = stringResource(R.string.todo_deleted)
-                        val undoLabel = stringResource(R.string.undo)
+                        val todoDeletedMessage = stringResource(R.string.todo_snackbar_deleted)
+                        val undoLabel = stringResource(R.string.todo_snackbar_action_undo)
 
                         ListScreen(
                             onEdit = { id ->
@@ -218,7 +218,7 @@ fun TodoApp(
                                         todoFormExitTransition()
                                     }
                     ) {
-                        val snackbarMessage = stringResource(R.string.todo_added)
+                        val snackbarMessage = stringResource(R.string.todo_snackbar_added)
                         AddScreen(
                             onBack = { backStack.removeLastOrNull() },
                             onSaved = {
@@ -237,9 +237,9 @@ fun TodoApp(
                                         todoFormExitTransition()
                                     }
                     ) { key ->
-                        val todoUpdatedMessage = stringResource(R.string.todo_updated)
-                        val todoDeletedMessage = stringResource(R.string.todo_deleted)
-                        val undoLabel = stringResource(R.string.undo)
+                        val todoUpdatedMessage = stringResource(R.string.todo_snackbar_updated)
+                        val todoDeletedMessage = stringResource(R.string.todo_snackbar_deleted)
+                        val undoLabel = stringResource(R.string.todo_snackbar_action_undo)
                         EditScreen(
                             id = key.id,
                             onBack = { backStack.removeLastOrNull() },

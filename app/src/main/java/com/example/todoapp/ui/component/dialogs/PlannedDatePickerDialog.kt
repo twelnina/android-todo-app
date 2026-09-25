@@ -61,11 +61,11 @@ internal fun PlannedDatePickerDialog(
                 onClick = {
                     newDate?.let(onConfirmRequest)
                 }
-            ) { Text(stringResource(R.string.ok)) }
+            ) { Text(stringResource(R.string.common_action_ok)) }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(stringResource(R.string.cancel))
+                Text(stringResource(R.string.common_action_cancel))
             }
         }
     ) {
@@ -78,7 +78,7 @@ internal fun PlannedDatePickerDialog(
             ) {
                 Spacer(modifier = Modifier.height(20.dp))
                 Text(
-                    text = stringResource(R.string.change_planned_date),
+                    text = stringResource(R.string.planned_date_dialog_title),
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -118,9 +118,9 @@ private fun DateChangeSummary(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         DateSummaryItem(
-            label = stringResource(R.string.previous),
+            label = stringResource(R.string.planned_date_dialog_label_previous),
             date = previousDate?.format(formatter)
-                ?: stringResource(R.string.unscheduled),
+                ?: stringResource(R.string.planned_date_dialog_status_unscheduled),
             modifier = Modifier.weight(1f),
         )
 
@@ -131,9 +131,9 @@ private fun DateChangeSummary(
         )
 
         DateSummaryItem(
-            label = stringResource(R.string.new_date),
+            label = stringResource(R.string.planned_date_dialog_label_new),
             date = newDate?.format(formatter)
-                ?: stringResource(R.string.unscheduled),
+                ?: stringResource(R.string.planned_date_dialog_status_unscheduled),
             modifier = Modifier.weight(1f),
         )
     }

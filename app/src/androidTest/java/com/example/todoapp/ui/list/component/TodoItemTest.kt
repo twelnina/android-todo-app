@@ -78,14 +78,14 @@ class TodoItemTest {
             onMoreClick = { expanded = !expanded }
         )
 
-        val editDescription = getString(R.string.edit_todo)
+        val editDescription = getString(R.string.todo_item_action_edit)
 
         composeTestRule
             .onNodeWithContentDescription(editDescription)
             .assertIsNotEnabled()
 
         composeTestRule
-            .onNodeWithContentDescription(getString(R.string.more_options))
+            .onNodeWithContentDescription(getString(R.string.todo_item_action_more_options))
             .performClick()
 
         composeTestRule
@@ -105,15 +105,17 @@ class TodoItemTest {
         )
 
         composeTestRule
-            .onNodeWithContentDescription(getString(R.string.change_planned_date))
+            .onNodeWithContentDescription(
+                getString(R.string.todo_item_action_change_planned_date)
+            )
             .performClick()
 
         composeTestRule
-            .onNodeWithContentDescription(getString(R.string.edit_todo))
+            .onNodeWithContentDescription(getString(R.string.todo_item_action_edit))
             .performClick()
 
         composeTestRule
-            .onNodeWithContentDescription(getString(R.string.delete))
+            .onNodeWithContentDescription(getString(R.string.todo_item_action_delete))
             .performClick()
 
         composeTestRule.runOnIdle {

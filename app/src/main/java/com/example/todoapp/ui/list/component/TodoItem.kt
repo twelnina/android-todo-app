@@ -109,7 +109,9 @@ fun TodoItem(
                     IconButton(onClick = onMoreClick) {
                         Icon(
                             painter = painterResource(R.drawable.more_vert_24px),
-                            contentDescription = stringResource(R.string.more_options)
+                            contentDescription = stringResource(
+                                R.string.todo_item_action_more_options
+                            )
                         )
                     }
                 },
@@ -162,7 +164,7 @@ private fun TodoQuickActions(
         ) {
             Icon(
                 painter = painterResource(R.drawable.delete_24px),
-                contentDescription = stringResource(R.string.delete)
+                contentDescription = stringResource(R.string.todo_item_action_delete)
             )
         }
 
@@ -181,7 +183,9 @@ private fun TodoQuickActions(
         ) {
             Icon(
                 painter = painterResource(R.drawable.edit_calendar_24px),
-                contentDescription = stringResource(R.string.change_planned_date)
+                contentDescription = stringResource(
+                    R.string.todo_item_action_change_planned_date
+                )
             )
         }
 
@@ -200,7 +204,7 @@ private fun TodoQuickActions(
         ) {
             Icon(
                 painter = painterResource(R.drawable.edit_24px),
-                contentDescription = stringResource(R.string.edit_todo)
+                contentDescription = stringResource(R.string.todo_item_action_edit)
             )
         }
     }

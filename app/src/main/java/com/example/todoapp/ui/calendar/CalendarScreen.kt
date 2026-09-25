@@ -117,7 +117,7 @@ private fun CalendarScreenContent(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.chevron_left_24px),
-                    contentDescription = stringResource(R.string.previous_date)
+                    contentDescription = stringResource(R.string.calendar_action_previous_date)
                 )
             }
             Text(
@@ -132,7 +132,7 @@ private fun CalendarScreenContent(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.chevron_right_24px),
-                    contentDescription = stringResource(R.string.next_date)
+                    contentDescription = stringResource(R.string.calendar_action_next_date)
                 )
             }
         }
@@ -164,7 +164,7 @@ private fun CalendarScreenContent(
                     .padding(bottom = 100.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.no_todos_for_selected_date),
+                    text = stringResource(R.string.calendar_empty_message_selected_date),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.align(Alignment.Center)

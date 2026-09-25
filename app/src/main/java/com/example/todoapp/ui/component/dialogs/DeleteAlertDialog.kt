@@ -21,12 +21,12 @@ fun DeleteAlertDialog(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text(text = stringResource(R.string.delete_confirmation_title)) },
-            text = { Text(text = stringResource(R.string.delete_confirmation_message)) },
+            title = { Text(text = stringResource(R.string.delete_dialog_title)) },
+            text = { Text(text = stringResource(R.string.delete_dialog_message)) },
             confirmButton = {
                 TextButton(onClick = onConfirm) {
                     Text(
-                        text = stringResource(R.string.delete),
+                        text = stringResource(R.string.delete_dialog_action_delete),
                         color = MaterialTheme.colorScheme.error
                     )
                 }
@@ -34,7 +34,7 @@ fun DeleteAlertDialog(
             dismissButton = {
                 TextButton(onClick = onDismiss) {
                     Text(
-                        text = stringResource(R.string.cancel)
+                        text = stringResource(R.string.common_action_cancel)
                     )
                 }
             }
