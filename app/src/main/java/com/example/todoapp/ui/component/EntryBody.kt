@@ -34,13 +34,11 @@ fun TodoEntryBody(
     onTagChange: (TodoTag) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.fillMaxWidth()
-    ) {
+    Column(modifier = modifier.fillMaxWidth()) {
         TextField(
             value = title,
             onValueChange = onTitleChange,
-            label = { Text(text = stringResource(R.string.title)) },
+            label = { Text(text = stringResource(R.string.todo_editor_field_title)) },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             singleLine = true,
             colors = TextFieldDefaults.colors(
@@ -55,7 +53,7 @@ fun TodoEntryBody(
         TextField(
             value = description,
             onValueChange = onDescriptionChange,
-            label = { Text(text = stringResource(R.string.description)) },
+            label = { Text(text = stringResource(R.string.todo_editor_field_description)) },
             minLines = 5,
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -67,7 +65,7 @@ fun TodoEntryBody(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = stringResource(R.string.planned_date),
+            text = stringResource(R.string.todo_editor_section_planned_date),
             style = MaterialTheme.typography.titleSmall
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -84,7 +82,7 @@ fun TodoEntryBody(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = stringResource(R.string.tags),
+            text = stringResource(R.string.todo_editor_section_tags),
             style = MaterialTheme.typography.titleSmall
         )
         TagSelector(

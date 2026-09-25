@@ -70,7 +70,7 @@ fun PlannedDatePicker(
 
                 if (datePickerState.selectedDateMillis == null) {
                     Text(
-                        text = stringResource(R.string.unscheduled),
+                        text = stringResource(R.string.planned_date_picker_status_unscheduled),
                         modifier = headlineModifier,
                         color = MaterialTheme.colorScheme.onSurface
                     )

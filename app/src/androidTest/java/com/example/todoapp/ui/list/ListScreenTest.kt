@@ -184,11 +184,11 @@ class ListScreenTest {
         )
 
         composeTestRule
-            .onNodeWithContentDescription(getString(R.string.more_options))
+            .onNodeWithContentDescription(getString(R.string.todo_item_action_more_options))
             .performClick()
 
         composeTestRule
-            .onNodeWithContentDescription(getString(R.string.edit_todo))
+            .onNodeWithContentDescription(getString(R.string.todo_item_action_edit))
             .performClick()
 
         composeTestRule.runOnIdle {

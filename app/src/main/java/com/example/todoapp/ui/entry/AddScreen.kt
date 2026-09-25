@@ -60,12 +60,12 @@ private fun AddScreenContent(
         topBar = {
             @OptIn(ExperimentalMaterial3Api::class)
             TopAppBar(
-                title = { Text(stringResource(R.string.add_todo)) },
+                title = { Text(stringResource(R.string.todo_add_screen_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             painter = painterResource(R.drawable.arrow_back_24px),
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = stringResource(R.string.common_action_back)
                         )
                     }
                 }
@@ -80,7 +80,7 @@ private fun AddScreenContent(
                     .navigationBarsPadding()
                     .padding(horizontal = 16.dp)
             ) {
-                Text(stringResource(R.string.done))
+                Text(stringResource(R.string.todo_editor_action_done))
             }
         }
     ) { innerPadding ->
@@ -96,8 +96,8 @@ private fun AddScreenContent(
             onTagChange = onTagChange,
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
+                .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
         )
     }
 }

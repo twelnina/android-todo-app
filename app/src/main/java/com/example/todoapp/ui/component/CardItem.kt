@@ -50,23 +50,31 @@ internal fun CardItem(
     daysSincePlannedDate: Long? = null
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
+
+    val containerColor = if (todo.isCompleted) {
+        MaterialTheme.colorScheme.surfaceContainerLow
+    } else {
+        MaterialTheme.colorScheme.surfaceContainer
+    }
+
+    val titleColor = if (todo.isCompleted) {
+        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+
+    val descriptionColor = if (todo.isCompleted) {
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
             .animateContentSize(MaterialTheme.motionScheme.defaultSpatialSpec())
             .clickable(onClick = { expanded = !expanded }),
-        colors = CardDefaults.cardColors(
-            containerColor = if (todo.isCompleted) {
-                MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.35f)
-            } else {
-                MaterialTheme.colorScheme.surfaceContainerHigh
-            },
-            contentColor = if (todo.isCompleted) {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            }
-        )
+        colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
         Row(
             modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp),
@@ -92,7 +100,11 @@ internal fun CardItem(
                                 modifier = Modifier.size(14.dp)
                             )
                             Text(
-                                text = pluralStringResource(R.plurals.days_since_planned_date, days, days),
+                                text = pluralStringResource(
+                                    R.plurals.todo_card_status_days_since_planned_date,
+                                    days,
+                                    days
+                                ),
                                 color = MaterialTheme.colorScheme.onErrorContainer,
                                 fontSize = 12.sp,
                                 lineHeight = 16.sp
@@ -102,13 +114,14 @@ internal fun CardItem(
                 }
                 Text(
                     text = todo.title,
+                    color = titleColor,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = todo.description,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = descriptionColor,
                     fontSize = 12.sp,
                     lineHeight = 18.sp,
                     maxLines = if (expanded) Int.MAX_VALUE else 2,
@@ -138,7 +151,9 @@ internal fun CardItem(
                             )
                             Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                             Text(
-                                text = stringResource(R.string.change_planned_date),
+                                text = stringResource(
+                                    R.string.todo_card_action_change_planned_date
+                                ),
                                 style = MaterialTheme.typography.labelMedium
                             )
                         }
@@ -151,7 +166,7 @@ internal fun CardItem(
                         )
                         Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                         Text(
-                            text = stringResource(R.string.edit_todo),
+                            text = stringResource(R.string.todo_card_action_edit),
                             style = MaterialTheme.typography.labelMedium
                         )
                     }

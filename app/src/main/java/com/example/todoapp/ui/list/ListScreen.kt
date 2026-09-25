@@ -249,7 +249,8 @@ private fun TodoDateHeader(date: LocalDate?, modifier: Modifier = Modifier) {
             )
     ) {
         Text(
-            text = date?.format(dateFormatter) ?: stringResource(R.string.unscheduled),
+            text = date?.format(dateFormatter)
+                ?: stringResource(R.string.todo_list_filter_unscheduled),
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.SemiBold,
@@ -276,7 +277,8 @@ private fun PlannedDateSelectionBottomSheet(
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             Text(
-                stringResource(R.string.planned_date), style = MaterialTheme.typography.titleMedium
+                stringResource(R.string.todo_list_filter_planned_date),
+                style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(12.dp))
             Surface(

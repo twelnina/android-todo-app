@@ -149,7 +149,7 @@ private fun HomeScreenContent(
             item(key = "today-header") {
                 Text(
                     text = stringResource(
-                        R.string.today_section_title,
+                        R.string.home_section_today_title,
                         uiState.todayItems.size
                     ),
                     style = MaterialTheme.typography.titleLarge,
@@ -162,7 +162,7 @@ private fun HomeScreenContent(
             if (uiState.todayItems.isEmpty()) {
                 item {
                     Text(
-                        stringResource(R.string.no_todos_today),
+                        stringResource(R.string.home_empty_message_today),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 20.dp),
@@ -220,7 +220,7 @@ private fun HomeScreenContent(
                 ) {
                     Text(
                         text = stringResource(
-                            R.string.past_incomplete_section_title,
+                            R.string.home_section_past_incomplete_title,
                             uiState.pastIncompleteItems.size
                         ),
                         style = MaterialTheme.typography.titleLarge,
@@ -231,7 +231,7 @@ private fun HomeScreenContent(
 
                     if (hasMorePastIncompleteItems) {
                         TextButton(onClick = onSeeAllPastIncomplete) {
-                            Text(text = stringResource(R.string.see_all))
+                            Text(text = stringResource(R.string.home_action_see_all))
                         }
                     }
                 }
@@ -242,7 +242,7 @@ private fun HomeScreenContent(
             if (uiState.pastIncompleteItems.isEmpty()) {
                 item {
                     Text(
-                        stringResource(R.string.no_past_incomplete_todos),
+                        stringResource(R.string.home_empty_message_past_incomplete),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 20.dp),
@@ -309,9 +309,9 @@ private fun HomeScreenContent(
 
 @StringRes
 private fun greetingResource(hour: Int): Int = when (hour) {
-    in 5..11 -> R.string.greeting_morning
-    in 12..17 -> R.string.greeting_afternoon
-    else -> R.string.greeting_evening
+    in 5..11 -> R.string.home_greeting_morning
+    in 12..17 -> R.string.home_greeting_afternoon
+    else -> R.string.home_greeting_evening
 }
 
 @Composable
@@ -319,14 +319,14 @@ private fun rememberHomeMessage(
     hour: Int, dayKey: Long
 ): String {
     val greeting = stringResource(greetingResource(hour))
-    val phrases = stringArrayResource(R.array.home_phrases)
+    val phrases = stringArrayResource(R.array.home_motivation_phrases)
 
     val phraseIndex = rememberSaveable(dayKey, phrases.size) {
         Random.nextInt(phrases.size)
     }
 
     return stringResource(
-        R.string.home_message_format,
+        R.string.home_greeting_message_format,
         greeting,
         phrases[phraseIndex]
     )

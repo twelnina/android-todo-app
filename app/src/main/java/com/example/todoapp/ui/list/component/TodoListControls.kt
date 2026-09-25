@@ -75,7 +75,7 @@ private fun TodoSearchBar(
                 onExpandedChange = {},
                 placeholder = {
                     Text(
-                        text = stringResource(R.string.search),
+                        text = stringResource(R.string.todo_list_search_placeholder),
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
@@ -106,7 +106,7 @@ private fun TodoFilterRow(
                 label = {
                     Text(
                         text = if (isAllSelected) {
-                            stringResource(R.string.planned_date)
+                            stringResource(R.string.todo_list_filter_planned_date)
                         } else {
                             stringResource(selectedPlannedDateFilter.labelRes)
                         }

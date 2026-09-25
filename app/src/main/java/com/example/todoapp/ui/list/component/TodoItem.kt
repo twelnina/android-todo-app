@@ -67,6 +67,12 @@ fun TodoItem(
         MaterialTheme.colorScheme.onSurfaceVariant
     }
 
+    val titleColor = if (todoItemInfo.isCompleted) {
+        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+
     Column(modifier = modifier.fillMaxWidth()) {
         Box(
             modifier = Modifier
@@ -89,7 +95,7 @@ fun TodoItem(
                 shapes = ListItemDefaults.segmentedShapes(index, count),
                 colors = ListItemDefaults.segmentedColors(
                     containerColor = containerColor,
-                    contentColor = contentColor,
+                    contentColor = titleColor,
                     leadingContentColor = contentColor,
                     supportingContentColor = contentColor
                 ),
@@ -109,7 +115,9 @@ fun TodoItem(
                     IconButton(onClick = onMoreClick) {
                         Icon(
                             painter = painterResource(R.drawable.more_vert_24px),
-                            contentDescription = stringResource(R.string.more_options)
+                            contentDescription = stringResource(
+                                R.string.todo_item_action_more_options
+                            )
                         )
                     }
                 },
@@ -162,7 +170,7 @@ private fun TodoQuickActions(
         ) {
             Icon(
                 painter = painterResource(R.drawable.delete_24px),
-                contentDescription = stringResource(R.string.delete)
+                contentDescription = stringResource(R.string.todo_item_action_delete)
             )
         }
 
@@ -181,7 +189,9 @@ private fun TodoQuickActions(
         ) {
             Icon(
                 painter = painterResource(R.drawable.edit_calendar_24px),
-                contentDescription = stringResource(R.string.change_planned_date)
+                contentDescription = stringResource(
+                    R.string.todo_item_action_change_planned_date
+                )
             )
         }
 
@@ -200,7 +210,7 @@ private fun TodoQuickActions(
         ) {
             Icon(
                 painter = painterResource(R.drawable.edit_24px),
-                contentDescription = stringResource(R.string.edit_todo)
+                contentDescription = stringResource(R.string.todo_item_action_edit)
             )
         }
     }
