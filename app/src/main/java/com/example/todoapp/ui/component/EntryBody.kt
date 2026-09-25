@@ -34,9 +34,7 @@ fun TodoEntryBody(
     onTagChange: (TodoTag) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.fillMaxWidth()
-    ) {
+    Column(modifier = modifier.fillMaxWidth()) {
         TextField(
             value = title,
             onValueChange = onTitleChange,

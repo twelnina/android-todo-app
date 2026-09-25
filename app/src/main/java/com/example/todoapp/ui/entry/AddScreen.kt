@@ -96,8 +96,8 @@ private fun AddScreenContent(
             onTagChange = onTagChange,
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
+                .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
         )
     }
 }

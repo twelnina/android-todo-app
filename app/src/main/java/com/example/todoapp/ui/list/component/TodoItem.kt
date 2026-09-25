@@ -67,6 +67,12 @@ fun TodoItem(
         MaterialTheme.colorScheme.onSurfaceVariant
     }
 
+    val titleColor = if (todoItemInfo.isCompleted) {
+        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+
     Column(modifier = modifier.fillMaxWidth()) {
         Box(
             modifier = Modifier
@@ -89,7 +95,7 @@ fun TodoItem(
                 shapes = ListItemDefaults.segmentedShapes(index, count),
                 colors = ListItemDefaults.segmentedColors(
                     containerColor = containerColor,
-                    contentColor = contentColor,
+                    contentColor = titleColor,
                     leadingContentColor = contentColor,
                     supportingContentColor = contentColor
                 ),
