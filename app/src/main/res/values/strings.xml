@@ -62,6 +62,10 @@
     <string name="todo_list_filter_past_incomplete">Past unfinished</string>
     <string name="todo_list_filter_unscheduled">Unscheduled</string>
 
+    <string name="todo_list_header_yesterday">Yesterday</string>
+    <string name="todo_list_header_today">Today</string>
+    <string name="todo_list_header_tomorrow">Tomorrow</string>
+
     <!-- Todo card -->
     <plurals name="todo_card_status_days_since_planned_date">
         <item quantity="one">Planned %d day ago</item>

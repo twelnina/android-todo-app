@@ -150,7 +150,10 @@ internal fun ListScreenContent(
                     key = group.date ?: "unscheduled",
                     contentType = "date_header"
                 ) {
-                    TodoDateHeader(group.date)
+                    TodoDateHeader(
+                        date = group.date,
+                        today = uiState.today
+                    )
                 }
 
                 itemsIndexed(
@@ -230,8 +233,21 @@ internal fun ListScreenContent(
 }
 
 @Composable
-private fun TodoDateHeader(date: LocalDate?, modifier: Modifier = Modifier) {
+private fun TodoDateHeader(
+    date: LocalDate?,
+    today: LocalDate?,
+    modifier: Modifier = Modifier
+) {
     val backgroundColor = MaterialTheme.colorScheme.surface
+
+    val title = when {
+        date == null -> stringResource(R.string.todo_list_filter_unscheduled)
+        today == null -> date.format(dateFormatter)
+        date == today.minusDays(1) -> stringResource(R.string.todo_list_header_yesterday)
+        date == today -> stringResource(R.string.todo_list_header_today)
+        date == today.plusDays(1) -> stringResource(R.string.todo_list_header_tomorrow)
+        else -> date.format(dateFormatter)
+    }
 
     Box(
         modifier = modifier
@@ -245,8 +261,7 @@ private fun TodoDateHeader(date: LocalDate?, modifier: Modifier = Modifier) {
             )
     ) {
         Text(
-            text = date?.format(dateFormatter)
-                ?: stringResource(R.string.todo_list_filter_unscheduled),
+            text = title,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.SemiBold,
