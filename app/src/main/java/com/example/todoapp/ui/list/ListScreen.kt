@@ -59,6 +59,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH)
@@ -178,10 +179,27 @@ internal fun ListScreenContent(
                     items = group.todos,
                     key = { _, todo -> todo.id }
                 ) { index, todo ->
+                    val plannedDate = todo.plannedDate
+                    val today = uiState.today
+
+                    val daysSincePlannedDate =
+                        if (!todo.isCompleted &&
+                            plannedDate != null &&
+                            today != null &&
+                            plannedDate.isBefore(today)
+                        ) {
+                            ChronoUnit.DAYS.between(plannedDate, today)
+                        } else {
+                            null
+                        }
+
                     val expanded = expandedTodoId == todo.id
+
+
 
                     TodoItem(
                         todoItemInfo = todo,
+                        daysSincePlannedDate = daysSincePlannedDate,
                         index = index,
                         count = group.todos.size,
                         expanded = expanded,

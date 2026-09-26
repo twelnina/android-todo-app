@@ -1,10 +1,12 @@
 package com.example.todoapp.ui.list.component
 
+import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasNoClickAction
@@ -126,7 +128,56 @@ class TodoItemTest {
         }
     }
 
+    @Test
+    fun daysSincePlannedDate_displaysElapsedDays() {
+        val days = 7
+
+        setTodoItem(daysSincePlannedDate = days.toLong())
+
+        composeTestRule
+            .onNodeWithText(
+                getQuantityString(
+                    R.plurals.todo_card_status_days_since_planned_date,
+                    days, days
+                )
+            )
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun daysSincePlannedDate_displaysSingularDay() {
+        val days = 1
+
+        setTodoItem(daysSincePlannedDate = days.toLong())
+
+        composeTestRule
+            .onNodeWithText(
+                getQuantityString(
+                    R.plurals.todo_card_status_days_since_planned_date,
+                    days, days
+                )
+            )
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun daysSincePlannedDate_whenNull_doesNotDisplayStatus() {
+        val days = 1
+
+        setTodoItem(daysSincePlannedDate = null)
+
+        composeTestRule
+            .onNodeWithText(
+                getQuantityString(
+                    R.plurals.todo_card_status_days_since_planned_date,
+                    days, days
+                )
+            )
+            .assertDoesNotExist()
+    }
+
     private fun setTodoItem(
+        daysSincePlannedDate: Long? = null,
         expandedProvider: () -> Boolean = { false },
         onCheckedChange: (TodoEntity, Boolean) -> Unit = { _, _ -> },
         onChangePlannedDate: () -> Unit = {},
@@ -138,6 +189,7 @@ class TodoItemTest {
             TodoAppTheme {
                 TodoItem(
                     todoItemInfo = todo,
+                    daysSincePlannedDate = daysSincePlannedDate,
                     index = 0,
                     count = 1,
                     expanded = expandedProvider(),
@@ -156,5 +208,17 @@ class TodoItemTest {
             .getInstrumentation()
             .targetContext
             .getString(resourceId)
+    }
+
+    private fun getQuantityString(
+        @PluralsRes resourceId: Int,
+        quantity: Int,
+        vararg formatArgs: Any
+    ): String {
+        return InstrumentationRegistry
+            .getInstrumentation()
+            .targetContext
+            .resources
+            .getQuantityString(resourceId, quantity, *formatArgs)
     }
 }

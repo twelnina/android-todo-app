@@ -1,6 +1,7 @@
 package com.example.todoapp.ui.list.component
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Checkbox
@@ -26,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,7 +40,9 @@ import com.example.todoapp.data.local.TodoEntity
 
 @Composable
 fun TodoItem(
+    modifier: Modifier = Modifier,
     todoItemInfo: TodoEntity,
+    daysSincePlannedDate: Long? = null,
     index: Int,
     count: Int,
     expanded: Boolean,
@@ -45,8 +50,7 @@ fun TodoItem(
     onMoreClick: () -> Unit,
     onChangePlannedDate: () -> Unit,
     onEdit: () -> Unit,
-    onDelete: () -> Unit,
-    modifier: Modifier = Modifier
+    onDelete: () -> Unit
 ) {
     val quickActionsWidth = 176.dp
 
@@ -129,13 +133,40 @@ fun TodoItem(
                     )
                 },
             ) {
-                Text(
-                    text = todoItemInfo.title,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(vertical = 4.dp)
-                )
+                Column {
+                    daysSincePlannedDate?.let { elapsedDays ->
+                        val days = elapsedDays.toInt()
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.schedule_24px),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onErrorContainer,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Text(
+                                text = pluralStringResource(
+                                    R.plurals.todo_card_status_days_since_planned_date,
+                                    days, days,
+                                ),
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                fontSize = 12.sp,
+                                lineHeight = 16.sp
+                            )
+                        }
+                    }
+
+                    Text(
+                        text = todoItemInfo.title,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+                }
             }
         }
 
