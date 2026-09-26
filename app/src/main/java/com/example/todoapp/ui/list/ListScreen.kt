@@ -30,14 +30,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -55,7 +52,6 @@ import com.example.todoapp.ui.component.dialogs.PlannedDatePickerDialog
 import com.example.todoapp.ui.list.component.TodoItem
 import com.example.todoapp.ui.list.component.TodoListControls
 import com.example.todoapp.ui.theme.TodoAppTheme
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -123,29 +119,11 @@ internal fun ListScreenContent(
             todo.id == dateChangeTodoId
         }
 
-    val filterKey = Triple(
-        uiState.searchQuery,
-        uiState.selectedTags,
-        uiState.selectedPlannedDateFilter
-    )
-    val latestFilterKey by rememberUpdatedState(filterKey)
-    val hasTodos by rememberUpdatedState(uiState.todoGroups.isNotEmpty())
-
     val navigationBarPadding =
         WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     @OptIn(ExperimentalMaterial3Api::class)
     val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
-
-    LaunchedEffect(listState) {
-        snapshotFlow { latestFilterKey }
-            .drop(1)
-            .collect {
-                if (hasTodos) {
-                    listState.scrollToItem(0)
-                }
-            }
-    }
 
 
     Column(modifier = Modifier.fillMaxSize()) {
