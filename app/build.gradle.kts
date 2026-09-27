@@ -6,13 +6,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.todoapp"
+    namespace = "dev.twelnina.bunantodo"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.todoapp"
+        applicationId = "dev.twelnina.bunantodo"
         minSdk = 29
         targetSdk = 37
         versionCode = 1
