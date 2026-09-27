@@ -5,6 +5,17 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+val releaseStoreFile = providers.environmentVariable("RELEASE_STORE_FILE")
+val releaseStorePassword = providers.environmentVariable("RELEASE_STORE_PASSWORD")
+val releaseKeyAlias = providers.environmentVariable("RELEASE_KEY_ALIAS")
+val releaseKeyPassword = providers.environmentVariable("RELEASE_KEY_PASSWORD")
+
 android {
     namespace = "dev.twelnina.bunantodo"
     compileSdk {
@@ -29,16 +40,36 @@ android {
         localeFilters += listOf("en", "ja")
     }
 
+    signingConfigs {
+        if (
+            releaseStoreFile.isPresent &&
+            releaseStorePassword.isPresent &&
+            releaseKeyAlias.isPresent &&
+            releaseKeyPassword.isPresent
+        ) {
+            create("release") {
+                storeFile = file(releaseStoreFile.get())
+                storePassword = releaseStorePassword.get()
+                keyAlias = releaseKeyAlias.get()
+                keyPassword = releaseKeyPassword.get()
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfigs.findByName("release")?.let {
+                signingConfig = it
+            }
+
             optimization {
-                enable = false
+                enable = true
             }
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
