@@ -1,6 +1,5 @@
 package com.example.todoapp.ui.calendar
 
-import android.text.format.DateFormat
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +46,8 @@ import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.ui.component.CardItem
 import com.example.todoapp.ui.elapsedDaysSincePlannedDate
+import com.example.todoapp.ui.rememberMonthDayFormatter
+import com.example.todoapp.ui.rememberYearMonthFormatter
 import com.example.todoapp.ui.theme.TodoAppTheme
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
@@ -56,7 +56,6 @@ import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun CalendarScreen(
@@ -92,11 +91,7 @@ private fun CalendarScreenContent(
     val canGoPrevious = selectedDate?.isAfter(minDate) == true
     val canGoNext = selectedDate?.isBefore(maxDate) == true
 
-    val locale = LocalConfiguration.current.locales[0]
-    val formatter = remember(locale) {
-        val pattern = DateFormat.getBestDateTimePattern(locale, "MMMd")
-        DateTimeFormatter.ofPattern(pattern, locale)
-    }
+    val monthDayFormatter = rememberMonthDayFormatter()
 
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         MonthCalendar(
@@ -122,7 +117,7 @@ private fun CalendarScreenContent(
                 )
             }
             Text(
-                text = uiState.selectedDate?.format(formatter) ?: "",
+                text = uiState.selectedDate?.format(monthDayFormatter) ?: "",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Bold
@@ -190,11 +185,7 @@ private fun MonthCalendar(
 ) {
     val currentMonth = remember { YearMonth.now() }
     val daysOfWeek = remember { daysOfWeek() }
-    val locale = LocalConfiguration.current.locales[0]
-    val monthFormatter = remember(locale) {
-        val pattern = DateFormat.getBestDateTimePattern(locale, "yMMM")
-        DateTimeFormatter.ofPattern(pattern, locale)
-    }
+    val yearMonthFormatter = rememberYearMonthFormatter()
 
     val state = rememberCalendarState(
         startMonth = startMonth,
@@ -227,7 +218,7 @@ private fun MonthCalendar(
 
         Column(modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)) {
             Text(
-                text = visibleMonth.format(monthFormatter),
+                text = visibleMonth.format(yearMonthFormatter),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleMediumEmphasized,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
