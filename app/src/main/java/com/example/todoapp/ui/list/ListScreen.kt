@@ -50,13 +50,13 @@ import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.model.PlannedDateFilter
 import com.example.todoapp.model.TodoTag
 import com.example.todoapp.ui.component.dialogs.PlannedDatePickerDialog
+import com.example.todoapp.ui.elapsedDaysSincePlannedDate
 import com.example.todoapp.ui.list.component.TodoItem
 import com.example.todoapp.ui.list.component.TodoListControls
 import com.example.todoapp.ui.theme.TodoAppTheme
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH)
@@ -183,19 +183,9 @@ internal fun ListScreenContent(
                     items = group.todos,
                     key = { _, todo -> todo.id }
                 ) { index, todo ->
-                    val plannedDate = todo.plannedDate
-                    val today = uiState.today
-
-                    val daysSincePlannedDate =
-                        if (!todo.isCompleted &&
-                            plannedDate != null &&
-                            today != null &&
-                            plannedDate.isBefore(today)
-                        ) {
-                            ChronoUnit.DAYS.between(plannedDate, today)
-                        } else {
-                            null
-                        }
+                    val daysSincePlannedDate = uiState.today?.let { today ->
+                        todo.elapsedDaysSincePlannedDate(today)
+                    }
 
                     val expanded = expandedTodoId == todo.id
 

@@ -47,6 +47,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.ui.component.CardItem
+import com.example.todoapp.ui.elapsedDaysSincePlannedDate
 import com.example.todoapp.ui.theme.TodoAppTheme
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
@@ -143,9 +144,14 @@ private fun CalendarScreenContent(
                     items = uiState.selectedDateTodos,
                     key = { _, todo -> todo.id }
                 ) { index, todo ->
+                    val daysSincePlannedDate = uiState.today?.let { today ->
+                        todo.elapsedDaysSincePlannedDate(today)
+                    }
+
                     CardItem(
                         todo = todo,
-                        showDaysSincePlannedDate = false,
+                        daysSincePlannedDate = daysSincePlannedDate,
+                        showDaysSincePlannedDate = true,
                         onCheckedChange = { checked ->
                             onCompletedChange(todo, checked)
                         },
@@ -241,7 +247,8 @@ private fun MonthCalendar(
                         day = day,
                         isSelected = day.date == selectedDate,
                         todoCount = todoCountsByDate[day.date] ?: 0,
-                        onClick = { onDateSelected(day.date) })
+                        onClick = { onDateSelected(day.date) }
+                    )
                 }
             )
         }
