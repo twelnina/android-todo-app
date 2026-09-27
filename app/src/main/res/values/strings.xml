@@ -1,6 +1,6 @@
 <resources>
     <!-- Application -->
-    <string name="app_name">ToDoApp</string>
+    <string name="app_name">Bunan Todo</string>
 
     <!-- Navigation -->
     <string name="navigation_destination_home">Home</string>

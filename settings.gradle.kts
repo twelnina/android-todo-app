@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ToDoApp"
+rootProject.name = "Bunan Todo"
 include(":app")
