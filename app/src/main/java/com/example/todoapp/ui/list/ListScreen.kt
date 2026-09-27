@@ -30,6 +30,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -107,6 +108,28 @@ internal fun ListScreenContent(
 ) {
     val listState = rememberLazyListState()
 
+    var hasAppliedInitialScroll by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(uiState.today, uiState.todoGroups) {
+        if (hasAppliedInitialScroll) {
+            return@LaunchedEffect
+        }
+
+        val today = uiState.today ?: return@LaunchedEffect
+
+        initialScrollItemIndex(
+            todoGroups = uiState.todoGroups,
+            today = today
+        )?.let { itemIndex ->
+            listState.scrollToItem(itemIndex)
+        }
+
+        hasAppliedInitialScroll = true
+    }
+
+
     var expandedTodoId by rememberSaveable { mutableStateOf<Int?>(null) }
 
     var dateChangeTodoId by rememberSaveable { mutableStateOf<Int?>(null) }
@@ -175,8 +198,6 @@ internal fun ListScreenContent(
                         }
 
                     val expanded = expandedTodoId == todo.id
-
-
 
                     TodoItem(
                         todoItemInfo = todo,
@@ -329,6 +350,33 @@ private fun PlannedDateSelectionBottomSheet(
             Spacer(modifier = Modifier.height(12.dp))
         }
     }
+}
+
+
+internal fun initialScrollItemIndex(todoGroups: List<TodoDateGroup>, today: LocalDate): Int? {
+    val scheduledDates = todoGroups.mapNotNull { group -> group.date }
+
+    val targetDate = when {
+        today in scheduledDates -> today
+
+        else -> scheduledDates
+            .filter { date -> date.isAfter(today) }
+            .minOrNull()
+            ?: scheduledDates
+                .filter { date -> date.isBefore(today) }
+                .maxOrNull()
+            ?: return null
+    }
+
+    val targetGroupIndex = todoGroups.indexOfFirst { group ->
+        group.date == targetDate
+    }
+
+    return todoGroups
+        .take(targetGroupIndex)
+        .sumOf { group ->
+            1 + group.todos.size
+        }
 }
 
 
