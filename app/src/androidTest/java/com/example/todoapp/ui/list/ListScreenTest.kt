@@ -26,6 +26,7 @@ class ListScreenTest {
 
     @Test
     fun displaysTodoFromUiState() {
+        val today = LocalDate.of(2026, 9, 26)
         val todo = TodoEntity(
             id = 1,
             title = "Study Kotlin",
@@ -35,6 +36,7 @@ class ListScreenTest {
         )
 
         val uiState = ListUiState(
+            today = today,
             todoGroups = listOf(
                 TodoDateGroup(
                     date = todo.plannedDate,
@@ -194,6 +196,92 @@ class ListScreenTest {
         composeTestRule.runOnIdle {
             assertEquals(42, editedTodoId)
         }
+    }
+
+    @Test
+    fun displaysTodayHeaderForTodoPlannedToday() {
+        val today = LocalDate.of(2026, 9, 26)
+        val todo = TodoEntity(
+            id = 2,
+            title = "today's todo",
+            description = "Todo planned for today",
+            plannedDate = today,
+            tag = null
+        )
+
+        val uiState = ListUiState(
+            today = today,
+            todoGroups = listOf(
+                TodoDateGroup(
+                    date = today,
+                    todos = listOf(todo)
+                )
+            )
+        )
+
+        setListScreenContent(uiStateProvider = { uiState })
+
+        composeTestRule
+            .onNodeWithText(getString(R.string.todo_list_header_today))
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun displaysYesterdayHeaderForTodoPlannedYesterday() {
+        val today = LocalDate.of(2026, 9, 26)
+        val yesterday = today.minusDays(1)
+        val todo = TodoEntity(
+            id = 3,
+            title = "Yesterday's todo",
+            description = "Todo planned for yesterday",
+            plannedDate = yesterday,
+            tag = null
+        )
+
+        val uiState = ListUiState(
+            today = today,
+            todoGroups = listOf(
+                TodoDateGroup(
+                    date = yesterday,
+                    todos = listOf(todo)
+                )
+            )
+        )
+
+        setListScreenContent(uiStateProvider = { uiState })
+
+        composeTestRule
+            .onNodeWithText(getString(R.string.todo_list_header_yesterday))
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun displaysTomorrowHeaderForTodoPlannedTomorrow() {
+        val today = LocalDate.of(2026, 9, 26)
+        val tomorrow = today.plusDays(1)
+        val todo = TodoEntity(
+            id = 4,
+            title = "Tomorrow's todo",
+            description = "Todo planned for tomorrow",
+            plannedDate = tomorrow,
+            tag = null
+        )
+
+        val uiState = ListUiState(
+            today = today,
+            todoGroups = listOf(
+                TodoDateGroup(
+                    date = tomorrow,
+                    todos = listOf(todo)
+                )
+            )
+        )
+
+        setListScreenContent(uiStateProvider = { uiState })
+
+        composeTestRule
+            .onNodeWithText(getString(R.string.todo_list_header_tomorrow))
+            .assertIsDisplayed()
     }
 
     private fun setListScreenContent(

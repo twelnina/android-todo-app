@@ -34,10 +34,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -55,7 +53,6 @@ import com.example.todoapp.ui.component.dialogs.PlannedDatePickerDialog
 import com.example.todoapp.ui.list.component.TodoItem
 import com.example.todoapp.ui.list.component.TodoListControls
 import com.example.todoapp.ui.theme.TodoAppTheme
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -111,6 +108,28 @@ internal fun ListScreenContent(
 ) {
     val listState = rememberLazyListState()
 
+    var hasAppliedInitialScroll by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(uiState.today, uiState.todoGroups) {
+        if (hasAppliedInitialScroll) {
+            return@LaunchedEffect
+        }
+
+        val today = uiState.today ?: return@LaunchedEffect
+
+        initialScrollItemIndex(
+            todoGroups = uiState.todoGroups,
+            today = today
+        )?.let { itemIndex ->
+            listState.scrollToItem(itemIndex)
+        }
+
+        hasAppliedInitialScroll = true
+    }
+
+
     var expandedTodoId by rememberSaveable { mutableStateOf<Int?>(null) }
 
     var dateChangeTodoId by rememberSaveable { mutableStateOf<Int?>(null) }
@@ -123,29 +142,11 @@ internal fun ListScreenContent(
             todo.id == dateChangeTodoId
         }
 
-    val filterKey = Triple(
-        uiState.searchQuery,
-        uiState.selectedTags,
-        uiState.selectedPlannedDateFilter
-    )
-    val latestFilterKey by rememberUpdatedState(filterKey)
-    val hasTodos by rememberUpdatedState(uiState.todoGroups.isNotEmpty())
-
     val navigationBarPadding =
         WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     @OptIn(ExperimentalMaterial3Api::class)
     val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
-
-    LaunchedEffect(listState) {
-        snapshotFlow { latestFilterKey }
-            .drop(1)
-            .collect {
-                if (hasTodos) {
-                    listState.scrollToItem(0)
-                }
-            }
-    }
 
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -172,7 +173,10 @@ internal fun ListScreenContent(
                     key = group.date ?: "unscheduled",
                     contentType = "date_header"
                 ) {
-                    TodoDateHeader(group.date)
+                    TodoDateHeader(
+                        date = group.date,
+                        today = uiState.today
+                    )
                 }
 
                 itemsIndexed(
@@ -194,8 +198,6 @@ internal fun ListScreenContent(
                         }
 
                     val expanded = expandedTodoId == todo.id
-
-
 
                     TodoItem(
                         todoItemInfo = todo,
@@ -252,8 +254,21 @@ internal fun ListScreenContent(
 }
 
 @Composable
-private fun TodoDateHeader(date: LocalDate?, modifier: Modifier = Modifier) {
+private fun TodoDateHeader(
+    date: LocalDate?,
+    today: LocalDate?,
+    modifier: Modifier = Modifier
+) {
     val backgroundColor = MaterialTheme.colorScheme.surface
+
+    val title = when {
+        date == null -> stringResource(R.string.todo_list_filter_unscheduled)
+        today == null -> date.format(dateFormatter)
+        date == today.minusDays(1) -> stringResource(R.string.todo_list_header_yesterday)
+        date == today -> stringResource(R.string.todo_list_header_today)
+        date == today.plusDays(1) -> stringResource(R.string.todo_list_header_tomorrow)
+        else -> date.format(dateFormatter)
+    }
 
     Box(
         modifier = modifier
@@ -267,8 +282,7 @@ private fun TodoDateHeader(date: LocalDate?, modifier: Modifier = Modifier) {
             )
     ) {
         Text(
-            text = date?.format(dateFormatter)
-                ?: stringResource(R.string.todo_list_filter_unscheduled),
+            text = title,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 12.dp),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.SemiBold,
@@ -336,6 +350,33 @@ private fun PlannedDateSelectionBottomSheet(
             Spacer(modifier = Modifier.height(12.dp))
         }
     }
+}
+
+
+internal fun initialScrollItemIndex(todoGroups: List<TodoDateGroup>, today: LocalDate): Int? {
+    val scheduledDates = todoGroups.mapNotNull { group -> group.date }
+
+    val targetDate = when {
+        today in scheduledDates -> today
+
+        else -> scheduledDates
+            .filter { date -> date.isAfter(today) }
+            .minOrNull()
+            ?: scheduledDates
+                .filter { date -> date.isBefore(today) }
+                .maxOrNull()
+            ?: return null
+    }
+
+    val targetGroupIndex = todoGroups.indexOfFirst { group ->
+        group.date == targetDate
+    }
+
+    return todoGroups
+        .take(targetGroupIndex)
+        .sumOf { group ->
+            1 + group.todos.size
+        }
 }
 
 
