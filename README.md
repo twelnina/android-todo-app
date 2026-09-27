@@ -82,8 +82,8 @@ Compose UI → ViewModel → Repository → Room → SQLite
 Clone the repository and build the debug APK from the project root.
 
 ```bash
-git clone https://github.com/twelnina/android-todo-app.git
-cd android-todo-app
+git clone https://github.com/twelnina/bunan-todo-app.git
+cd bunan-todo-app
 ./gradlew assembleDebug
 ```
 
