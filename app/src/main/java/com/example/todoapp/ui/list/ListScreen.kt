@@ -53,13 +53,10 @@ import com.example.todoapp.ui.component.dialogs.PlannedDatePickerDialog
 import com.example.todoapp.ui.elapsedDaysSincePlannedDate
 import com.example.todoapp.ui.list.component.TodoItem
 import com.example.todoapp.ui.list.component.TodoListControls
+import com.example.todoapp.ui.rememberMonthDayFormatter
 import com.example.todoapp.ui.theme.TodoAppTheme
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
-
-private val dateFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.ENGLISH)
 
 @Composable
 fun ListScreen(
@@ -250,14 +247,15 @@ private fun TodoDateHeader(
     modifier: Modifier = Modifier
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
+    val monthDayFormatter = rememberMonthDayFormatter()
 
     val title = when {
         date == null -> stringResource(R.string.todo_list_filter_unscheduled)
-        today == null -> date.format(dateFormatter)
+        today == null -> date.format(monthDayFormatter)
         date == today.minusDays(1) -> stringResource(R.string.todo_list_header_yesterday)
         date == today -> stringResource(R.string.todo_list_header_today)
         date == today.plusDays(1) -> stringResource(R.string.todo_list_header_tomorrow)
-        else -> date.format(dateFormatter)
+        else -> date.format(monthDayFormatter)
     }
 
     Box(

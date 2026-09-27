@@ -32,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,12 +45,11 @@ import com.example.todoapp.R
 import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.ui.component.CardItem
 import com.example.todoapp.ui.component.dialogs.PlannedDatePickerDialog
+import com.example.todoapp.ui.rememberYearMonthDayFormatter
 import com.example.todoapp.ui.theme.RobotoFlexExpanded
 import com.example.todoapp.ui.theme.TodoAppTheme
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import kotlin.random.Random
 
 private const val PAST_INCOMPLETE_PREVIEW_LIMIT = 3
@@ -100,6 +98,7 @@ private fun HomeScreenContent(
     val hasItems = uiState.todayItems.isNotEmpty() || uiState.pastIncompleteItems.isNotEmpty()
     val todoForDateChange =
         uiState.pastIncompleteItems.firstOrNull { it.todo.id == dateChangeTodoId }?.todo
+    val yearMonthDayFormatter = rememberYearMonthDayFormatter()
 
     LaunchedEffect(hasItems) {
         if (hasItems && playInitialAnimation) {
@@ -118,17 +117,13 @@ private fun HomeScreenContent(
             )
         ) {
             item(key = "home-header") {
-                val locale = LocalConfiguration.current.locales[0]
-                val formatter = remember(locale) {
-                    DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
-                }
                 val now = LocalDateTime.now()
                 Column(
                     modifier = Modifier.height(200.dp),
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = today.format(formatter),
+                        text = today.format(yearMonthDayFormatter),
                         fontFamily = RobotoFlexExpanded,
                         fontSize = 40.sp,
                         fontWeight = FontWeight(900),

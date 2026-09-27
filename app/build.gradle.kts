@@ -21,6 +21,14 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    androidResources {
+        @Suppress("UnstableApiUsage")
+        generateLocaleConfig = true
+
+        @Suppress("UnstableApiUsage")
+        localeFilters += listOf("en", "ja")
+    }
+
     buildTypes {
         release {
             optimization {

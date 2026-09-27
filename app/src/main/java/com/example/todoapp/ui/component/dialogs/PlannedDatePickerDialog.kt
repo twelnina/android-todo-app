@@ -18,18 +18,16 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.getSelectedDate
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.todoapp.R
+import com.example.todoapp.ui.rememberYearMonthDayFormatter
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 
 @Composable
 internal fun PlannedDatePickerDialog(
@@ -100,11 +98,7 @@ private fun DateChangeSummary(
     newDate: LocalDate?,
     modifier: Modifier = Modifier,
 ) {
-    val locale = LocalConfiguration.current.locales[0]
-
-    val formatter = remember(locale) {
-        DateTimeFormatter.ofPattern("MMM d, yyyy", locale)
-    }
+    val yearMonthDayFormatter = rememberYearMonthDayFormatter()
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -113,7 +107,7 @@ private fun DateChangeSummary(
     ) {
         DateSummaryItem(
             label = stringResource(R.string.planned_date_dialog_label_previous),
-            date = previousDate?.format(formatter)
+            date = previousDate?.format(yearMonthDayFormatter)
                 ?: stringResource(R.string.planned_date_dialog_status_unscheduled),
             modifier = Modifier.weight(1f),
         )
@@ -126,7 +120,7 @@ private fun DateChangeSummary(
 
         DateSummaryItem(
             label = stringResource(R.string.planned_date_dialog_label_new),
-            date = newDate?.format(formatter)
+            date = newDate?.format(yearMonthDayFormatter)
                 ?: stringResource(R.string.planned_date_dialog_status_unscheduled),
             modifier = Modifier.weight(1f),
         )
